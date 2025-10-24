@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import { Heart, Star, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -133,10 +134,11 @@ export function ProductCarousel() {
               <div className="bg-card rounded-xl border hover:shadow-lg transition-all duration-300 group overflow-hidden">
                 {/* Product Image */}
                 <div className="relative aspect-square overflow-hidden">
-                  <img 
+                  <Image 
                     src={product.image} 
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   
                   {/* Badge */}

@@ -13,7 +13,7 @@ import {
   Search,
   Bell,
   Heart,
-  User,
+
   LogIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -2,7 +2,7 @@
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
-import { ChevronLeft, ChevronRight, Plus, Minus, Tag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Tag } from 'lucide-react';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -13,61 +13,61 @@ const bestPriceItems = [
         id: 1,
         name: "Fresh Chicken (1kg)",
         marketName: "City Meat Market",
-        avgPrice: 8.99,
         currentPrice: 7.50,
         image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=300&h=300&fit=crop",
         category: "Meat & Poultry",
-        savings: "17%"
+        priceChange: "down",
+        lastUpdated: "2 hours ago"
     },
     {
         id: 2,
         name: "Organic Tomatoes (500g)",
         marketName: "Green Valley Farm",
-        avgPrice: 4.99,
         currentPrice: 3.99,
         image: "https://images.unsplash.com/photo-1546470427-e5ac89cd0b31?w=300&h=300&fit=crop",
         category: "Vegetables",
-        savings: "20%"
+        priceChange: "down",
+        lastUpdated: "1 hour ago"
     },
     {
         id: 3,
         name: "Fresh Milk (1L)",
         marketName: "Dairy Fresh Co.",
-        avgPrice: 3.50,
         currentPrice: 2.99,
         image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop",
         category: "Dairy",
-        savings: "15%"
+        priceChange: "up",
+        lastUpdated: "3 hours ago"
     },
     {
         id: 4,
         name: "Basmati Rice (2kg)",
         marketName: "Grain House",
-        avgPrice: 12.99,
         currentPrice: 10.50,
         image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=300&fit=crop",
         category: "Grains",
-        savings: "19%"
+        priceChange: "down",
+        lastUpdated: "30 min ago"
     },
     {
         id: 5,
         name: "Fresh Salmon (500g)",
         marketName: "Ocean Fresh Market",
-        avgPrice: 15.99,
         currentPrice: 13.50,
         image: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=300&h=300&fit=crop",
         category: "Seafood",
-        savings: "16%"
+        priceChange: "up",
+        lastUpdated: "4 hours ago"
     },
     {
         id: 6,
         name: "Mixed Vegetables (1kg)",
         marketName: "Farm Direct",
-        avgPrice: 6.50,
         currentPrice: 5.25,
         image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&h=300&fit=crop",
         category: "Vegetables",
-        savings: "19%"
+        priceChange: "down",
+        lastUpdated: "1 hour ago"
     }
 ];
 
@@ -80,9 +80,9 @@ export function BestPriceSection() {
                     <div>
                         <div className="flex items-center space-x-2 mb-2">
                             <Tag className="h-6 w-6 text-destructive" />
-                            <h2 className="text-2xl sm:text-3xl font-bold">Best Price Items</h2>
+                            <h2 className="text-2xl sm:text-3xl font-bold">Market Prices</h2>
                         </div>
-                        <p className="text-muted-foreground">Best grocery deals from local markets</p>
+                        <p className="text-muted-foreground">Real-time prices from local markets</p>
                     </div>
 
                     {/* Navigation Buttons - Desktop */}
@@ -137,10 +137,17 @@ export function BestPriceSection() {
                                             alt={item.name}
                                             className="w-full h-full object-cover"
                                         />
-                                        {/* Savings Badge */}
+                                        {/* Price Trend Badge */}
                                         <div className="absolute top-2 right-2">
-                                            <span className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
-                                                Save {item.savings}
+                                            <span className={`px-2 py-1 text-white text-xs font-bold rounded-full flex items-center space-x-1 ${
+                                                item.priceChange === 'up' ? 'bg-red-500' : 'bg-green-500'
+                                            }`}>
+                                                {item.priceChange === 'up' ? (
+                                                    <TrendingUp className="h-3 w-3" />
+                                                ) : (
+                                                    <TrendingDown className="h-3 w-3" />
+                                                )}
+                                                <span>{item.priceChange === 'up' ? 'Up' : 'Down'}</span>
                                             </span>
                                         </div>
                                         {/* Category Badge */}
@@ -163,12 +170,14 @@ export function BestPriceSection() {
                                             {item.marketName}
                                         </p>
 
-                                        {/* Price Comparison */}
+                                        {/* Current Price */}
+                                        <div className="mb-2">
+                                            <span className="text-lg font-bold text-foreground">${item.currentPrice}</span>
+                                        </div>
+
+                                        {/* Last Updated */}
                                         <div className="mb-3">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-lg font-bold text-green-600">${item.currentPrice}</span>
-                                                <span className="text-sm text-muted-foreground line-through">${item.avgPrice}</span>
-                                            </div>
+                                            <span className="text-xs text-muted-foreground">Updated {item.lastUpdated}</span>
                                         </div>
 
                                         {/* Update Price Button */}

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import { ArrowRight, Beef, Leaf, ShoppingCart } from 'lucide-react';
@@ -135,10 +136,11 @@ export function TripleSlider() {
                     <SwiperSlide key={slide.id}>
                       <div className="relative h-full">
                         {/* Product Image */}
-                        <img
+                        <Image
                           src={slide.image}
                           alt={slide.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
                         />
 
                         {/* Overlay */}
@@ -228,10 +230,11 @@ export function TripleSlider() {
                         <SwiperSlide key={slide.id}>
                           <div className="relative h-full">
                             {/* Product Image */}
-                            <img
+                            <Image
                               src={slide.image}
                               alt={slide.title}
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
 
                             {/* Overlay */}

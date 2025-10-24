@@ -99,7 +99,7 @@ export function SearchSection({ isVisible, onClose }: SearchSectionProps) {
           }`}>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8">
               <Search className="h-4 w-4 mr-2" />
-              Search "{searchQuery}"
+              Search &quot;{searchQuery}&quot;
             </Button>
           </div>
         )}

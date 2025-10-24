@@ -1,6 +1,5 @@
 "use client";
 
-import { ButtonShowcase } from "./_components/button-showcase";
 import { LocationSection } from "./_components/location-section";
 import { SearchSection } from "./_components/search-section";
 import { TripleSlider } from "./_components/triple-slider";
@@ -12,7 +11,6 @@ import { CompareMarketsSection } from "./_components/compare-markets-section";
 import { AppDownloadSection } from "./_components/app-download-section";
 import { NewsletterSection } from "./_components/newsletter-section";
 import { Footer } from "./_components/footer";
-import { ProductCarousel } from "./_components/product-carousel";
 import { useSearch } from "./_components/search-context";
 
 export default function Home() {

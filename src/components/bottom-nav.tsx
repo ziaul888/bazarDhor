@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Store, Grid3X3, Heart, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+
 
 const bottomNavItems = [
   { name: "Home", href: "/", icon: Home },
