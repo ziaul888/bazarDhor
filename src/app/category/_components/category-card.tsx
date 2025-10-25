@@ -1,7 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import { TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, ArrowRight, MapPin, GitCompare } from 'lucide-react';
 
 interface Category {
   id: number;
@@ -43,6 +43,16 @@ export function CategoryCard({ category }: CategoryCardProps) {
               <TrendingDown className="h-3 w-3" />
             )}
           </span>
+        </div>
+
+        {/* Mobile Action Icons */}
+        <div className="absolute top-3 left-3 flex space-x-2 md:hidden">
+          <button className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors">
+            <MapPin className="h-4 w-4 text-gray-700" />
+          </button>
+          <button className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors">
+            <GitCompare className="h-4 w-4 text-gray-700" />
+          </button>
         </div>
 
         {/* Category Icon & Name Overlay */}

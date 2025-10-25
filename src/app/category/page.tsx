@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, Store, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import Link from 'next/link';
@@ -236,7 +236,7 @@ export default function CategoryPage() {
                   <div className="p-6 overflow-y-auto h-full">
                     <CategoryFilters
                       isMobile={true}
-                      onFilterChange={(filters) => {
+                      onFilterChange={(filters: Record<string, unknown> | undefined) => {
                         filterCategories(searchQuery, filters);
                       }}
                     />
@@ -263,7 +263,7 @@ export default function CategoryPage() {
           {/* Filters Sidebar - Desktop Only */}
           <div className="hidden lg:block lg:w-80">
             <CategoryFilters
-              onFilterChange={(filters) => filterCategories(searchQuery, filters)}
+              onFilterChange={(filters: Record<string, unknown> | undefined) => filterCategories(searchQuery, filters)}
             />
           </div>
 
@@ -278,16 +278,27 @@ export default function CategoryPage() {
               <div className="flex items-center space-x-3">
                 {/* Browse Markets Button */}
                 <Button variant="outline" size="sm" asChild>
-                  <Link href="/markets">
-                    Browse Markets
+                  <Link href="/markets" className="flex items-center">
+                    <Store className="h-4 w-4 md:mr-2" />
+                    <span className="hidden md:inline">Browse Markets</span>
                   </Link>
                 </Button>
 
-                {/* Sort Dropdown */}
+                {/* Popular Filter Button - Mobile */}
+                <Button
+                  variant={sortBy === 'popular' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleSort('popular')}
+                  className="md:hidden flex items-center"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                </Button>
+
+                {/* Sort Dropdown - Desktop */}
                 <select
                   value={sortBy}
                   onChange={(e) => handleSort(e.target.value)}
-                  className="text-sm border border-border rounded-md px-3 py-1 bg-background"
+                  className="hidden md:block text-sm border border-border rounded-md px-3 py-1 bg-background"
                 >
                   <option value="popular">Sort by Popular</option>
                   <option value="name">Sort by Name</option>

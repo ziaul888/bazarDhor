@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, MapPin, SlidersHorizontal } from 'lucide-react';
+import { Search, MapPin, SlidersHorizontal, GitCompare, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { MarketCard } from './_components/market-card';
@@ -204,7 +204,7 @@ export default function MarketsPage() {
             // Filter by distance
             if (filters.distance && filters.distance !== '') {
                 const maxDistance = parseFloat(String(filters.distance).replace('km', ''));
-                filtered = filtered.filter(market => 
+                filtered = filtered.filter(market =>
                     parseFloat(market.distance.replace('km', '')) <= maxDistance
                 );
             }
@@ -217,14 +217,14 @@ export default function MarketsPage() {
 
             // Filter by price range
             if (filters.priceRange && Array.isArray(filters.priceRange) && filters.priceRange.length > 0) {
-                filtered = filtered.filter(market => 
+                filtered = filtered.filter(market =>
                     (filters.priceRange as string[]).includes(market.priceRange)
                 );
             }
 
             // Filter by market type
             if (filters.marketType && Array.isArray(filters.marketType) && filters.marketType.length > 0) {
-                filtered = filtered.filter(market => 
+                filtered = filtered.filter(market =>
                     (filters.marketType as string[]).includes(market.type)
                 );
             }
@@ -319,7 +319,7 @@ export default function MarketsPage() {
                                     <div className="p-6 overflow-y-auto h-full">
                                         <MarketFilters
                                             isMobile={true}
-                                            onFilterChange={(filters) => {
+                                            onFilterChange={(filters: Record<string, unknown> | undefined) => {
                                                 filterMarkets(searchQuery, filters);
                                                 // Don't auto-close sidebar, let user apply multiple filters
                                             }}
@@ -356,7 +356,7 @@ export default function MarketsPage() {
                     {/* Filters Sidebar - Desktop Only */}
                     <div className="hidden lg:block lg:w-80">
                         <MarketFilters
-                            onFilterChange={(filters) => filterMarkets(searchQuery, filters)}
+                            onFilterChange={(filters: Record<string, unknown> | undefined) => filterMarkets(searchQuery, filters)}
                         />
                     </div>
 
@@ -372,7 +372,8 @@ export default function MarketsPage() {
                                 {/* Compare Markets Button */}
                                 <Button variant="outline" size="sm" asChild>
                                     <Link href="/markets/compare">
-                                        Compare Markets
+                                        <GitCompare className="h-4 w-4 sm:mr-2" />
+                                        <span className="hidden sm:inline">Compare Markets</span>
                                     </Link>
                                 </Button>
 
