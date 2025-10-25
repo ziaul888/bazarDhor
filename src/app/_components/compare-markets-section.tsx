@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { MapPin, Clock, Star, Users, ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const markets = [
     {
@@ -234,9 +236,11 @@ export function CompareMarketsSection() {
 
                 {/* Compare Button */}
                 <div className="text-center">
-                    <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium text-lg">
-                        Compare
-                    </button>
+                    <Button asChild className="px-8 py-3 text-lg">
+                        <Link href="/markets/compare">
+                            Compare Markets
+                        </Link>
+                    </Button>
                     <p className="text-sm text-muted-foreground mt-2">
                         See detailed comparison of prices, features, and more
                     </p>

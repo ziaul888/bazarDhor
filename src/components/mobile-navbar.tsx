@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSearch } from "@/app/_components/search-context";
+import { useAuth } from "@/components/auth/auth-context";
 import {
   Menu,
   Home,
@@ -32,6 +33,7 @@ export function MobileNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const { toggleSearch } = useSearch();
+  const { openAuthModal } = useAuth();
 
   // Handle scroll effect
   useEffect(() => {
@@ -112,6 +114,7 @@ export function MobileNavbar() {
                 variant="ghost"
                 className="hidden lg:flex h-9 px-3 text-sm font-medium"
                 aria-label="Sign In"
+                onClick={() => openAuthModal('signin')}
               >
                 <LogIn className="h-4 w-4 mr-2" />
                 Sign In
@@ -189,7 +192,10 @@ export function MobileNavbar() {
                       <div className="mb-6">
                         <Button
                           className="w-full justify-start h-11 bg-primary text-primary-foreground hover:bg-primary/90"
-                          onClick={() => setIsOpen(false)}
+                          onClick={() => {
+                            openAuthModal('signin');
+                            setIsOpen(false);
+                          }}
                         >
                           <LogIn className="h-4 w-4 mr-3" />
                           Sign In

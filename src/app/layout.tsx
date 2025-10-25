@@ -4,6 +4,8 @@ import "./globals.css";
 import { MobileNavbar } from "@/components/mobile-navbar";
 import { BottomNav } from "@/components/bottom-nav";
 import { SearchProvider } from "./_components/search-context";
+import { AuthProvider } from "@/components/auth/auth-context";
+import { AuthModal } from "@/components/auth/auth-modal";
 
 // Primary fonts - Modern and friendly
 const poppins = Poppins({
@@ -48,11 +50,14 @@ export default function RootLayout({
         className={`${poppins.variable} ${sourceCodePro.variable} ${playfairDisplay.variable} ${openSans.variable} font-poppins antialiased`}
       >
         <SearchProvider>
-          <MobileNavbar />
-          <main className="min-h-screen pb-20 md:pb-0">
-            {children}
-          </main>
-          <BottomNav />
+          <AuthProvider>
+            <MobileNavbar />
+            <main className="min-h-screen pb-20 md:pb-0">
+              {children}
+            </main>
+            <BottomNav />
+            <AuthModal />
+          </AuthProvider>
         </SearchProvider>
       </body>
     </html>

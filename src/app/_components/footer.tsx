@@ -1,8 +1,10 @@
 "use client";
 
 import { MapPin, Phone, Mail, Facebook, Twitter, Instagram, Youtube, Heart } from 'lucide-react';
+import { useAuth } from '@/components/auth/auth-context';
 
 export function Footer() {
+    const { openAuthModal } = useAuth();
     return (
         <footer className="bg-muted/50 border-t">
             <div className="container mx-auto px-4">
@@ -70,6 +72,22 @@ export function Footer() {
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Help Center</a></li>
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact Us</a></li>
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">FAQ</a></li>
+                                <li>
+                                    <button 
+                                        onClick={() => openAuthModal('signin')}
+                                        className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                                    >
+                                        Sign In
+                                    </button>
+                                </li>
+                                <li>
+                                    <button 
+                                        onClick={() => openAuthModal('signup')}
+                                        className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                                    >
+                                        Create Account
+                                    </button>
+                                </li>
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a></li>
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms of Service</a></li>
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Cookie Policy</a></li>
