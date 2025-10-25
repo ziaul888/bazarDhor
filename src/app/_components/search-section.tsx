@@ -16,34 +16,31 @@ export function SearchSection({ isVisible, onClose }: SearchSectionProps) {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
   const toggleFilter = (filter: string) => {
-    setSelectedFilters(prev => 
-      prev.includes(filter) 
+    setSelectedFilters(prev =>
+      prev.includes(filter)
         ? prev.filter(f => f !== filter)
         : [...prev, filter]
     );
   };
 
   return (
-    <div 
-      className={`bg-card/95 backdrop-blur-sm transition-all duration-500 ease-in-out overflow-hidden ${
-        isVisible 
-          ? 'max-h-[200px] opacity-100 translate-y-0' 
-          : 'max-h-0 opacity-0 -translate-y-4'
-      }`}
+    <div
+      className={`bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 backdrop-blur-sm border-b border-border/50 transition-all duration-500 ease-in-out overflow-hidden ${isVisible
+        ? 'max-h-[200px] opacity-100 translate-y-0'
+        : 'max-h-0 opacity-0 -translate-y-4'
+        }`}
     >
-      <div className={`container mx-auto px-4 py-4 transition-all duration-700 ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-      }`}>
-        {/* Header */}
-        <div className={`flex items-center justify-between mb-4 transition-all duration-500 delay-100 ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+      <div className={`container mx-auto px-4 py-4 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}>
+        {/* Header */}
+        <div className={`flex items-center justify-between mb-4 transition-all duration-500 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+          }`}>
           <div className="flex items-center space-x-2">
             <Search className="h-5 w-5 text-primary" />
-            <h2 className="text-xl font-semibold">Search Local Markets & Groceries</h2>
+            <h2 className="text-lg sm:text-xl font-semibold">Search Local Markets & Groceries</h2>
           </div>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             onClick={onClose}
             className="h-8 w-8"
@@ -53,9 +50,8 @@ export function SearchSection({ isVisible, onClose }: SearchSectionProps) {
         </div>
 
         {/* Search Input */}
-        <div className={`relative transition-all duration-500 delay-200 ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-        }`}>
+        <div className={`relative transition-all duration-500 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+          }`}>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
@@ -63,12 +59,11 @@ export function SearchSection({ isVisible, onClose }: SearchSectionProps) {
               placeholder="Search for vegetables, meat, dairy, grains, or markets..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background transition-all duration-300 ${
-                isVisible ? 'scale-100' : 'scale-95'
-              }`}
+              className={`w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background transition-all duration-300 ${isVisible ? 'scale-100' : 'scale-95'
+                }`}
             />
           </div>
-          
+
           {/* Quick Filters */}
           <div className="flex items-center space-x-2 mt-3">
             <Filter className="h-4 w-4 text-muted-foreground" />
@@ -77,11 +72,10 @@ export function SearchSection({ isVisible, onClose }: SearchSectionProps) {
                 <button
                   key={filter}
                   onClick={() => toggleFilter(filter)}
-                  className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                    selectedFilters.includes(filter)
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-background border-border hover:border-primary/50'
-                  }`}
+                  className={`px-3 py-1 text-sm rounded-full border transition-colors ${selectedFilters.includes(filter)
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-background border-border hover:border-primary/50'
+                    }`}
                 >
                   {filter}
                 </button>
@@ -94,9 +88,8 @@ export function SearchSection({ isVisible, onClose }: SearchSectionProps) {
 
         {/* Search Button */}
         {searchQuery && (
-          <div className={`mt-4 flex justify-center transition-all duration-500 delay-700 ${
-            isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-          }`}>
+          <div className={`mt-4 flex justify-center transition-all duration-500 delay-700 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            }`}>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8">
               <Search className="h-4 w-4 mr-2" />
               Search &quot;{searchQuery}&quot;

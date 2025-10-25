@@ -74,14 +74,14 @@ const bestPriceItems = [
 
 export function BestPriceSection() {
     return (
-        <section className="py-8 bg-gradient-to-b from-background to-muted/20">
+        <section className="py-4 sm:py-8 bg-gradient-to-b from-background to-muted/20">
             <div className="container mx-auto px-4">
                 {/* Section Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <div className="flex items-center space-x-2 mb-2">
                             <Tag className="h-6 w-6 text-destructive" />
-                            <h2 className="text-2xl sm:text-3xl font-bold">Market Prices</h2>
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">Market Prices</h2>
                         </div>
                         <p className="text-muted-foreground">Real-time prices from local markets</p>
                     </div>
@@ -163,7 +163,7 @@ export function BestPriceSection() {
                                     {/* Product Info */}
                                     <div className="p-4">
                                         {/* Item Name */}
-                                        <h3 className="font-semibold text-base mb-1 line-clamp-1">
+                                        <h3 className="text-sm sm:text-base font-semibold mb-1 line-clamp-1">
                                             {item.name}
                                         </h3>
 

@@ -4,7 +4,7 @@ import { Mail, Users, Gift, Bell } from 'lucide-react';
 
 export function NewsletterSection() {
   return (
-    <section className="py-12">
+    <section className="py-6 sm:py-12">
       <div className="container mx-auto px-4">
         {/* Newsletter Banner */}
         <div className="bg-gradient-to-r from-accent via-accent/90 to-accent/80 rounded-xl p-6 sm:p-8">
@@ -12,7 +12,7 @@ export function NewsletterSection() {
             <div className="text-center sm:text-left mb-6 sm:mb-0">
               <div className="flex items-center justify-center sm:justify-start space-x-2 mb-3">
                 <Mail className="h-6 w-6 text-accent-foreground" />
-                <h3 className="text-xl sm:text-2xl font-bold text-accent-foreground">
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-accent-foreground">
                   Join Our Community
                 </h3>
               </div>

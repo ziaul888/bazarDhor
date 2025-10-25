@@ -100,7 +100,7 @@ const sliderData = [
 
 export function TripleSlider() {
   return (
-    <section className="py-4 sm:py-8">
+    <section className="py-3 sm:py-4 md:py-8">
       <div className="container mx-auto px-4">
         {/* Desktop: Grid Layout */}
         <div className="hidden md:grid grid-cols-3 gap-6">

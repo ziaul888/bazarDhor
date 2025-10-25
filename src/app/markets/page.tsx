@@ -278,11 +278,11 @@ export default function MarketsPage() {
         <div className="min-h-screen bg-background">
             {/* Header */}
             <div className="bg-muted/30 border-b">
-                <div className="container mx-auto px-4 py-6">
+                <div className="container mx-auto px-4 py-4 sm:py-6">
                     <div className="flex flex-col space-y-4">
                         {/* Title */}
                         <div>
-                            <h1 className="text-3xl font-bold mb-2">Local Markets</h1>
+                            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Local Markets</h1>
                             <p className="text-muted-foreground">
                                 Discover fresh groceries and local produce near you
                             </p>
@@ -351,7 +351,7 @@ export default function MarketsPage() {
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 py-6">
+            <div className="container mx-auto px-4 py-4 sm:py-6">
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Filters Sidebar - Desktop Only */}
                     <div className="hidden lg:block lg:w-80">
@@ -404,11 +404,11 @@ export default function MarketsPage() {
 
                         {/* No Results */}
                         {filteredMarkets.length === 0 && (
-                            <div className="text-center py-12">
+                            <div className="text-center py-8 sm:py-12">
                                 <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                                     <MapPin className="h-8 w-8 text-muted-foreground" />
                                 </div>
-                                <h3 className="text-lg font-semibold mb-2">No markets found</h3>
+                                <h3 className="text-base sm:text-lg font-semibold mb-2">No markets found</h3>
                                 <p className="text-muted-foreground">
                                     Try adjusting your search or filters to find more markets.
                                 </p>

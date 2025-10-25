@@ -63,7 +63,7 @@ const bannerSlides = [
 
 export function BannerSection() {
     return (
-        <section className="py-12">
+        <section className="py-6 sm:py-12">
             <div className="container mx-auto px-4">
                 {/* Main Promotional Banner Slider */}
                 <div className="mb-8">
@@ -102,14 +102,14 @@ export function BannerSection() {
                                                     {slide.badge.text}
                                                 </div>
 
-                                                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+                                                <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4">
                                                     {slide.title}
-                                                    <span className="block text-2xl sm:text-3xl lg:text-4xl font-normal opacity-90">
+                                                    <span className="block text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-normal opacity-90">
                                                         {slide.subtitle}
                                                     </span>
                                                 </h2>
 
-                                                <p className="text-lg opacity-90 mb-6 max-w-md mx-auto lg:mx-0">
+                                                <p className="text-base sm:text-lg opacity-90 mb-6 max-w-md mx-auto lg:mx-0">
                                                     {slide.description}
                                                 </p>
 
@@ -148,12 +148,12 @@ export function BannerSection() {
                 </div>
 
                 {/* Feature Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="bg-card rounded-xl p-6 border hover:shadow-md transition-shadow">
                         <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4">
                             <MapPin className="h-6 w-6 text-green-600" />
                         </div>
-                        <h3 className="font-semibold mb-2">Nearest Markets</h3>
+                        <h3 className="text-sm sm:text-base font-semibold mb-2">Nearest Markets</h3>
                         <p className="text-sm text-muted-foreground">Find local markets within 5km radius with GPS location</p>
                     </div>
 
@@ -161,7 +161,7 @@ export function BannerSection() {
                         <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
                             <TrendingDown className="h-6 w-6 text-blue-600" />
                         </div>
-                        <h3 className="font-semibold mb-2">Price Comparison</h3>
+                        <h3 className="text-sm sm:text-base font-semibold mb-2">Price Comparison</h3>
                         <p className="text-sm text-muted-foreground">Compare prices across markets and get best deals</p>
                     </div>
 
@@ -169,7 +169,7 @@ export function BannerSection() {
                         <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center mb-4">
                             <Clock className="h-6 w-6 text-orange-600" />
                         </div>
-                        <h3 className="font-semibold mb-2">Real-time Updates</h3>
+                        <h3 className="text-sm sm:text-base font-semibold mb-2">Real-time Updates</h3>
                         <p className="text-sm text-muted-foreground">Live price updates and market availability status</p>
                     </div>
 
@@ -177,10 +177,10 @@ export function BannerSection() {
                         <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
                             <Users className="h-6 w-6 text-purple-600" />
                         </div>
-                        <h3 className="font-semibold mb-2">Community Driven</h3>
+                        <h3 className="text-sm sm:text-base font-semibold mb-2">Community Driven</h3>
                         <p className="text-sm text-muted-foreground">Users can update prices and share market information</p>
                     </div>
-                </div>
+                </div> */}
 
             </div>
 

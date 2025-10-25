@@ -54,7 +54,7 @@ export function LocationSection() {
   const [isLocationOpen, setIsLocationOpen] = useState(false);
 
   return (
-    <section className="py-6 bg-muted/30 sm:border-b">
+    <section className="py-3 sm:py-6 sm:border-b">
       <div className="container mx-auto px-0 sm:px-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 px-4 sm:px-0">
 

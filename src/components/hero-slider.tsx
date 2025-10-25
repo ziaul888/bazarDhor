@@ -92,17 +92,17 @@ export function HeroSlider() {
                     </div>
                     
                     {/* Title */}
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 leading-tight">
                       {slide.title}
                     </h1>
                     
                     {/* Subtitle */}
-                    <p className="text-xl sm:text-2xl mb-4 text-white/90 font-medium">
+                    <p className="text-lg sm:text-xl lg:text-2xl mb-4 text-white/90 font-medium">
                       {slide.subtitle}
                     </p>
                     
                     {/* Description */}
-                    <p className="text-lg mb-8 text-white/80 max-w-xl leading-relaxed">
+                    <p className="text-base sm:text-lg mb-8 text-white/80 max-w-xl leading-relaxed">
                       {slide.description}
                     </p>
                     

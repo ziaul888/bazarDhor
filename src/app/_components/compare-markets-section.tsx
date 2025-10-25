@@ -106,7 +106,7 @@ export function CompareMarketsSection() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 <div className="absolute bottom-4 left-4 text-white">
-                    <h3 className="text-xl font-bold">{market.name}</h3>
+                    <h3 className="text-lg sm:text-xl font-bold">{market.name}</h3>
                     <div className="flex items-center space-x-1 mt-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                         <span className="text-sm">{market.rating} ({market.reviews} reviews)</span>
@@ -159,11 +159,11 @@ export function CompareMarketsSection() {
     );
 
     return (
-        <section className="py-8 bg-muted/30">
+        <section className="py-4 sm:py-8 bg-muted/30">
             <div className="container mx-auto px-4">
                 {/* Section Header */}
                 <div className="text-center mb-8">
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-2">Compare Markets</h2>
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">Compare Markets</h2>
                     <p className="text-muted-foreground">Find the best market for your needs</p>
                 </div>
 

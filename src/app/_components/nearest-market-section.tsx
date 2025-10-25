@@ -84,12 +84,12 @@ const nearestMarkets = [
 
 export function NearestMarketSection() {
     return (
-        <section className="py-8 bg-muted/30">
+        <section className="py-4 sm:py-8 bg-muted/30">
             <div className="container mx-auto px-4">
                 {/* Section Title */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h2 className="text-2xl sm:text-3xl font-bold mb-2">Nearest Markets</h2>
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">Nearest Markets</h2>
                         <p className="text-muted-foreground">Discover local markets around you</p>
                     </div>
 
@@ -174,7 +174,7 @@ export function NearestMarketSection() {
                                     <div className="p-4">
                                         {/* Market Name & Rating */}
                                         <div className="flex items-start justify-between mb-2">
-                                            <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-1">
+                                            <h3 className="text-base sm:text-lg font-semibold group-hover:text-primary transition-colors line-clamp-1">
                                                 {market.name}
                                             </h3>
                                             <div className="flex items-center space-x-1 ml-2">

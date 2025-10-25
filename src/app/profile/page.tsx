@@ -86,7 +86,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-6 sm:py-8">
           <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
             {/* Avatar */}
             <div className="relative">
@@ -106,7 +106,7 @@ export default function ProfilePage() {
             {/* User Info */}
             <div className="flex-1 text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start space-x-2 mb-2">
-                <h1 className="text-2xl md:text-3xl font-bold">{userData.name}</h1>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{userData.name}</h1>
                 <Award className="h-6 w-6 text-yellow-300" />
               </div>
               <p className="text-primary-foreground/80 mb-1">{userData.membershipLevel}</p>
@@ -258,7 +258,7 @@ function OverviewTab({ userData }: { userData: UserData }) {
       {/* Personal Information */}
       <div className="lg:col-span-2 space-y-6">
         <div className="bg-card rounded-xl p-6 border">
-          <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Personal Information</h3>
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <Mail className="h-5 w-5 text-muted-foreground" />
@@ -286,7 +286,7 @@ function OverviewTab({ userData }: { userData: UserData }) {
 
         {/* Recent Activity */}
         <div className="bg-card rounded-xl p-6 border">
-          <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Recent Activity</h3>
           <div className="space-y-3">
             <div className="flex items-center space-x-3 p-3 bg-muted/30 rounded-lg">
               <TrendingUp className="h-5 w-5 text-green-600" />
@@ -317,12 +317,12 @@ function OverviewTab({ userData }: { userData: UserData }) {
       <div className="space-y-6">
         {/* Membership Status */}
         <div className="bg-card rounded-xl p-6 border">
-          <h3 className="text-lg font-semibold mb-4">Membership Status</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Membership Status</h3>
           <div className="text-center">
             <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-3">
               <Award className="h-8 w-8 text-white" />
             </div>
-            <div className="font-semibold text-lg">{userData.membershipLevel}</div>
+            <div className="text-base sm:text-lg font-semibold">{userData.membershipLevel}</div>
             <div className="text-sm text-muted-foreground mb-4">
               {userData.stats.pointsEarned} points earned
             </div>
@@ -335,7 +335,7 @@ function OverviewTab({ userData }: { userData: UserData }) {
 
         {/* Quick Actions */}
         <div className="bg-card rounded-xl p-6 border">
-          <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Quick Actions</h3>
           <div className="space-y-3">
             <Button variant="outline" className="w-full justify-start">
               <Bell className="h-4 w-4 mr-3" />

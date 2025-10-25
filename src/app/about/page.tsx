@@ -89,14 +89,14 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+      <section className="relative py-12 sm:py-20 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6">
               Connecting Communities with
               <span className="block text-primary">Local Markets</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               We&apos;re building a platform that makes it easy to discover fresh produce, 
               compare prices, and support local vendors in your neighborhood.
             </p>
@@ -117,7 +117,7 @@ export default function AboutPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-8 sm:py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -134,11 +134,11 @@ export default function AboutPage() {
       </section>
 
       {/* Our Story Section */}
-      <section className="py-16">
+      <section className="py-8 sm:py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-6">Our Story</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-6">Our Story</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
                   MyMarket was born from a simple frustration: finding fresh, affordable produce 
@@ -174,10 +174,10 @@ export default function AboutPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-8 sm:py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">What We Do</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4">What We Do</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Our platform combines technology with community knowledge to make local market 
               shopping easier, more transparent, and more rewarding for everyone.
@@ -190,7 +190,7 @@ export default function AboutPage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <feature.icon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="font-semibold mb-3">{feature.title}</h3>
+                <h3 className="text-sm sm:text-base font-semibold mb-3">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground">{feature.description}</p>
               </div>
             ))}
@@ -199,10 +199,10 @@ export default function AboutPage() {
       </section>
 
       {/* Values Section */}
-      <section className="py-16">
+      <section className="py-8 sm:py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Our Values</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Our Values</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               These core principles guide everything we do and shape how we build 
               our platform and serve our community.
@@ -216,7 +216,7 @@ export default function AboutPage() {
                   <value.icon className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">{value.title}</h3>
+                  <h3 className="text-sm sm:text-base font-semibold mb-2">{value.title}</h3>
                   <p className="text-muted-foreground">{value.description}</p>
                 </div>
               </div>
@@ -226,10 +226,10 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-8 sm:py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Meet Our Team</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Meet Our Team</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               We&apos;re a passionate team of food enthusiasts, technologists, and community 
               builders working to make local markets more accessible to everyone.
@@ -247,7 +247,7 @@ export default function AboutPage() {
                     className="object-cover rounded-full"
                   />
                 </div>
-                <h3 className="font-semibold mb-1">{member.name}</h3>
+                <h3 className="text-sm sm:text-base font-semibold mb-1">{member.name}</h3>
                 <p className="text-primary text-sm mb-3">{member.role}</p>
                 <p className="text-xs text-muted-foreground">{member.bio}</p>
               </div>
@@ -257,11 +257,11 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16">
+      <section className="py-8 sm:py-16">
         <div className="container mx-auto px-4">
           <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 rounded-2xl p-8 sm:p-12 text-center text-primary-foreground">
-            <h2 className="text-3xl font-bold mb-4">Join Our Community</h2>
-            <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Join Our Community</h2>
+            <p className="text-base sm:text-lg opacity-90 mb-8 max-w-2xl mx-auto">
               Help us build a better way to discover and support local markets. 
               Start exploring fresh produce in your neighborhood today.
             </p>

@@ -27,7 +27,7 @@ export function Navbar() {
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-sm">A</span>
               </div>
-              <span className="font-bold text-xl hidden sm:block">MyApp</span>
+              <span className="text-lg sm:text-xl font-bold hidden sm:block">MyApp</span>
             </Link>
           </div>
 

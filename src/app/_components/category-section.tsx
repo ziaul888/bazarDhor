@@ -94,12 +94,12 @@ const categories = [
 
 export function CategorySection() {
   return (
-    <section className="py-8">
+    <section className="py-4 sm:py-8">
       <div className="container mx-auto px-4">
         {/* Section Title */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold mb-2">Shop by Category</h2>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">Shop by Category</h2>
             <p className="text-muted-foreground">Fresh groceries from local markets</p>
           </div>
 

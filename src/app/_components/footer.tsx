@@ -17,7 +17,7 @@ export function Footer() {
                                 <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                                     <span className="text-primary-foreground font-bold text-sm">M</span>
                                 </div>
-                                <span className="font-bold text-xl">MyMarket</span>
+                                <span className="text-lg sm:text-xl font-bold">MyMarket</span>
                             </div>
                             <p className="text-muted-foreground text-sm leading-relaxed">
                                 Your local market companion. Find fresh groceries, compare prices, and discover 
@@ -41,7 +41,7 @@ export function Footer() {
 
                         {/* Quick Links */}
                         <div className="space-y-4">
-                            <h3 className="font-semibold text-foreground">Quick Links</h3>
+                            <h3 className="text-sm sm:text-base font-semibold text-foreground">Quick Links</h3>
                             <ul className="space-y-2">
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Find Markets</a></li>
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Browse Groceries</a></li>
@@ -54,7 +54,7 @@ export function Footer() {
 
                         {/* For Vendors */}
                         <div className="space-y-4">
-                            <h3 className="font-semibold text-foreground">For Market Owners</h3>
+                            <h3 className="text-sm sm:text-base font-semibold text-foreground">For Market Owners</h3>
                             <ul className="space-y-2">
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">List Your Market</a></li>
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Market Dashboard</a></li>
@@ -67,7 +67,7 @@ export function Footer() {
 
                         {/* Support & Legal */}
                         <div className="space-y-4">
-                            <h3 className="font-semibold text-foreground">Support</h3>
+                            <h3 className="text-sm sm:text-base font-semibold text-foreground">Support</h3>
                             <ul className="space-y-2">
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Help Center</a></li>
                                 <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact Us</a></li>

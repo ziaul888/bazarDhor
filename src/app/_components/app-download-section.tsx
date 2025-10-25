@@ -4,7 +4,7 @@ import { Smartphone, Star, Download, Bell, MapPin, ShoppingCart } from 'lucide-r
 
 export function AppDownloadSection() {
     return (
-        <section className="py-12 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+        <section className="py-6 sm:py-12 bg-gradient-to-br from-primary/5 via-background to-accent/5">
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                     {/* Left Content */}
@@ -17,13 +17,13 @@ export function AppDownloadSection() {
                             </div>
 
                             {/* Heading */}
-                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+                            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4">
                                 Shop Local Markets
                                 <span className="block text-primary">On the Go</span>
                             </h2>
 
                             {/* Description */}
-                            <p className="text-lg text-muted-foreground mb-6">
+                            <p className="text-base sm:text-lg text-muted-foreground mb-6">
                                 Find nearest markets, compare grocery prices, and get fresh produce delivered.
                                 Update market prices and help your community save money.
                             </p>
