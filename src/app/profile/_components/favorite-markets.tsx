@@ -94,7 +94,7 @@ export function FavoriteMarkets() {
         <div>
           <h3 className="text-lg font-semibold">Favorite Markets</h3>
           <p className="text-sm text-muted-foreground">
-            Markets you've saved for quick access and updates
+            Markets you&apos;ve saved for quick access and updates
           </p>
         </div>
         <div className="text-sm text-muted-foreground">

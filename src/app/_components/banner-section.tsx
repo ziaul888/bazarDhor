@@ -2,7 +2,8 @@
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
-import { ArrowRight, MapPin, DollarSign, Beef, Carrot, ShoppingCart, TrendingDown, Users, Clock } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowRight, MapPin, DollarSign, Beef, Carrot, TrendingDown, Users, Clock } from 'lucide-react';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -126,9 +127,11 @@ export function BannerSection() {
                                             {/* Right Image/Illustration */}
                                             <div className="flex-shrink-0 lg:ml-8">
                                                 <div className="relative">
-                                                    <img
+                                                    <Image
                                                         src={slide.image}
                                                         alt={slide.title}
+                                                        width={256}
+                                                        height={256}
                                                         className="w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 rounded-2xl object-cover shadow-2xl"
                                                     />
                                                     <div className="absolute -top-2 -right-2 w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-2xl animate-bounce">

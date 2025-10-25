@@ -220,8 +220,39 @@ export default function ProfilePage() {
   );
 }
 
+// User data type
+interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  avatar: string;
+  location: string;
+  joinDate: string;
+  membershipLevel: string;
+  stats: {
+    marketsVisited: number;
+    priceUpdates: number;
+    reviewsWritten: number;
+    pointsEarned: number;
+  };
+  preferences: {
+    notifications: {
+      priceAlerts: boolean;
+      newMarkets: boolean;
+      weeklyDigest: boolean;
+      promotions: boolean;
+    };
+    privacy: {
+      profileVisible: boolean;
+      showActivity: boolean;
+      shareLocation: boolean;
+    };
+  };
+}
+
 // Overview Tab Component
-function OverviewTab({ userData }: { userData: any }) {
+function OverviewTab({ userData }: { userData: UserData }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Personal Information */}

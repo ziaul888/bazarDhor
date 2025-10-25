@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MapPin, Clock, Star, Users, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -94,13 +95,14 @@ export function CompareMarketsSection() {
     const [dropdown1Open, setDropdown1Open] = useState(false);
     const [dropdown2Open, setDropdown2Open] = useState(false);
 
-    const MarketCard = ({ market, isFirst }: { market: typeof markets[0], isFirst: boolean }) => (
+    const MarketCard = ({ market }: { market: typeof markets[0] }) => (
         <div className="bg-card rounded-xl border overflow-hidden hover:shadow-lg transition-shadow">
             <div className="relative h-48">
-                <img
+                <Image
                     src={market.image}
                     alt={market.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 <div className="absolute bottom-4 left-4 text-white">
@@ -230,8 +232,8 @@ export function CompareMarketsSection() {
 
                 {/* Two Markets Comparison */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <MarketCard market={selectedMarket1} isFirst={true} />
-                    <MarketCard market={selectedMarket2} isFirst={false} />
+                    <MarketCard market={selectedMarket1} />
+                    <MarketCard market={selectedMarket2} />
                 </div>
 
                 {/* Compare Button */}

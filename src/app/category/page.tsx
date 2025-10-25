@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Search, Filter, Grid, List, SlidersHorizontal, TrendingUp, TrendingDown } from 'lucide-react';
+import { Search, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import Link from 'next/link';
@@ -127,10 +127,10 @@ export default function CategoryPage() {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    filterCategories(query, {});
+    filterCategories(query);
   };
 
-  const filterCategories = (query: string, filters: any) => {
+  const filterCategories = (query: string, filters?: Record<string, unknown>) => {
     let filtered = allCategories;
 
     // Search filter
@@ -140,14 +140,40 @@ export default function CategoryPage() {
       );
     }
 
-    // Apply other filters here
+    // Apply filters if provided
+    if (filters) {
+      // Filter by price change
+      if (filters.priceChange && filters.priceChange !== '') {
+        filtered = filtered.filter(category =>
+          category.priceChange === filters.priceChange
+        );
+      }
+
+      // Filter by popular (high product count)
+      if (filters.popular) {
+        filtered = filtered.filter(category => category.productCount >= 50);
+      }
+
+      // Filter by product count
+      if (filters.productCount && filters.productCount !== '') {
+        const minCount = parseInt(String(filters.productCount).replace('+', ''));
+        filtered = filtered.filter(category => category.productCount >= minCount);
+      }
+
+      // Filter by market count
+      if (filters.marketCount && filters.marketCount !== '') {
+        const minMarkets = parseInt(String(filters.marketCount).replace('+', ''));
+        filtered = filtered.filter(category => category.markets >= minMarkets);
+      }
+    }
+
     setFilteredCategories(filtered);
   };
 
   const handleSort = (sortOption: string) => {
     setSortBy(sortOption);
-    let sorted = [...filteredCategories];
-    
+    const sorted = [...filteredCategories];
+
     switch (sortOption) {
       case 'popular':
         // Sort by product count as a proxy for popularity
@@ -161,7 +187,7 @@ export default function CategoryPage() {
         break;
 
     }
-    
+
     setFilteredCategories(sorted);
   };
 
@@ -191,7 +217,7 @@ export default function CategoryPage() {
                   className="w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background"
                 />
               </div>
-              
+
               {/* Filter Toggle - Mobile */}
               <Sheet open={showMobileFilters} onOpenChange={setShowMobileFilters}>
                 <SheetTrigger asChild>
@@ -208,17 +234,17 @@ export default function CategoryPage() {
                     <SheetTitle>Filter Categories</SheetTitle>
                   </SheetHeader>
                   <div className="p-6 overflow-y-auto h-full">
-                    <CategoryFilters 
+                    <CategoryFilters
                       isMobile={true}
                       onFilterChange={(filters) => {
                         filterCategories(searchQuery, filters);
                       }}
                     />
-                    
+
                     {/* Apply Filters Button for Mobile */}
                     <div className="sticky bottom-0 bg-background pt-4 border-t mt-6">
-                      <Button 
-                        className="w-full" 
+                      <Button
+                        className="w-full"
                         onClick={() => setShowMobileFilters(false)}
                       >
                         Apply Filters
@@ -236,7 +262,7 @@ export default function CategoryPage() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Filters Sidebar - Desktop Only */}
           <div className="hidden lg:block lg:w-80">
-            <CategoryFilters 
+            <CategoryFilters
               onFilterChange={(filters) => filterCategories(searchQuery, filters)}
             />
           </div>
@@ -248,7 +274,7 @@ export default function CategoryPage() {
               <span className="text-sm text-muted-foreground">
                 {filteredCategories.length} categories found
               </span>
-              
+
               <div className="flex items-center space-x-3">
                 {/* Browse Markets Button */}
                 <Button variant="outline" size="sm" asChild>
@@ -256,7 +282,7 @@ export default function CategoryPage() {
                     Browse Markets
                   </Link>
                 </Button>
-                
+
                 {/* Sort Dropdown */}
                 <select
                   value={sortBy}
@@ -273,8 +299,8 @@ export default function CategoryPage() {
             {/* Categories Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredCategories.map((category) => (
-                <CategoryCard 
-                  key={category.id} 
+                <CategoryCard
+                  key={category.id}
                   category={category}
                 />
               ))}

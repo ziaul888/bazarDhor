@@ -5,7 +5,16 @@ import { Bell, Shield, MapPin, Mail, Phone, User, Save, Eye, EyeOff } from 'luci
 import { Button } from '@/components/ui/button';
 
 interface ProfileSettingsProps {
-  userData: any;
+  userData: {
+    name: string;
+    email: string;
+    phone: string;
+    location: string;
+    preferences: {
+      notifications: Record<string, boolean>;
+      privacy: Record<string, boolean>;
+    };
+  };
 }
 
 export function ProfileSettings({ userData }: ProfileSettingsProps) {

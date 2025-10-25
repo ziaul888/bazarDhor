@@ -8,7 +8,7 @@ interface AuthContextType {
   openAuthModal: (mode?: 'signin' | 'signup') => void;
   closeAuthModal: () => void;
   isAuthenticated: boolean;
-  user: any | null;
+  user: { id: string; name: string; email: string } | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,8 +16,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const [isAuthenticated] = useState(false);
+  const [user] = useState<{ id: string; name: string; email: string } | null>(null);
 
   const openAuthModal = (mode: 'signin' | 'signup' = 'signin') => {
     setAuthModalMode(mode);

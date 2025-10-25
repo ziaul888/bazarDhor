@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -149,10 +150,11 @@ export function CategorySection() {
                 <div className="group bg-card rounded-lg border overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer">
                   {/* Category Image */}
                   <div className="relative aspect-square overflow-hidden">
-                    <img
+                    <Image
                       src={category.image}
                       alt={category.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
 
                     {/* Overlay */}

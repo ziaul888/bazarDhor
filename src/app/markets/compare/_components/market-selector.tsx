@@ -3,19 +3,35 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { ChevronDown, MapPin, Star, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+
 
 interface Market {
   id: number;
   name: string;
   address: string;
   distance: string;
+  openTime: string;
   rating: number;
   reviews: number;
   vendors: number;
   image: string;
-  type: string;
   isOpen: boolean;
+  specialties: string[];
+  featured: boolean;
+  type: string;
+  priceRange: string;
+  hasParking: boolean;
+  acceptsCards: boolean;
+  hasDelivery: boolean;
+  avgPrices: {
+    vegetables: number;
+    fruits: number;
+    meat: number;
+    dairy: number;
+  };
+  openDays: string[];
+  established: string;
+  marketSize: string;
 }
 
 interface MarketSelectorProps {

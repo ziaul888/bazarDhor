@@ -5,7 +5,7 @@ import { X, MapPin, Clock, Star, DollarSign, Car, CreditCard, Truck } from 'luci
 import { Button } from '@/components/ui/button';
 
 interface MarketFiltersProps {
-  onFilterChange: (filters: any) => void;
+  onFilterChange: (filters: Record<string, unknown>) => void;
   isMobile?: boolean;
 }
 
@@ -15,9 +15,9 @@ export function MarketFilters({ onFilterChange, isMobile = false }: MarketFilter
     featured: false,
     distance: '',
     rating: '',
-    priceRange: [],
-    marketType: [],
-    features: []
+    priceRange: [] as string[],
+    marketType: [] as string[],
+    features: [] as string[]
   });
 
   const marketTypes = [
@@ -38,7 +38,7 @@ export function MarketFilters({ onFilterChange, isMobile = false }: MarketFilter
     { id: 'hasDelivery', label: 'Delivery Available', icon: Truck }
   ];
 
-  const updateFilter = (key: string, value: any) => {
+  const updateFilter = (key: string, value: string | boolean | string[]) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     onFilterChange(newFilters);

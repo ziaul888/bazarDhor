@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Filter, MapPin, Clock, Star, Users, SlidersHorizontal, X } from 'lucide-react';
+import { Search, MapPin, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { MarketCard } from './_components/market-card';
@@ -172,10 +172,10 @@ export default function MarketsPage() {
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
-        filterMarkets(query, {});
+        filterMarkets(query);
     };
 
-    const filterMarkets = (query: string, filters: any) => {
+    const filterMarkets = (query: string, filters?: Record<string, unknown>) => {
         let filtered = allMarkets;
 
         // Search filter
@@ -189,13 +189,72 @@ export default function MarketsPage() {
             );
         }
 
-        // Apply other filters here
+        // Apply filters if provided
+        if (filters) {
+            // Filter by open status
+            if (filters.isOpen) {
+                filtered = filtered.filter(market => market.isOpen);
+            }
+
+            // Filter by featured
+            if (filters.featured) {
+                filtered = filtered.filter(market => market.featured);
+            }
+
+            // Filter by distance
+            if (filters.distance && filters.distance !== '') {
+                const maxDistance = parseFloat(String(filters.distance).replace('km', ''));
+                filtered = filtered.filter(market => 
+                    parseFloat(market.distance.replace('km', '')) <= maxDistance
+                );
+            }
+
+            // Filter by rating
+            if (filters.rating && filters.rating !== '') {
+                const minRating = parseFloat(String(filters.rating));
+                filtered = filtered.filter(market => market.rating >= minRating);
+            }
+
+            // Filter by price range
+            if (filters.priceRange && Array.isArray(filters.priceRange) && filters.priceRange.length > 0) {
+                filtered = filtered.filter(market => 
+                    (filters.priceRange as string[]).includes(market.priceRange)
+                );
+            }
+
+            // Filter by market type
+            if (filters.marketType && Array.isArray(filters.marketType) && filters.marketType.length > 0) {
+                filtered = filtered.filter(market => 
+                    (filters.marketType as string[]).includes(market.type)
+                );
+            }
+
+            // Filter by features
+            if (filters.features && Array.isArray(filters.features) && filters.features.length > 0) {
+                const features = filters.features as string[];
+                filtered = filtered.filter(market => {
+                    return features.every(feature => {
+                        switch (feature) {
+                            case 'hasParking':
+                                return market.hasParking;
+                            case 'acceptsCards':
+                                return market.acceptsCards;
+                            case 'hasDelivery':
+                                return market.hasDelivery;
+                            default:
+                                return true;
+                        }
+                    });
+                });
+            }
+        }
+
         setFilteredMarkets(filtered);
     };
 
     const handleSort = (sortOption: string) => {
         setSortBy(sortOption);
-        let sorted = [...filteredMarkets];
+        const sorted = [...filteredMarkets];
 
         switch (sortOption) {
             case 'distance':
@@ -337,6 +396,7 @@ export default function MarketsPage() {
                                 <MarketCard
                                     key={market.id}
                                     market={market}
+                                    viewMode="grid"
                                 />
                             ))}
                         </div>

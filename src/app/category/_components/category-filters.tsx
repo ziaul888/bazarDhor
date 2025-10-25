@@ -5,7 +5,7 @@ import { X, TrendingUp, TrendingDown, Star, DollarSign, Package, MapPin } from '
 import { Button } from '@/components/ui/button';
 
 interface CategoryFiltersProps {
-  onFilterChange: (filters: any) => void;
+  onFilterChange: (filters: Record<string, unknown>) => void;
   isMobile?: boolean;
 }
 
@@ -39,7 +39,7 @@ export function CategoryFilters({ onFilterChange, isMobile = false }: CategoryFi
     { label: '40+ Markets', value: '40+' }
   ];
 
-  const updateFilter = (key: string, value: any) => {
+  const updateFilter = (key: string, value: string | boolean) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     onFilterChange(newFilters);

@@ -189,7 +189,7 @@ export function ActivityHistory() {
       <div className="bg-card rounded-xl border">
         <div className="p-6">
           <div className="space-y-4">
-            {filteredActivity.map((activity, index) => (
+            {filteredActivity.map((activity) => (
               <div key={activity.id} className="flex items-start space-x-4">
                 {/* Icon */}
                 <div className={`w-10 h-10 ${activity.bgColor} rounded-lg flex items-center justify-center flex-shrink-0`}>

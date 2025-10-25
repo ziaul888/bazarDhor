@@ -176,7 +176,7 @@ export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
     }
   ];
 
-  const renderValue = (value: any, type: string, compareValues?: number[], isFirst?: boolean) => {
+  const renderValue = (value: string | number | boolean, type: string, compareValues?: number[], isFirst?: boolean) => {
     switch (type) {
       case "boolean":
         return value ? (
@@ -304,11 +304,11 @@ export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
               </div>
               
               <div className="p-4 lg:border-r">
-                {renderValue(item.market1Value, item.type, item.compareValues, true)}
+                {renderValue(item.market1Value, item.type, 'compareValues' in item ? item.compareValues : undefined, true)}
               </div>
               
               <div className="p-4">
-                {renderValue(item.market2Value, item.type, item.compareValues, false)}
+                {renderValue(item.market2Value, item.type, 'compareValues' in item ? item.compareValues : undefined, false)}
               </div>
             </div>
           ))}

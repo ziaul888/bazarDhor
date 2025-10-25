@@ -2,6 +2,7 @@
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Tag } from 'lucide-react';
 
 // Import Swiper styles
@@ -132,10 +133,11 @@ export function BestPriceSection() {
                                 <div className="bg-card rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300">
                                     {/* Product Image */}
                                     <div className="relative aspect-[4/3] overflow-hidden">
-                                        <img
+                                        <Image
                                             src={item.image}
                                             alt={item.name}
-                                            className="w-full h-full object-cover"
+                                            fill
+                                            className="object-cover"
                                         />
                                         {/* Price Trend Badge */}
                                         <div className="absolute top-2 right-2">

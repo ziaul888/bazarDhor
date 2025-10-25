@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Search, ArrowLeft, MapPin, Clock, Star, Users, Car, CreditCard, Truck, Check, X } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { MarketSelector } from './_components/market-selector';

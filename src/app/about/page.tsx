@@ -1,7 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import { MapPin, Users, TrendingUp, Heart, Shield, Clock, Award, Target } from 'lucide-react';
+import { MapPin, Users, TrendingUp, Heart, Shield, Award, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -97,7 +97,7 @@ export default function AboutPage() {
               <span className="block text-primary">Local Markets</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              We're building a platform that makes it easy to discover fresh produce, 
+              We&apos;re building a platform that makes it easy to discover fresh produce, 
               compare prices, and support local vendors in your neighborhood.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -142,7 +142,7 @@ export default function AboutPage() {
               <div className="space-y-4 text-muted-foreground">
                 <p>
                   MyMarket was born from a simple frustration: finding fresh, affordable produce 
-                  in local markets shouldn't be a guessing game. As frequent market-goers ourselves, 
+                  in local markets shouldn&apos;t be a guessing game. As frequent market-goers ourselves, 
                   we noticed how prices varied between vendors and how difficult it was to know 
                   what was available before making the trip.
                 </p>
@@ -154,7 +154,7 @@ export default function AboutPage() {
                 </p>
                 <p>
                   Today, MyMarket helps thousands of families discover fresh produce, support local 
-                  vendors, and make informed shopping decisions. We're proud to be part of the 
+                  vendors, and make informed shopping decisions. We&apos;re proud to be part of the 
                   movement that strengthens local food systems and builds stronger communities.
                 </p>
               </div>
@@ -231,7 +231,7 @@ export default function AboutPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Meet Our Team</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              We're a passionate team of food enthusiasts, technologists, and community 
+              We&apos;re a passionate team of food enthusiasts, technologists, and community 
               builders working to make local markets more accessible to everyone.
             </p>
           </div>
