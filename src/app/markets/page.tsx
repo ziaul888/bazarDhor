@@ -397,7 +397,6 @@ export default function MarketsPage() {
                                 <MarketCard
                                     key={market.id}
                                     market={market}
-                                    viewMode="grid"
                                 />
                             ))}
                         </div>
