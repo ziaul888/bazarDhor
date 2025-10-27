@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSearch } from "@/app/_components/search-context";
 import { useAuth } from "@/components/auth/auth-context";
+import { useAddItem } from "@/components/add-item-context";
 import {
   Menu,
   Home,
@@ -14,7 +15,7 @@ import {
   Search,
   Bell,
   Heart,
-
+  Plus,
   LogIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ export function MobileNavbar() {
   const pathname = usePathname();
   const { toggleSearch } = useSearch();
   const { openAuthModal } = useAuth();
+  const { openAddModal } = useAddItem();
 
   // Handle scroll effect
   useEffect(() => {
@@ -185,6 +187,21 @@ export function MobileNavbar() {
                         >
                           <Search className="h-4 w-4 mr-3" />
                           Search Products
+                        </Button>
+                      </div>
+
+                      {/* Add Item on mobile */}
+                      <div className="mb-6">
+                        <Button
+                          variant="default"
+                          className="w-full justify-start h-11 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg"
+                          onClick={() => {
+                            openAddModal();
+                            setIsOpen(false);
+                          }}
+                        >
+                          <Plus className="h-4 w-4 mr-3" />
+                          Add New Item
                         </Button>
                       </div>
 

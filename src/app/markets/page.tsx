@@ -8,11 +8,14 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { MarketCard } from './_components/market-card';
 import { Pagination, usePagination } from '@/components/ui/pagination';
 import { MarketFilters } from './_components/market-filters';
+import type { Market } from '@/lib/api/types';
 
-const allMarkets = [
+const allMarkets: Market[] = [
     {
-        id: 1,
+        id: "1",
         name: "Downtown Farmers Market",
+        description: "Fresh local produce and organic foods from local farmers",
+        location: "Downtown",
         address: "123 Main Street, Downtown",
         distance: "0.5 km",
         openTime: "8:00 AM - 6:00 PM",
@@ -21,6 +24,10 @@ const allMarkets = [
         vendors: 32,
         image: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop",
         isOpen: true,
+        isVerified: true,
+        contributors: 15,
+        lastUpdated: "2024-01-15",
+        categories: ["Fresh Produce", "Organic Food"],
         specialties: ["Fresh Produce", "Organic Food"],
         featured: true,
         type: "Farmers Market",
@@ -30,8 +37,10 @@ const allMarkets = [
         hasDelivery: false
     },
     {
-        id: 2,
+        id: "2",
         name: "Riverside Organic Market",
+        description: "Certified organic produce and sustainable farming products",
+        location: "Riverside",
         address: "456 River Road, Riverside",
         distance: "1.2 km",
         openTime: "9:00 AM - 5:00 PM",
@@ -40,6 +49,10 @@ const allMarkets = [
         vendors: 28,
         image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
         isOpen: true,
+        isVerified: true,
+        contributors: 12,
+        lastUpdated: "2024-01-14",
+        categories: ["Organic Food", "Local Produce"],
         specialties: ["Organic Food", "Local Produce"],
         featured: false,
         type: "Organic Market",
@@ -49,8 +62,10 @@ const allMarkets = [
         hasDelivery: true
     },
     {
-        id: 3,
+        id: "3",
         name: "Central Plaza Market",
+        description: "Full-service grocery market with fresh meat and produce",
+        location: "Central",
         address: "789 Plaza Avenue, Central",
         distance: "2.1 km",
         openTime: "7:00 AM - 7:00 PM",
@@ -59,6 +74,10 @@ const allMarkets = [
         vendors: 45,
         image: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400&h=300&fit=crop",
         isOpen: false,
+        isVerified: false,
+        contributors: 8,
+        lastUpdated: "2024-01-13",
+        categories: ["Groceries", "Meat & Poultry"],
         specialties: ["Groceries", "Meat & Poultry"],
         featured: false,
         type: "Grocery Market",
@@ -68,8 +87,10 @@ const allMarkets = [
         hasDelivery: false
     },
     {
-        id: 4,
+        id: "4",
         name: "Sunset Weekend Market",
+        description: "Weekend artisan market with street food and handmade goods",
+        location: "West",
         address: "321 Sunset Boulevard, West",
         distance: "3.5 km",
         openTime: "10:00 AM - 4:00 PM",
@@ -78,6 +99,10 @@ const allMarkets = [
         vendors: 38,
         image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
         isOpen: true,
+        isVerified: true,
+        contributors: 22,
+        lastUpdated: "2024-01-12",
+        categories: ["Street Food", "Artisan Goods"],
         specialties: ["Street Food", "Artisan Goods"],
         featured: true,
         type: "Weekend Market",
@@ -87,8 +112,10 @@ const allMarkets = [
         hasDelivery: false
     },
     {
-        id: 5,
+        id: "5",
         name: "Heritage Square Market",
+        description: "Historic market square with traditional vendors and local crafts",
+        location: "Old Town",
         address: "654 Heritage Lane, Old Town",
         distance: "4.2 km",
         openTime: "8:30 AM - 5:30 PM",
@@ -97,6 +124,10 @@ const allMarkets = [
         vendors: 25,
         image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop",
         isOpen: true,
+        isVerified: false,
+        contributors: 7,
+        lastUpdated: "2024-01-11",
+        categories: ["Antiques", "Local Crafts"],
         specialties: ["Antiques", "Local Crafts"],
         featured: false,
         type: "Artisan Market",
@@ -106,8 +137,10 @@ const allMarkets = [
         hasDelivery: false
     },
     {
-        id: 6,
+        id: "6",
         name: "Fresh Valley Market",
+        description: "Large farmers market with fresh produce and dairy products",
+        location: "North",
         address: "987 Valley Road, North",
         distance: "5.8 km",
         openTime: "6:00 AM - 8:00 PM",
@@ -116,6 +149,10 @@ const allMarkets = [
         vendors: 52,
         image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop",
         isOpen: true,
+        isVerified: true,
+        contributors: 18,
+        lastUpdated: "2024-01-10",
+        categories: ["Fresh Produce", "Dairy Products"],
         specialties: ["Fresh Produce", "Dairy Products"],
         featured: false,
         type: "Farmers Market",
@@ -125,8 +162,10 @@ const allMarkets = [
         hasDelivery: true
     },
     {
-        id: 7,
+        id: "7",
         name: "Metro Meat Market",
+        description: "Specialty meat market with fresh cuts and seafood",
+        location: "City Center",
         address: "147 Metro Street, City Center",
         distance: "1.8 km",
         openTime: "7:00 AM - 6:00 PM",
@@ -135,6 +174,10 @@ const allMarkets = [
         vendors: 15,
         image: "https://images.unsplash.com/photo-1588347818481-c7c1b6b8b4b4?w=400&h=300&fit=crop",
         isOpen: true,
+        isVerified: false,
+        contributors: 5,
+        lastUpdated: "2024-01-09",
+        categories: ["Meat & Poultry", "Seafood"],
         specialties: ["Meat & Poultry", "Seafood"],
         featured: false,
         type: "Specialty Market",
@@ -144,8 +187,10 @@ const allMarkets = [
         hasDelivery: true
     },
     {
-        id: 8,
+        id: "8",
         name: "Seaside Fish Market",
+        description: "Fresh daily catch and seafood market by the coast",
+        location: "Seaside",
         address: "258 Coastal Drive, Seaside",
         distance: "6.2 km",
         openTime: "5:00 AM - 3:00 PM",
@@ -154,6 +199,10 @@ const allMarkets = [
         vendors: 8,
         image: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=400&h=300&fit=crop",
         isOpen: true,
+        isVerified: true,
+        contributors: 3,
+        lastUpdated: "2024-01-08",
+        categories: ["Fresh Seafood", "Daily Catch"],
         specialties: ["Fresh Seafood", "Daily Catch"],
         featured: false,
         type: "Seafood Market",

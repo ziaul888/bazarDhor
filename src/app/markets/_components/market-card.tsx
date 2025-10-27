@@ -4,26 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin, Clock, Star, Users, CreditCard, Car, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-interface Market {
-    id: number;
-    name: string;
-    address: string;
-    distance: string;
-    openTime: string;
-    rating: number;
-    reviews: number;
-    vendors: number;
-    image: string;
-    isOpen: boolean;
-    specialties: string[];
-    featured: boolean;
-    type: string;
-    priceRange: string;
-    hasParking: boolean;
-    acceptsCards: boolean;
-    hasDelivery: boolean;
-}
+import type { Market } from '@/lib/api/types';
 
 interface MarketCardProps {
     market: Market;

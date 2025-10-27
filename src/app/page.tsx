@@ -10,11 +10,14 @@ import { BestPriceSection } from "./_components/best-price-section";
 import { CompareMarketsSection } from "./_components/compare-markets-section";
 import { AppDownloadSection } from "./_components/app-download-section";
 import { NewsletterSection } from "./_components/newsletter-section";
+import { FloatingAddButton } from "@/components/floating-add-button";
+import { useAddItem } from "@/components/add-item-context";
 
 import { useSearch } from "./_components/search-context";
 
 export default function Home() {
   const { isSearchVisible, hideSearch } = useSearch();
+  const { openAddModal } = useAddItem();
 
   return (
     <div>
@@ -50,6 +53,9 @@ export default function Home() {
 
       {/* Newsletter Section */}
       <NewsletterSection />
+
+      {/* Floating Add Button */}
+      <FloatingAddButton onClick={openAddModal} />
     </div>
   );
 }

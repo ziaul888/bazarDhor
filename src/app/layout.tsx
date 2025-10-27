@@ -7,6 +7,9 @@ import { SearchProvider } from "./_components/search-context";
 import { AuthProvider } from "@/components/auth/auth-context";
 import { AuthModal } from "@/components/auth/auth-modal";
 import { Footer } from "./_components/footer";
+import { QueryProvider } from "@/providers/query-provider";
+import { AddItemProvider } from "@/components/add-item-context";
+import { AddItemModal } from "@/components/add-item-modal";
 
 // Primary fonts - Modern and friendly
 const poppins = Poppins({
@@ -50,17 +53,22 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${sourceCodePro.variable} ${playfairDisplay.variable} ${openSans.variable} font-poppins antialiased`}
       >
-        <SearchProvider>
-          <AuthProvider>
-            <MobileNavbar />
-            <main className="min-h-screen pb-20 md:pb-0">
-              {children}
-            </main>
-            <Footer />
-            <BottomNav />
-            <AuthModal />
-          </AuthProvider>
-        </SearchProvider>
+        <QueryProvider>
+          <SearchProvider>
+            <AuthProvider>
+              <AddItemProvider>
+                <MobileNavbar />
+                <main className="min-h-screen pb-20 md:pb-0">
+                  {children}
+                </main>
+                <Footer />
+                <BottomNav />
+                <AuthModal />
+                <AddItemModal />
+              </AddItemProvider>
+            </AuthProvider>
+          </SearchProvider>
+        </QueryProvider>
       </body>
     </html>
   );
