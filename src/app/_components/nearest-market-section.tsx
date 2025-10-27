@@ -1,6 +1,7 @@
 "use client";
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import { ChevronLeft, ChevronRight, MapPin, Clock, Star, Users } from 'lucide-react';
@@ -133,7 +134,8 @@ export function NearestMarketSection() {
                     >
                         {nearestMarkets.map((market) => (
                             <SwiperSlide key={market.id}>
-                                <div className="group bg-card rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
+                                <Link href={`/markets/${market.id}`}>
+                                    <div className="group bg-card rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
                                     {/* Market Image */}
                                     <div className="relative h-48 overflow-hidden">
                                         {/* <Image
@@ -215,6 +217,7 @@ export function NearestMarketSection() {
                                         </div>
                                     </div>
                                 </div>
+                                </Link>
                             </SwiperSlide>
                         ))}
                     </Swiper>

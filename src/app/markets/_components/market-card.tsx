@@ -1,6 +1,7 @@
 "use client";
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { MapPin, Clock, Star, Users, CreditCard, Car, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -30,7 +31,8 @@ interface MarketCardProps {
 
 export function MarketCard({ market }: MarketCardProps) {
     return (
-        <div className="bg-card rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
+        <Link href={`/markets/${market.id}`}>
+            <div className="bg-card rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
             {/* Market Image */}
             <div className="relative h-48 overflow-hidden">
                 <Image
@@ -145,5 +147,6 @@ export function MarketCard({ market }: MarketCardProps) {
                 </Button>
             </div>
         </div>
+        </Link>
     );
 }

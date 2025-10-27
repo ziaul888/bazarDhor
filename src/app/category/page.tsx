@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import Link from 'next/link';
 import { CategoryCard } from './_components/category-card';
+import { Pagination, usePagination } from '@/components/ui/pagination';
 import { CategoryFilters } from './_components/category-filters';
 
 const allCategories = [
@@ -122,8 +123,14 @@ const allCategories = [
 export default function CategoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredCategories, setFilteredCategories] = useState(allCategories);
+  const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [sortBy, setSortBy] = useState('popular');
+
+  // Pagination logic
+  const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredCategories, 8);
+  const paginatedCategories = getPaginatedItems(currentPage);
+  const paginationInfo = getPaginationInfo(currentPage);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -168,6 +175,7 @@ export default function CategoryPage() {
     }
 
     setFilteredCategories(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
   };
 
   const handleSort = (sortOption: string) => {
@@ -189,6 +197,7 @@ export default function CategoryPage() {
     }
 
     setFilteredCategories(sorted);
+    setCurrentPage(1); // Reset to first page when sorting
   };
 
   return (
@@ -272,7 +281,7 @@ export default function CategoryPage() {
             {/* Controls Bar */}
             <div className="flex items-center justify-between mb-6">
               <span className="text-sm text-muted-foreground">
-                {filteredCategories.length} categories found
+                Showing {paginationInfo.startIndex}-{paginationInfo.endIndex} of {paginationInfo.totalItems} categories
               </span>
 
               <div className="flex items-center space-x-3">
@@ -309,13 +318,24 @@ export default function CategoryPage() {
 
             {/* Categories Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredCategories.map((category) => (
+              {paginatedCategories.map((category) => (
                 <CategoryCard
                   key={category.id}
                   category={category}
                 />
               ))}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-8">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
 
             {/* No Results */}
             {filteredCategories.length === 0 && (

@@ -63,10 +63,10 @@ const bannerSlides = [
 
 export function BannerSection() {
     return (
-        <section className="py-6 sm:py-12">
-            <div className="container mx-auto px-4">
+        <section className="py-4 sm:py-8 lg:py-12">
+            <div className="container mx-auto px-3 sm:px-4 lg:px-6">
                 {/* Main Promotional Banner Slider */}
-                <div className="mb-8">
+                <div className="mb-6 sm:mb-8">
                     <Swiper
                         modules={[Pagination, Autoplay]}
                         spaceBetween={0}
@@ -81,7 +81,7 @@ export function BannerSection() {
                             disableOnInteraction: false,
                         }}
                         loop={true}
-                        className="banner-slider rounded-2xl overflow-hidden"
+                        className="banner-slider rounded-xl sm:rounded-2xl overflow-hidden"
                     >
                         {bannerSlides.map((slide) => (
                             <SwiperSlide key={slide.id}>
@@ -93,48 +93,48 @@ export function BannerSection() {
                                         }} />
                                     </div>
 
-                                    <div className="relative px-6 py-8 sm:px-8 sm:py-12 lg:px-12">
-                                        <div className="flex flex-col lg:flex-row items-center justify-between">
+                                    <div className="relative px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10 xl:px-12 xl:py-12">
+                                        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8">
                                             {/* Left Content */}
-                                            <div className="flex-1 text-center lg:text-left mb-6 lg:mb-0">
-                                                <div className="inline-flex items-center px-3 py-1 bg-white/20 rounded-full text-sm font-medium mb-4">
-                                                    <slide.badge.icon className="h-4 w-4 mr-2" />
-                                                    {slide.badge.text}
+                                            <div className="flex-1 text-center lg:text-left w-full lg:w-auto">
+                                                <div className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 bg-white/20 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+                                                    <slide.badge.icon className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+                                                    <span className="truncate">{slide.badge.text}</span>
                                                 </div>
 
-                                                <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4">
-                                                    {slide.title}
-                                                    <span className="block text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-normal opacity-90">
+                                                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 sm:mb-4 leading-tight">
+                                                    <span className="block">{slide.title}</span>
+                                                    <span className="block text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-normal opacity-90 mt-1">
                                                         {slide.subtitle}
                                                     </span>
                                                 </h2>
 
-                                                <p className="text-base sm:text-lg opacity-90 mb-6 max-w-md mx-auto lg:mx-0">
+                                                <p className="text-sm sm:text-base lg:text-lg opacity-90 mb-4 sm:mb-6 max-w-sm sm:max-w-md lg:max-w-lg mx-auto lg:mx-0 leading-relaxed">
                                                     {slide.description}
                                                 </p>
 
-                                                <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                                                    <button className="px-6 py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-white/90 transition-colors flex items-center justify-center">
-                                                        {slide.primaryBtn}
-                                                        <ArrowRight className="h-4 w-4 ml-2" />
+                                                <div className="flex flex-col xs:flex-row sm:flex-row gap-2 sm:gap-3 justify-center lg:justify-start">
+                                                    <button className="px-4 py-2.5 sm:px-6 sm:py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-white/90 transition-colors flex items-center justify-center text-sm sm:text-base">
+                                                        <span className="truncate">{slide.primaryBtn}</span>
+                                                        <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1.5 sm:ml-2 flex-shrink-0" />
                                                     </button>
-                                                    <button className="px-6 py-3 border-2 border-white/30 text-white rounded-lg font-semibold hover:bg-white/10 transition-colors">
-                                                        {slide.secondaryBtn}
+                                                    <button className="px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-white/30 text-white rounded-lg font-semibold hover:bg-white/10 transition-colors text-sm sm:text-base">
+                                                        <span className="truncate">{slide.secondaryBtn}</span>
                                                     </button>
                                                 </div>
                                             </div>
 
                                             {/* Right Image/Illustration */}
-                                            <div className="flex-shrink-0 lg:ml-8">
+                                            <div className="flex-shrink-0 order-first lg:order-last">
                                                 <div className="relative">
                                                     <Image
                                                         src={slide.image}
                                                         alt={slide.title}
                                                         width={256}
                                                         height={256}
-                                                        className="w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 rounded-2xl object-cover shadow-2xl"
+                                                        className="w-32 h-32 xs:w-40 xs:h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 rounded-xl sm:rounded-2xl object-cover shadow-xl lg:shadow-2xl"
                                                     />
-                                                    <div className="absolute -top-2 -right-2 w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-2xl animate-bounce">
+                                                    <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-yellow-400 rounded-full flex items-center justify-center text-lg sm:text-xl lg:text-2xl animate-bounce">
                                                         {slide.emoji}
                                                     </div>
                                                 </div>
@@ -187,13 +187,21 @@ export function BannerSection() {
             {/* Custom Pagination Styles */}
             <style jsx global>{`
         .banner-pagination-bullet {
-          width: 8px;
-          height: 8px;
+          width: 6px;
+          height: 6px;
           background: rgba(255, 255, 255, 0.4);
           border-radius: 50%;
-          margin: 0 4px;
+          margin: 0 3px;
           cursor: pointer;
           transition: all 0.3s ease;
+        }
+        
+        @media (min-width: 640px) {
+          .banner-pagination-bullet {
+            width: 8px;
+            height: 8px;
+            margin: 0 4px;
+          }
         }
         
         .banner-pagination-bullet-active {
@@ -202,7 +210,20 @@ export function BannerSection() {
         }
         
         .banner-slider .swiper-pagination {
-          bottom: 20px !important;
+          bottom: 12px !important;
+        }
+        
+        @media (min-width: 640px) {
+          .banner-slider .swiper-pagination {
+            bottom: 20px !important;
+          }
+        }
+        
+        /* Custom breakpoint for extra small screens */
+        @media (min-width: 475px) {
+          .xs\\:w-40 { width: 10rem; }
+          .xs\\:h-40 { height: 10rem; }
+          .xs\\:flex-row { flex-direction: row; }
         }
       `}</style>
         </section>

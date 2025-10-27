@@ -10,7 +10,7 @@ import { BestPriceSection } from "./_components/best-price-section";
 import { CompareMarketsSection } from "./_components/compare-markets-section";
 import { AppDownloadSection } from "./_components/app-download-section";
 import { NewsletterSection } from "./_components/newsletter-section";
-import { Footer } from "./_components/footer";
+
 import { useSearch } from "./_components/search-context";
 
 export default function Home() {
@@ -50,9 +50,6 @@ export default function Home() {
 
       {/* Newsletter Section */}
       <NewsletterSection />
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }

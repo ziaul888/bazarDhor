@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/bottom-nav";
 import { SearchProvider } from "./_components/search-context";
 import { AuthProvider } from "@/components/auth/auth-context";
 import { AuthModal } from "@/components/auth/auth-modal";
+import { Footer } from "./_components/footer";
 
 // Primary fonts - Modern and friendly
 const poppins = Poppins({
@@ -55,6 +56,7 @@ export default function RootLayout({
             <main className="min-h-screen pb-20 md:pb-0">
               {children}
             </main>
+            <Footer />
             <BottomNav />
             <AuthModal />
           </AuthProvider>

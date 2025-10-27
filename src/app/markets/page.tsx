@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, MapPin, SlidersHorizontal, GitCompare, Navigation } from 'lucide-react';
+import { Search, MapPin, SlidersHorizontal, GitCompare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { MarketCard } from './_components/market-card';
+import { Pagination, usePagination } from '@/components/ui/pagination';
 import { MarketFilters } from './_components/market-filters';
 
 const allMarkets = [
@@ -166,9 +167,14 @@ const allMarkets = [
 export default function MarketsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredMarkets, setFilteredMarkets] = useState(allMarkets);
-
+    const [currentPage, setCurrentPage] = useState(1);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
     const [sortBy, setSortBy] = useState('distance');
+
+    // Pagination logic
+    const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredMarkets, 6);
+    const paginatedMarkets = getPaginatedItems(currentPage);
+    const paginationInfo = getPaginationInfo(currentPage);
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -250,6 +256,7 @@ export default function MarketsPage() {
         }
 
         setFilteredMarkets(filtered);
+        setCurrentPage(1); // Reset to first page when filters change
     };
 
     const handleSort = (sortOption: string) => {
@@ -272,6 +279,7 @@ export default function MarketsPage() {
         }
 
         setFilteredMarkets(sorted);
+        setCurrentPage(1); // Reset to first page when sorting
     };
 
     return (
@@ -365,7 +373,7 @@ export default function MarketsPage() {
                         {/* Controls Bar */}
                         <div className="flex items-center justify-between mb-6">
                             <span className="text-sm text-muted-foreground">
-                                {filteredMarkets.length} markets found
+                                Showing {paginationInfo.startIndex}-{paginationInfo.endIndex} of {paginationInfo.totalItems} markets
                             </span>
 
                             <div className="flex items-center space-x-3">
@@ -393,13 +401,24 @@ export default function MarketsPage() {
 
                         {/* Markets Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {filteredMarkets.map((market) => (
+                            {paginatedMarkets.map((market) => (
                                 <MarketCard
                                     key={market.id}
                                     market={market}
                                 />
                             ))}
                         </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="mt-8">
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={setCurrentPage}
+                                />
+                            </div>
+                        )}
 
                         {/* No Results */}
                         {filteredMarkets.length === 0 && (

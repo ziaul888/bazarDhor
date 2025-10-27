@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
-import { ArrowRight, Beef, Leaf, ShoppingCart } from 'lucide-react';
+import { ArrowRight, Beef, Leaf, ShoppingCart, Star, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Import Swiper styles
@@ -98,181 +98,144 @@ const sliderData = [
   }
 ];
 
+const adsData = [
+  {
+    id: 1,
+    title: "Premium Market Partnership",
+    subtitle: "Get 20% off your first order",
+    description: "Join our premium partner markets and enjoy exclusive discounts on fresh produce.",
+    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=200&fit=crop",
+    badge: "Limited Time",
+    ctaText: "Claim Offer",
+    highlight: "20% OFF"
+  },
+  {
+    id: 2,
+    title: "Fresh Delivery Service",
+    subtitle: "Same-day delivery available",
+    description: "Order before 2 PM and get your groceries delivered the same day.",
+    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=200&fit=crop",
+    badge: "Fast Delivery",
+    ctaText: "Order Now",
+    highlight: "Same Day"
+  },
+  {
+    id: 3,
+    title: "Local Farmers Market",
+    subtitle: "Support local producers",
+    description: "Discover fresh, locally sourced products from farmers in your area.",
+    image: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=200&fit=crop",
+    badge: "Local",
+    ctaText: "Explore",
+    highlight: "Farm Fresh"
+  }
+];
+
 export function TripleSlider() {
   return (
-    <section className="py-3 sm:py-4 md:py-8">
+    <section className="pb-3 sm:pb-4 md:pb-8">
       <div className="container mx-auto px-4">
         {/* Desktop: Grid Layout */}
-        <div className="hidden md:grid grid-cols-3 gap-6">
-          {sliderData.map((category) => (
-            <div key={category.id} className="bg-card rounded-xl border overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              {/* Category Header */}
-              <div className="p-4 border-b bg-muted/30">
-                <div className="flex items-center space-x-2">
-                  <category.icon className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-lg">{category.title}</h3>
+
+
+
+
+        {/* Ads Section */}
+        <div className="mt-4 md:mt-4">
+          <div className="flex items-center justify-between mb-6">
+          
+           
+          </div>
+
+          {/* Desktop: Grid Layout for Ads */}
+          <div className="hidden md:grid grid-cols-3 gap-6">
+            {adsData.map((ad) => (
+              <div key={ad.id} className="group bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-primary/40">
+                <div className="relative h-32 overflow-hidden">
+                  <Image
+                    src={ad.image}
+                    alt={ad.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+
+                  {/* Highlight Badge */}
+                  <div className="absolute top-3 right-3">
+                    <span className="inline-flex items-center px-2 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full">
+                      <Star className="h-3 w-3 mr-1" />
+                      {ad.highlight}
+                    </span>
+                  </div>
+
+                  {/* Status Badge */}
+                  <div className="absolute top-3 left-3">
+                    <span className="inline-flex items-center px-2 py-1 bg-green-500/90 text-white text-xs font-medium rounded-full">
+                      <Clock className="h-3 w-3 mr-1" />
+                      {ad.badge}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg mb-1 text-foreground">{ad.title}</h3>
+                  <p className="text-primary font-medium text-sm mb-2">{ad.subtitle}</p>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{ad.description}</p>
+
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                    {ad.ctaText}
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
                 </div>
               </div>
+            ))}
+          </div>
 
-              {/* Slider */}
-              <div className="relative">
-                <Swiper
-                  modules={[Pagination, Autoplay]}
-                  spaceBetween={0}
-                  slidesPerView={1}
-                  pagination={{
-                    clickable: true,
-                    bulletClass: `${category.id}-pagination-bullet`,
-                    bulletActiveClass: `${category.id}-pagination-bullet-active`,
-                  }}
-                  autoplay={{
-                    delay: 3000 + (sliderData.indexOf(category) * 1000), // Stagger autoplay
-                    disableOnInteraction: false,
-                  }}
-                  loop={true}
-                  className="h-64"
-                >
-                  {category.slides.map((slide) => (
-                    <SwiperSlide key={slide.id}>
-                      <div className="relative h-full">
-                        {/* Product Image */}
-                        <Image
-                          src={slide.image}
-                          alt={slide.title}
-                          fill
-                          className="object-cover"
-                        />
+          {/* Mobile: Horizontal Scroll for Ads */}
+          <div className="md:hidden">
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+              {adsData.map((ad) => (
+                <div key={ad.id} className="flex-shrink-0 w-80 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 overflow-hidden">
+                  <div className="relative h-32 overflow-hidden">
+                    <Image
+                      src={ad.image}
+                      alt={ad.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
-                        {/* Overlay */}
-                        <div className="absolute inset-0 bg-black/30" />
+                    {/* Highlight Badge */}
+                    <div className="absolute top-3 right-3">
+                      <span className="inline-flex items-center px-2 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full">
+                        <Star className="h-3 w-3 mr-1" />
+                        {ad.highlight}
+                      </span>
+                    </div>
 
-                        {/* Content */}
-                        <div className="absolute inset-0 flex flex-col justify-end p-4">
-                          {/* Badge */}
-                          <div className="mb-2">
-                            <span className="inline-block px-2 py-1 bg-primary/20 backdrop-blur-sm text-primary-foreground text-xs font-medium rounded-full border border-primary/30">
-                              {slide.badge}
-                            </span>
-                          </div>
-
-                          {/* Title & Price */}
-                          <div className="text-white">
-                            <h4 className="font-semibold text-lg mb-1">{slide.title}</h4>
-                            <p className="text-sm text-white/90 mb-3">{slide.price}</p>
-
-                            {/* CTA Button */}
-                            <Button
-                              size="sm"
-                              className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-1.5 text-sm font-medium"
-                            >
-                              View More
-                              <ArrowRight className="h-3 w-3 ml-1" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Mobile: Single Slider */}
-        <div className="md:hidden">
-          <Swiper
-            modules={[Pagination, Autoplay]}
-            spaceBetween={16}
-            slidesPerView={1}
-            pagination={{
-              clickable: true,
-              bulletClass: 'mobile-triple-pagination-bullet',
-              bulletActiveClass: 'mobile-triple-pagination-bullet-active',
-            }}
-            autoplay={{
-              delay: 4000,
-              disableOnInteraction: false,
-            }}
-            loop={true}
-            className="mobile-triple-slider"
-          >
-            {sliderData.map((category) => (
-              <SwiperSlide key={category.id}>
-                <div className="bg-card rounded-xl border overflow-hidden shadow-sm">
-                  {/* Category Header */}
-                  <div className="p-4 border-b bg-muted/30">
-                    <div className="flex items-center space-x-2">
-                      <category.icon className="h-5 w-5 text-primary" />
-                      <h3 className="font-semibold text-lg">{category.title}</h3>
+                    {/* Status Badge */}
+                    <div className="absolute top-3 left-3">
+                      <span className="inline-flex items-center px-2 py-1 bg-green-500/90 text-white text-xs font-medium rounded-full">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {ad.badge}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Inner Slider for Category Products */}
-                  <div className="relative">
-                    <Swiper
-                      modules={[Pagination, Autoplay]}
-                      spaceBetween={0}
-                      slidesPerView={1}
-                      pagination={{
-                        clickable: true,
-                        bulletClass: `${category.id}-mobile-pagination-bullet`,
-                        bulletActiveClass: `${category.id}-mobile-pagination-bullet-active`,
-                      }}
-                      autoplay={{
-                        delay: 3500,
-                        disableOnInteraction: false,
-                      }}
-                      loop={true}
-                      className="h-64"
-                    >
-                      {category.slides.map((slide) => (
-                        <SwiperSlide key={slide.id}>
-                          <div className="relative h-full">
-                            {/* Product Image */}
-                            <Image
-                              src={slide.image}
-                              alt={slide.title}
-                              fill
-                              className="object-cover"
-                            />
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg mb-1 text-foreground">{ad.title}</h3>
+                    <p className="text-primary font-medium text-sm mb-2">{ad.subtitle}</p>
+                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{ad.description}</p>
 
-                            {/* Overlay */}
-                            <div className="absolute inset-0 bg-black/30" />
-
-                            {/* Content */}
-                            <div className="absolute inset-0 flex flex-col justify-end p-4">
-                              {/* Badge */}
-                              <div className="mb-2">
-                                <span className="inline-block px-2 py-1 bg-primary/20 backdrop-blur-sm text-primary-foreground text-xs font-medium rounded-full border border-primary/30">
-                                  {slide.badge}
-                                </span>
-                              </div>
-
-                              {/* Title & Price */}
-                              <div className="text-white">
-                                <h4 className="font-semibold text-lg mb-1">{slide.title}</h4>
-                                <p className="text-sm text-white/90 mb-3">{slide.price}</p>
-
-                                {/* CTA Button */}
-                                <Button
-                                  size="sm"
-                                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-1.5 text-sm font-medium"
-                                >
-                                  View More
-                                  <ArrowRight className="h-3 w-3 ml-1" />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </SwiperSlide>
-                      ))}
-                    </Swiper>
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                      {ad.ctaText}
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
                   </div>
                 </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -312,6 +275,22 @@ export function TripleSlider() {
         .mobile-triple-slider .swiper-pagination {
           bottom: -30px !important;
           position: relative;
+        }
+        
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
       `}</style>
     </section>

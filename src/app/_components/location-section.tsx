@@ -112,10 +112,6 @@ export function LocationSection() {
                 <Navigation className="h-4 w-4" />
                 <span>{currentLocation.markets} Markets</span>
               </div>
-              <div className="flex items-center space-x-1 text-muted-foreground">
-                <Users className="h-4 w-4" />
-                <span>{currentLocation.vendors} Vendors</span>
-              </div>
               <div className="flex items-center space-x-1">
                 <Clock className="h-4 w-4" />
                 <span className={`font-medium ${currentLocation.status.includes('Open') ? 'text-success' : 'text-warning'}`}>
