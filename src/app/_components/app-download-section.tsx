@@ -1,6 +1,7 @@
 "use client";
 
 import { Smartphone, Star, Download, Bell, MapPin, ShoppingCart } from 'lucide-react';
+import { usePWA } from '@/hooks/use-pwa';
 
 // Types for better maintainability
 interface Feature {
@@ -277,6 +278,16 @@ function PhoneMockup() {
 }
 
 export function AppDownloadSection() {
+    const { canInstall, isInstalled, install } = usePWA();
+
+    const handlePWAInstall = async () => {
+        try {
+            await install();
+        } catch (error) {
+            console.error('PWA installation failed:', error);
+        }
+    };
+
     return (
         <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-primary/5 via-background to-accent/5 relative overflow-hidden">
             {/* Background decorative elements */}
@@ -307,6 +318,22 @@ export function AppDownloadSection() {
 
                             {/* App Store Buttons */}
                             <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                                {/* PWA Install Button - Show if installable */}
+                                {canInstall && !isInstalled && (
+                                    <button 
+                                        onClick={handlePWAInstall}
+                                        className="group flex items-center justify-center px-6 py-4 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground rounded-xl hover:from-primary/90 hover:to-primary transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                    >
+                                        <div className="flex items-center space-x-3">
+                                            <Download className="w-8 h-8 group-hover:scale-110 transition-transform duration-200" />
+                                            <div className="text-left">
+                                                <div className="text-xs opacity-90">Install</div>
+                                                <div className="text-base font-semibold">Web App</div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                )}
+
                                 <AppStoreButton type="ios">
                                     <svg viewBox="0 0 24 24" className="w-full h-full fill-current">
                                         <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />

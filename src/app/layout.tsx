@@ -10,6 +10,9 @@ import { Footer } from "./_components/footer";
 import { QueryProvider } from "@/providers/query-provider";
 import { AddItemProvider } from "@/components/add-item-context";
 import { AddItemDrawer } from "@/components/add-item-drawer";
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
+import { OfflineIndicator } from "@/components/offline-indicator";
+import { PWAStatus } from "@/components/pwa-status";
 
 // Primary fonts - Modern and friendly
 const poppins = Poppins({
@@ -39,8 +42,29 @@ const openSans = Open_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "MyApp - Modern Mobile-First App",
-  description: "A beautiful, responsive mobile-first application built with Next.js",
+  title: "Fresh Market Finder - Find Local Groceries",
+  description: "Discover fresh groceries from local markets and farmers. Compare prices, find the best deals, and support your community.",
+  manifest: "/manifest.json",
+  themeColor: "#10b981",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Market Finder",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Fresh Market Finder",
+    title: "Fresh Market Finder - Find Local Groceries",
+    description: "Discover fresh groceries from local markets and farmers. Compare prices, find the best deals, and support your community.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Fresh Market Finder - Find Local Groceries",
+    description: "Discover fresh groceries from local markets and farmers. Compare prices, find the best deals, and support your community.",
+  },
 };
 
 export default function RootLayout({
@@ -50,6 +74,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <meta name="theme-color" content="#10b981" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Market Finder" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="msapplication-TileColor" content="#10b981" />
+        <meta name="msapplication-tap-highlight" content="no" />
+      </head>
       <body
         className={`${poppins.variable} ${sourceCodePro.variable} ${playfairDisplay.variable} ${openSans.variable} font-poppins antialiased`}
       >
@@ -65,6 +100,9 @@ export default function RootLayout({
                 <BottomNav />
                 <AuthModal />
                 <AddItemDrawer />
+                <PWAInstallPrompt />
+                <OfflineIndicator />
+                <PWAStatus />
               </AddItemProvider>
             </AuthProvider>
           </SearchProvider>
