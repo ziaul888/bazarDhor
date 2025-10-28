@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { 
-  ArrowLeft, 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  ArrowLeft,
+  TrendingUp,
+  TrendingDown,
   Grid3X3,
   List,
   Search,
@@ -28,7 +28,7 @@ const categoryData = {
     icon: "🥬",
     productCount: 85,
     marketCount: 45,
-    priceChange: "down",
+    priceChange: "down" as const,
     avgPriceChange: -5.2,
     popularItems: ["Tomatoes", "Onions", "Potatoes", "Carrots", "Spinach"]
   },
@@ -40,7 +40,7 @@ const categoryData = {
     icon: "🍎",
     productCount: 72,
     marketCount: 38,
-    priceChange: "up",
+    priceChange: "up" as const,
     avgPriceChange: 3.8,
     popularItems: ["Apples", "Bananas", "Oranges", "Grapes", "Mangoes"]
   },
@@ -52,7 +52,7 @@ const categoryData = {
     icon: "🥩",
     productCount: 45,
     marketCount: 28,
-    priceChange: "down",
+    priceChange: "down" as const,
     avgPriceChange: -2.1,
     popularItems: ["Chicken", "Beef", "Lamb", "Pork", "Turkey"]
   }
@@ -75,7 +75,7 @@ const categoryMarkets = [
     priceRange: "$$",
     categoryItems: 24,
     avgPrice: "$3.50/kg",
-    priceChange: "down"
+    priceChange: "down" as const
   },
   {
     id: 2,
@@ -92,7 +92,7 @@ const categoryMarkets = [
     priceRange: "$$$",
     categoryItems: 18,
     avgPrice: "$4.20/kg",
-    priceChange: "up"
+    priceChange: "up" as const
   },
   {
     id: 3,
@@ -109,7 +109,7 @@ const categoryMarkets = [
     priceRange: "$",
     categoryItems: 32,
     avgPrice: "$2.80/kg",
-    priceChange: "down"
+    priceChange: "down" as const
   },
   {
     id: 4,
@@ -126,7 +126,7 @@ const categoryMarkets = [
     priceRange: "$$$",
     categoryItems: 15,
     avgPrice: "$5.10/kg",
-    priceChange: "up"
+    priceChange: "up" as const
   },
   {
     id: 5,
@@ -143,7 +143,7 @@ const categoryMarkets = [
     priceRange: "$$",
     categoryItems: 28,
     avgPrice: "$3.90/kg",
-    priceChange: "down"
+    priceChange: "down" as const
   },
   {
     id: 6,
@@ -160,7 +160,7 @@ const categoryMarkets = [
     priceRange: "$$",
     categoryItems: 21,
     avgPrice: "$3.75/kg",
-    priceChange: "up"
+    priceChange: "up" as const
   },
   {
     id: 7,
@@ -177,7 +177,7 @@ const categoryMarkets = [
     priceRange: "$$",
     categoryItems: 19,
     avgPrice: "$3.60/kg",
-    priceChange: "down"
+    priceChange: "down" as const
   },
   {
     id: 8,
@@ -194,7 +194,7 @@ const categoryMarkets = [
     priceRange: "$",
     categoryItems: 26,
     avgPrice: "$3.20/kg",
-    priceChange: "up"
+    priceChange: "up" as const
   },
   {
     id: 9,
@@ -211,7 +211,7 @@ const categoryMarkets = [
     priceRange: "$$",
     categoryItems: 22,
     avgPrice: "$3.80/kg",
-    priceChange: "down"
+    priceChange: "down" as const
   },
   {
     id: 10,
@@ -228,7 +228,7 @@ const categoryMarkets = [
     priceRange: "$$$",
     categoryItems: 31,
     avgPrice: "$4.50/kg",
-    priceChange: "up"
+    priceChange: "up" as const
   },
   {
     id: 11,
@@ -245,7 +245,7 @@ const categoryMarkets = [
     priceRange: "$$",
     categoryItems: 35,
     avgPrice: "$3.40/kg",
-    priceChange: "down"
+    priceChange: "down" as const
   },
   {
     id: 12,
@@ -262,7 +262,7 @@ const categoryMarkets = [
     priceRange: "$$",
     categoryItems: 17,
     avgPrice: "$3.95/kg",
-    priceChange: "up"
+    priceChange: "up" as const
   },
   {
     id: 13,
@@ -279,7 +279,7 @@ const categoryMarkets = [
     priceRange: "$$",
     categoryItems: 23,
     avgPrice: "$3.70/kg",
-    priceChange: "down"
+    priceChange: "down" as const
   },
   {
     id: 14,
@@ -296,14 +296,14 @@ const categoryMarkets = [
     priceRange: "$$",
     categoryItems: 29,
     avgPrice: "$3.85/kg",
-    priceChange: "up"
+    priceChange: "up" as const
   }
 ];
 
 export default function CategoryDetailsPage() {
   const params = useParams();
   const slug = params.slug as string;
-  
+
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('distance');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -324,7 +324,7 @@ export default function CategoryDetailsPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Category Not Found</h1>
-          <p className="text-muted-foreground mb-4">The category you're looking for doesn't exist.</p>
+          {/* <p className="text-muted-foreground mb-4">The category you're looking for doesnt exist.</p> */}
           <Button asChild>
             <Link href="/category">Back to Categories</Link>
           </Button>
@@ -379,7 +379,7 @@ export default function CategoryDetailsPage() {
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/40" />
-          
+
           {/* Back Button */}
           <div className="absolute top-4 left-4">
             <Button variant="secondary" size="sm" asChild>
@@ -423,9 +423,8 @@ export default function CategoryDetailsPage() {
                 <div className="text-xs sm:text-sm text-muted-foreground">Products</div>
               </div>
               <div className="text-center">
-                <div className={`text-lg sm:text-xl font-bold flex items-center justify-center space-x-1 ${
-                  category.priceChange === 'up' ? 'text-red-600' : 'text-green-600'
-                }`}>
+                <div className={`text-lg sm:text-xl font-bold flex items-center justify-center space-x-1 ${category.priceChange === 'up' ? 'text-red-600' : 'text-green-600'
+                  }`}>
                   {category.priceChange === 'up' ? (
                     <TrendingUp className="h-4 w-4" />
                   ) : (
@@ -526,9 +525,9 @@ export default function CategoryDetailsPage() {
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedMarkets.map((market) => (
-              <MarketCard 
-                key={market.id} 
-                market={market} 
+              <MarketCard
+                key={market.id}
+                market={market}
                 showCategoryItems={true}
                 showPriceChange={true}
                 showPriceRange={true}
@@ -538,9 +537,9 @@ export default function CategoryDetailsPage() {
         ) : (
           <div className="space-y-4">
             {paginatedMarkets.map((market) => (
-              <MarketListItem 
-                key={market.id} 
-                market={market} 
+              <MarketListItem
+                key={market.id}
+                market={market}
                 showCategoryItems={true}
                 showPriceChange={true}
               />
