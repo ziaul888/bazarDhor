@@ -5,6 +5,7 @@ const categories = [
   {
     id: 1,
     name: "Vegetables",
+    slug: "fresh-vegetables",
     vendors: 85,
     markets: 42,
     totalItems: 1250,
@@ -15,6 +16,7 @@ const categories = [
   {
     id: 2,
     name: "Fruits",
+    slug: "fresh-fruits",
     vendors: 72,
     markets: 38,
     totalItems: 980,
@@ -25,6 +27,7 @@ const categories = [
   {
     id: 3,
     name: "Meat",
+    slug: "meat",
     vendors: 45,
     markets: 25,
     totalItems: 650,
@@ -35,6 +38,7 @@ const categories = [
   {
     id: 4,
     name: "Seafood",
+    slug: "seafood",
     vendors: 28,
     markets: 18,
     totalItems: 420,
@@ -45,6 +49,7 @@ const categories = [
   {
     id: 5,
     name: "Dairy",
+    slug: "dairy",
     vendors: 35,
     markets: 22,
     totalItems: 580,
@@ -55,6 +60,7 @@ const categories = [
   {
     id: 6,
     name: "Grains",
+    slug: "grains",
     vendors: 42,
     markets: 28,
     totalItems: 720,
@@ -65,6 +71,7 @@ const categories = [
   {
     id: 7,
     name: "Spices",
+    slug: "spices",
     vendors: 38,
     markets: 24,
     totalItems: 890,
@@ -75,6 +82,7 @@ const categories = [
   {
     id: 8,
     name: "Bakery",
+    slug: "bakery",
     vendors: 25,
     markets: 15,
     totalItems: 340,
@@ -85,6 +93,7 @@ const categories = [
   {
     id: 9,
     name: "Snacks",
+    slug: "snacks",
     vendors: 31,
     markets: 20,
     totalItems: 520,
@@ -95,6 +104,7 @@ const categories = [
   {
     id: 10,
     name: "Beverages",
+    slug: "beverages",
     vendors: 29,
     markets: 19,
     totalItems: 480,
@@ -114,13 +124,13 @@ export function CategorySection() {
         {/* Section Title */}
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div>
-            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">Shop by Category</h2>
+            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">Bazar by Category</h2>
             <p className="text-xs sm:text-sm text-muted-foreground">Fresh groceries from local markets</p>
           </div>
 
           {/* View All Link */}
-          <Link 
-            href="/category" 
+          <Link
+            href="/category"
             className="text-xs sm:text-sm text-primary hover:text-primary/80 font-medium transition-colors whitespace-nowrap"
           >
             View All
@@ -130,7 +140,8 @@ export function CategorySection() {
         {/* Categories Grid */}
         <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2 sm:gap-3 lg:gap-4">
           {displayCategories.map((category) => (
-            <Link key={category.id} href="/category" className="group">
+
+            <Link key={category.id} href={`/category/${category.slug}`} className="group">
               <div className="relative bg-gradient-to-br from-card to-card/50 rounded-2xl sm:rounded-3xl border-0 shadow-sm hover:shadow-lg sm:hover:shadow-xl hover:scale-105 transition-all duration-300 sm:duration-500 cursor-pointer overflow-hidden backdrop-blur-sm">
                 {/* Popular Badge */}
                 {category.popular && (
@@ -161,7 +172,7 @@ export function CategorySection() {
                   <div className="hidden xs:block space-y-0.5 sm:space-y-1">
                     <div className="flex items-center justify-center space-x-1 text-xs text-muted-foreground">
                       <span className="text-xs">📦</span>
-                      <span className="font-medium text-xs">{category.totalItems > 999 ? `${Math.floor(category.totalItems/1000)}k` : category.totalItems}</span>
+                      <span className="font-medium text-xs">{category.totalItems > 999 ? `${Math.floor(category.totalItems / 1000)}k` : category.totalItems}</span>
                     </div>
                     <div className="flex items-center justify-center space-x-1 text-xs text-muted-foreground">
                       <span className="text-xs">🏪</span>
@@ -179,7 +190,7 @@ export function CategorySection() {
 
                 {/* Animated Background Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:duration-500"></div>
-                
+
                 {/* Subtle Border Glow */}
                 <div className="absolute inset-0 rounded-2xl sm:rounded-3xl border border-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:duration-500"></div>
               </div>
@@ -200,7 +211,7 @@ export function CategorySection() {
                 <h3 className="text-xs xs:text-xs sm:text-sm font-bold text-primary group-hover:text-primary/80 transition-colors mb-1 sm:mb-2 leading-tight">
                   View All
                 </h3>
-                
+
                 {/* Stats for larger screens */}
                 <div className="hidden xs:block space-y-0.5 sm:space-y-1">
                   <div className="flex items-center justify-center space-x-1 text-xs text-primary/70">
@@ -220,7 +231,7 @@ export function CategorySection() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Animated Background */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:duration-500"></div>
             </div>

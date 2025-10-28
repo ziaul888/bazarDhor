@@ -1,6 +1,7 @@
 "use client";
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { TrendingUp, TrendingDown, ArrowRight, MapPin, GitCompare } from 'lucide-react';
 
 interface Category {
@@ -18,8 +19,12 @@ interface CategoryCardProps {
 }
 
 export function CategoryCard({ category }: CategoryCardProps) {
+  // Convert category name to slug
+  const slug = category.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '');
+  
   return (
-    <div className="group bg-card rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
+    <Link href={`/category/${slug}`}>
+      <div className="group bg-card rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
       {/* Category Image */}
       <div className="relative h-40 overflow-hidden">
         <Image
@@ -75,5 +80,6 @@ export function CategoryCard({ category }: CategoryCardProps) {
         </div>
       </div>
     </div>
+    </Link>
   );
 }

@@ -14,7 +14,7 @@ export function AddItemProvider({ children }: { children: ReactNode }) {
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
   const openAddDrawer = () => {
-    console.log('Opening add drawer...');
+    console.log('Opening add drawer...', 'Current state:', isAddDrawerOpen);
     setIsAddDrawerOpen(true);
   };
   const closeAddDrawer = () => {

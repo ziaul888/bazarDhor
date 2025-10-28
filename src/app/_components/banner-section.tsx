@@ -63,10 +63,10 @@ const bannerSlides = [
 
 export function BannerSection() {
     return (
-        <section className="py-4 sm:py-8 lg:py-12">
+        <section className="py-4 sm:py-8 lg:py-8">
             <div className="container mx-auto px-3 sm:px-4 lg:px-6">
                 {/* Main Promotional Banner Slider */}
-                <div className="mb-6 sm:mb-8">
+                <div className="mb-6 sm:mb-4">
                     <Swiper
                         modules={[Pagination, Autoplay]}
                         spaceBetween={0}

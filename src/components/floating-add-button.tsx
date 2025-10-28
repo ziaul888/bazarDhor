@@ -11,6 +11,7 @@ interface FloatingAddButtonProps {
 export function FloatingAddButton({ onClick, className = "" }: FloatingAddButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
+  
 
   const handleClick = () => {
     setIsPressed(true);
@@ -19,13 +20,13 @@ export function FloatingAddButton({ onClick, className = "" }: FloatingAddButton
   };
 
   return (
-    <div className="fixed bottom-20 right-4 z-50">
+    <div   onClick={handleClick} className="fixed bottom-20 right-4 z-50">
       {/* Enhanced glow effect */}
       <div className="absolute inset-0 bg-primary rounded-full blur-xl opacity-40 animate-pulse scale-125" />
       <div className="absolute inset-0 bg-primary rounded-full blur-md opacity-60 animate-ping" />
       
       <button
-        onClick={handleClick}
+      
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className={`
@@ -74,19 +75,6 @@ export function FloatingAddButton({ onClick, className = "" }: FloatingAddButton
           animate-ping
         `} />
       </button>
-      
-      {/* Always visible label */}
-      <div className="absolute right-24 top-1/2 -translate-y-1/2 pointer-events-none">
-        <div className={`
-          px-4 py-2 bg-primary text-primary-foreground text-sm font-bold rounded-full
-          shadow-lg border-2 border-white
-          transition-all duration-300 ease-out
-          ${isHovered ? 'opacity-100 translate-x-0 scale-105' : 'opacity-90 translate-x-1 scale-100'}
-        `}>
-          Add Item
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-0 h-0 border-l-8 border-l-primary border-t-4 border-b-4 border-t-transparent border-b-transparent" />
-        </div>
-      </div>
       
       {/* Attention-grabbing pulse animation */}
       <div className="absolute inset-0 rounded-full border-2 border-primary animate-ping opacity-75" />

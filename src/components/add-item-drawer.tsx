@@ -6,6 +6,8 @@ import { useAddItem } from './add-item-context';
 
 export function AddItemDrawer() {
   const { isAddDrawerOpen: isOpen, closeAddDrawer: onClose } = useAddItem();
+  
+  console.log('AddItemDrawer render - isOpen:', isOpen);
   const [formData, setFormData] = useState({
     name: '',
     price: '',

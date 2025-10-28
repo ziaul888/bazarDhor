@@ -118,40 +118,71 @@ const adsData = [
     badge: "Fast Delivery",
     ctaText: "Order Now",
     highlight: "Same Day"
-  },
-  {
-    id: 3,
-    title: "Local Farmers Market",
-    subtitle: "Support local producers",
-    description: "Discover fresh, locally sourced products from farmers in your area.",
-    image: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=200&fit=crop",
-    badge: "Local",
-    ctaText: "Explore",
-    highlight: "Farm Fresh"
   }
 ];
+
+const systemInfo = {
+  title: "About Our Platform",
+  features: [
+    "Real-time market comparison",
+    "Smart price tracking",
+    "Local vendor network",
+    "Secure payment system"
+  ],
+  stats: {
+    markets: "500+",
+    users: "10K+",
+    cities: "25+"
+  }
+};
 
 export function TripleSlider() {
   return (
     <section className="pb-3 sm:pb-4 md:pb-8">
       <div className="container mx-auto px-4">
-        {/* Desktop: Grid Layout */}
-
-
-
-
         {/* Ads Section */}
-        <div className="mt-4 md:mt-4">
-          <div className="flex items-center justify-between mb-6">
-          
-           
-          </div>
+        <div className="mt-4 md:mt-8">
 
-          {/* Desktop: Grid Layout for Ads */}
+          {/* Desktop: Grid Layout - 1 Info Section + 2 Images */}
           <div className="hidden md:grid grid-cols-3 gap-6">
+            {/* First section: System Information */}
+            <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 p-6 hover:shadow-lg transition-all duration-300">
+              <div className="flex items-center mb-4">
+                <div className="bg-primary p-2 rounded-lg mr-3">
+                  <Star className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">{systemInfo.title}</h3>
+              </div>
+
+              <div className="space-y-3 mb-4">
+                {systemInfo.features.map((feature, index) => (
+                  <div key={index} className="flex items-center text-sm text-gray-700">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></div>
+                    {feature}
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 pt-3 border-t border-primary/20">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-primary">{systemInfo.stats.markets}</div>
+                  <div className="text-xs text-gray-600">Markets</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-primary">{systemInfo.stats.users}</div>
+                  <div className="text-xs text-gray-600">Users</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-primary">{systemInfo.stats.cities}</div>
+                  <div className="text-xs text-gray-600">Cities</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Second and third sections: Ads as images */}
             {adsData.map((ad) => (
               <div key={ad.id} className="group bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-primary/40">
-                <div className="relative h-32 overflow-hidden">
+                <div className="relative h-62 overflow-hidden">
                   <Image
                     src={ad.image}
                     alt={ad.title}
@@ -160,40 +191,71 @@ export function TripleSlider() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
+                  {/* Ads Badge */}
+                  <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                    AD
+                  </div>
+
                   {/* Highlight Badge */}
-                  <div className="absolute top-3 right-3">
-                    <span className="inline-flex items-center px-2 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full">
-                      <Star className="h-3 w-3 mr-1" />
-                      {ad.highlight}
-                    </span>
+                  <div className="absolute top-3 right-3 bg-primary text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {ad.highlight}
                   </div>
 
                   {/* Status Badge */}
-                  <div className="absolute top-3 left-3">
-                    <span className="inline-flex items-center px-2 py-1 bg-green-500/90 text-white text-xs font-medium rounded-full">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {ad.badge}
-                    </span>
+                  <div className="absolute bottom-3 left-3 bg-white/90 text-gray-800 text-xs font-medium px-2 py-1 rounded-full">
+                    {ad.badge}
                   </div>
-                </div>
 
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-1 text-foreground">{ad.title}</h3>
-                  <p className="text-primary font-medium text-sm mb-2">{ad.subtitle}</p>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{ad.description}</p>
-
-                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                    {ad.ctaText}
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
+                  {/* Content Overlay */}
+                  <div className="absolute bottom-3 right-3">
+                    <Button size="sm" className="bg-primary hover:bg-primary/90 text-white">
+                      {ad.ctaText}
+                      <ArrowRight className="ml-1 h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Mobile: Horizontal Scroll for Ads */}
+          {/* Mobile: Horizontal Scroll - 1 Info Section + 2 Images */}
           <div className="md:hidden">
             <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+              {/* First section: System Information for Mobile */}
+              <div className="flex-shrink-0 w-80 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 p-4">
+                <div className="flex items-center mb-3">
+                  <div className="bg-primary p-1.5 rounded-lg mr-2">
+                    <Star className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-gray-900">{systemInfo.title}</h3>
+                </div>
+
+                <div className="space-y-2 mb-3">
+                  {systemInfo.features.slice(0, 3).map((feature, index) => (
+                    <div key={index} className="flex items-center text-xs text-gray-700">
+                      <div className="w-1 h-1 bg-primary rounded-full mr-2"></div>
+                      {feature}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-primary/20">
+                  <div className="text-center">
+                    <div className="text-sm font-bold text-primary">{systemInfo.stats.markets}</div>
+                    <div className="text-xs text-gray-600">Markets</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-bold text-primary">{systemInfo.stats.users}</div>
+                    <div className="text-xs text-gray-600">Users</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-bold text-primary">{systemInfo.stats.cities}</div>
+                    <div className="text-xs text-gray-600">Cities</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Second and third sections: Ads as images */}
               {adsData.map((ad) => (
                 <div key={ad.id} className="flex-shrink-0 w-80 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 overflow-hidden">
                   <div className="relative h-32 overflow-hidden">
@@ -205,31 +267,29 @@ export function TripleSlider() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
+                    {/* Ads Badge */}
+                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                      AD
+                    </div>
+
                     {/* Highlight Badge */}
-                    <div className="absolute top-3 right-3">
-                      <span className="inline-flex items-center px-2 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full">
-                        <Star className="h-3 w-3 mr-1" />
-                        {ad.highlight}
-                      </span>
+                    <div className="absolute top-2 right-2 bg-primary text-white text-xs font-bold px-2 py-1 rounded-full">
+                      {ad.highlight}
                     </div>
 
                     {/* Status Badge */}
-                    <div className="absolute top-3 left-3">
-                      <span className="inline-flex items-center px-2 py-1 bg-green-500/90 text-white text-xs font-medium rounded-full">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {ad.badge}
-                      </span>
+                    <div className="absolute bottom-2 left-2 bg-white/90 text-gray-800 text-xs font-medium px-2 py-1 rounded-full">
+                      {ad.badge}
                     </div>
                   </div>
 
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg mb-1 text-foreground">{ad.title}</h3>
-                    <p className="text-primary font-medium text-sm mb-2">{ad.subtitle}</p>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{ad.description}</p>
-
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                  {/* Mobile Content */}
+                  <div className="p-3">
+                    <h3 className="font-semibold text-sm text-gray-900 mb-1">{ad.title}</h3>
+                    <p className="text-xs text-gray-600 mb-2 line-clamp-2">{ad.description}</p>
+                    <Button size="sm" className="w-full bg-primary hover:bg-primary/90 text-white text-xs">
                       {ad.ctaText}
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                      <ArrowRight className="ml-1 h-3 w-3" />
                     </Button>
                   </div>
                 </div>

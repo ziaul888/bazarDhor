@@ -219,3 +219,68 @@
 .search-right-animate {
   animation: fadeInRight 0.5s ease-out forwards;
 }
+
+/* Enhanced modal scroll prevention for all devices */
+.modal-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: none !important;
+  -ms-scroll-chaining: none !important;
+  -ms-content-zooming: none !important;
+  -ms-touch-action: none !important;
+}
+
+/* Ensure html element also prevents scroll */
+html.modal-open {
+  overflow: hidden !important;
+  touch-action: none !important;
+  overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: touch !important;
+  -ms-scroll-chaining: none !important;
+  -ms-content-zooming: none !important;
+  -ms-touch-action: none !important;
+}
+
+/* Webkit scrolling for modal content */
+.webkit-overflow-scrolling-touch {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Prevent overscroll behavior */
+.prevent-overscroll {
+  overscroll-behavior: contain;
+  -ms-scroll-chaining: none;
+  scroll-behavior: auto;
+  touch-action: pan-y;
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .modal-open {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+}
+
+/* Android Chrome specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .modal-open {
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+  }
+}/* 
+Scrollbar utilities */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
