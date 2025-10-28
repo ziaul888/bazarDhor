@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { X, Upload, MapPin, Camera, Sparkles, Tag, DollarSign, Package } from 'lucide-react';
 import { useAddItem } from './add-item-context';
 
-export function AddItemModal() {
-  const { isAddModalOpen: isOpen, closeAddModal: onClose } = useAddItem();
+export function AddItemDrawer() {
+  const { isAddDrawerOpen: isOpen, closeAddDrawer: onClose } = useAddItem();
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -46,39 +46,39 @@ export function AddItemModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 z-50">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-black/60 via-purple-900/20 to-black/60 backdrop-blur-md"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
         onClick={onClose}
       />
       
-      {/* Modal */}
-      <div className="relative bg-white/95 backdrop-blur-xl rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-lg max-h-[95vh] overflow-hidden border border-white/20">
+      {/* Side Drawer */}
+      <div className={`fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${
+        isOpen ? 'translate-x-0' : 'translate-x-full'
+      }`}>
         {/* Header */}
-        <div className="relative bg-primary p-6">
-          <div className="absolute inset-0 bg-black/10" />
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-white/20 rounded-full backdrop-blur-sm">
-                <Sparkles className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-primary-foreground">Add New Item</h2>
-                <p className="text-primary-foreground/80 text-sm">Share what you found!</p>
-              </div>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-white sticky top-0 z-10">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-primary/10 rounded-full">
+              <Sparkles className="h-5 w-5 text-primary" />
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/20 rounded-full transition-all duration-200 backdrop-blur-sm"
-            >
-              <X className="h-5 w-5 text-primary-foreground" />
-            </button>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Add New Item</h2>
+              <p className="text-gray-600 text-sm">Share what you found!</p>
+            </div>
           </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200"
+          >
+            <X className="h-5 w-5 text-gray-600" />
+          </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto max-h-[calc(95vh-120px)]">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-6">
           {/* Image Upload */}
           <div className="space-y-3">
             <label className="flex items-center space-x-2 text-sm font-semibold text-gray-800">
@@ -226,21 +226,25 @@ export function AddItemModal() {
             />
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-medium"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Add Item ✨
-            </button>
+          </div>
+          
+          {/* Action Buttons - Sticky Footer */}
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6">
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="flex-1 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Add Item ✨
+              </button>
+            </div>
           </div>
         </form>
       </div>

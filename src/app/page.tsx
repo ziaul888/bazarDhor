@@ -17,7 +17,7 @@ import { useSearch } from "./_components/search-context";
 
 export default function Home() {
   const { isSearchVisible, hideSearch } = useSearch();
-  const { openAddModal } = useAddItem();
+  const { openAddDrawer } = useAddItem();
 
   return (
     <div>
@@ -55,7 +55,7 @@ export default function Home() {
       <NewsletterSection />
 
       {/* Floating Add Button */}
-      <FloatingAddButton onClick={openAddModal} />
+      <FloatingAddButton onClick={openAddDrawer} />
     </div>
   );
 }

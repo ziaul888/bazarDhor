@@ -3,30 +3,30 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 interface AddItemContextType {
-  isAddModalOpen: boolean;
-  openAddModal: () => void;
-  closeAddModal: () => void;
+  isAddDrawerOpen: boolean;
+  openAddDrawer: () => void;
+  closeAddDrawer: () => void;
 }
 
 const AddItemContext = createContext<AddItemContextType | undefined>(undefined);
 
 export function AddItemProvider({ children }: { children: ReactNode }) {
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
-  const openAddModal = () => {
-    console.log('Opening add modal...');
-    setIsAddModalOpen(true);
+  const openAddDrawer = () => {
+    console.log('Opening add drawer...');
+    setIsAddDrawerOpen(true);
   };
-  const closeAddModal = () => {
-    console.log('Closing add modal...');
-    setIsAddModalOpen(false);
+  const closeAddDrawer = () => {
+    console.log('Closing add drawer...');
+    setIsAddDrawerOpen(false);
   };
 
   return (
     <AddItemContext.Provider value={{
-      isAddModalOpen,
-      openAddModal,
-      closeAddModal
+      isAddDrawerOpen,
+      openAddDrawer,
+      closeAddDrawer
     }}>
       {children}
     </AddItemContext.Provider>

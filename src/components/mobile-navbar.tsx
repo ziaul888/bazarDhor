@@ -35,7 +35,7 @@ export function MobileNavbar() {
   const pathname = usePathname();
   const { toggleSearch } = useSearch();
   const { openAuthModal } = useAuth();
-  const { openAddModal } = useAddItem();
+  const { openAddDrawer } = useAddItem();
 
   // Handle scroll effect
   useEffect(() => {
@@ -196,7 +196,7 @@ export function MobileNavbar() {
                           variant="default"
                           className="w-full justify-start h-11 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg"
                           onClick={() => {
-                            openAddModal();
+                            openAddDrawer();
                             setIsOpen(false);
                           }}
                         >

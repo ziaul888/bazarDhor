@@ -53,7 +53,7 @@ const locations = [
 export function LocationSection() {
   const [currentLocation, setCurrentLocation] = useState(locations[0]);
   const [isLocationOpen, setIsLocationOpen] = useState(false);
-  const { openAddModal } = useAddItem();
+  const { openAddDrawer } = useAddItem();
 
   return (
     <section className="py-3 sm:py-6 sm:border-b">
@@ -131,7 +131,7 @@ export function LocationSection() {
             </Button>
             <Button 
               size="sm" 
-              onClick={openAddModal}
+              onClick={openAddDrawer}
               className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground text-sm shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
