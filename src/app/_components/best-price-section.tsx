@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
 const bestPriceItems = [
     {
@@ -179,7 +180,7 @@ export function BestPriceSection() {
                 {/* Products Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4">
                     {items.map((item) => (
-                        <div key={item.id} className="bg-card rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-300">
+                        <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 py-0 gap-0">
                             {/* Product Image */}
                             <div className="relative aspect-[4/3] overflow-hidden">
                                 <Image
@@ -208,7 +209,7 @@ export function BestPriceSection() {
                             </div>
 
                             {/* Product Info */}
-                            <div className="p-2 sm:p-3">
+                            <CardContent className="p-2 sm:p-3">
                                 {/* Item Name */}
                                 <h3 className="text-xs sm:text-sm font-semibold mb-1 line-clamp-2">
                                     {item.name}
@@ -236,8 +237,8 @@ export function BestPriceSection() {
                                 >
                                     Update
                                 </button>
-                            </div>
-                        </div>
+                            </CardContent>
+                        </Card>
                     ))}
                 </div>
 

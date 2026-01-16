@@ -128,7 +128,7 @@ export default function CategoryPage() {
   const [sortBy, setSortBy] = useState('popular');
 
   // Pagination logic
-  const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredCategories, 8);
+  const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredCategories, 12);
   const paginatedCategories = getPaginatedItems(currentPage);
   const paginationInfo = getPaginationInfo(currentPage);
 

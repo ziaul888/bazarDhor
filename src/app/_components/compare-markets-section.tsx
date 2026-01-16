@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Star, ChevronDown, ArrowRight, Scale, MapPin, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 const markets = [
     {
@@ -115,8 +116,8 @@ export function CompareMarketsSection() {
                 {/* Full Width Comparison Interface */}
                 <div className="w-full max-w-7xl mx-auto">
                     {/* Market Selection Row */}
-                    <div className="bg-white/90 backdrop-blur-lg rounded-2xl sm:rounded-3xl border border-gray-200/50 shadow-xl sm:shadow-2xl p-4 sm:p-6 md:p-8 lg:p-12 mb-8 sm:mb-10 lg:mb-12">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-16 items-start md:items-center">
+                    <Card className="bg-white/90 backdrop-blur-lg rounded-2xl sm:rounded-3xl border-gray-200/50 shadow-xl sm:shadow-2xl mb-8 sm:mb-10 lg:mb-12">
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-16 items-start md:items-center p-4 sm:p-6 md:p-8 lg:p-12">
                             {/* Market 1 Selection */}
                             <div className="relative">
                                 <div className="text-center mb-4 sm:mb-6">
@@ -248,11 +249,11 @@ export function CompareMarketsSection() {
                                     </div>
                                 )}
                             </div>
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
 
-                    {/* Call to Action */}
-                    <div className="text-center px-2 sm:px-0">
+                {/* Call to Action */}
+                <div className="text-center px-2 sm:px-0">
                         <Button asChild size="lg" className="w-full sm:w-auto px-6 sm:px-8 lg:px-12 py-4 sm:py-5 lg:py-6 text-base sm:text-lg lg:text-xl font-bold bg-gradient-to-r from-primary via-primary/90 to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg sm:shadow-xl lg:shadow-2xl hover:shadow-xl sm:hover:shadow-2xl lg:hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
                             <Link href="/markets/compare" className="flex items-center justify-center space-x-2 sm:space-x-3 lg:space-x-4">
                                 <Scale className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 flex-shrink-0" />

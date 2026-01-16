@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { usePWA } from '@/hooks/use-pwa';
 
 export function PWAInstallPrompt() {
@@ -50,12 +51,12 @@ export function PWAInstallPrompt() {
 
   return (
     <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-50">
-      <div className="bg-card border border-border rounded-xl shadow-lg p-4 backdrop-blur-sm">
-        <div className="flex items-start space-x-3">
+      <Card className="shadow-lg backdrop-blur-sm">
+        <CardContent className="flex items-start space-x-3">
           <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
             <Download className="h-5 w-5 text-primary" />
           </div>
-          
+
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold text-foreground mb-1">
               Install Market Finder
@@ -63,27 +64,27 @@ export function PWAInstallPrompt() {
             <p className="text-xs text-muted-foreground mb-3">
               Get quick access to local markets and groceries. Install our app for a better experience!
             </p>
-            
+
             <div className="flex space-x-2">
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 onClick={handleInstall}
                 className="flex-1"
               >
                 <Download className="h-4 w-4 mr-1" />
                 Install
               </Button>
-              <Button 
-                size="sm" 
-                variant="outline" 
+              <Button
+                size="sm"
+                variant="outline"
                 onClick={handleDismiss}
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

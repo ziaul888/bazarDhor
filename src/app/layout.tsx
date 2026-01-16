@@ -13,6 +13,10 @@ import { AddItemDrawer } from "@/components/add-item-drawer";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import { OfflineIndicator } from "@/components/offline-indicator";
 import { PWAStatus } from "@/components/pwa-status";
+import { Notifications } from "@/components/notifications";
+import { Toaster } from "sonner";
+import { ZoneProvider } from "@/providers/zone-provider";
+
 
 // Primary fonts - Modern and friendly
 const poppins = Poppins({
@@ -89,23 +93,27 @@ export default function RootLayout({
         className={`${poppins.variable} ${sourceCodePro.variable} ${playfairDisplay.variable} ${openSans.variable} font-poppins antialiased`}
       >
         <QueryProvider>
-          <SearchProvider>
-            <AuthProvider>
-              <AddItemProvider>
-                <MobileNavbar />
-                <main className="min-h-screen pb-20 md:pb-0">
-                  {children}
-                </main>
-                <Footer />
-                <BottomNav />
-                <AuthModal />
-                <AddItemDrawer />
-                <PWAInstallPrompt />
-                <OfflineIndicator />
-                <PWAStatus />
-              </AddItemProvider>
-            </AuthProvider>
-          </SearchProvider>
+          <ZoneProvider>
+            <SearchProvider>
+              <AuthProvider>
+                <AddItemProvider>
+                  <MobileNavbar />
+                  <main className="min-h-screen pb-20 md:pb-0">
+                    {children}
+                  </main>
+                  <Footer />
+                  <BottomNav />
+                  <AuthModal />
+                  <AddItemDrawer />
+                  <PWAInstallPrompt />
+                  <OfflineIndicator />
+                  <PWAStatus />
+                  <Notifications />
+                  <Toaster position="top-right" richColors closeButton />
+                </AddItemProvider>
+              </AuthProvider>
+            </SearchProvider>
+          </ZoneProvider>
         </QueryProvider>
       </body>
     </html>

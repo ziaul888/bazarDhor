@@ -4,6 +4,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import Image from 'next/image';
 import { ArrowRight, MapPin, DollarSign, Beef, Carrot, TrendingDown, Users, Clock } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -149,37 +150,45 @@ export function BannerSection() {
 
                 {/* Feature Cards */}
                 {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="bg-card rounded-xl p-6 border hover:shadow-md transition-shadow">
-                        <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4">
-                            <MapPin className="h-6 w-6 text-green-600" />
-                        </div>
-                        <h3 className="text-sm sm:text-base font-semibold mb-2">Nearest Markets</h3>
-                        <p className="text-sm text-muted-foreground">Find local markets within 5km radius with GPS location</p>
-                    </div>
+                    <Card className="hover:shadow-md transition-shadow">
+                        <CardContent>
+                            <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4">
+                                <MapPin className="h-6 w-6 text-green-600" />
+                            </div>
+                            <h3 className="text-sm sm:text-base font-semibold mb-2">Nearest Markets</h3>
+                            <p className="text-sm text-muted-foreground">Find local markets within 5km radius with GPS location</p>
+                        </CardContent>
+                    </Card>
 
-                    <div className="bg-card rounded-xl p-6 border hover:shadow-md transition-shadow">
-                        <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
-                            <TrendingDown className="h-6 w-6 text-blue-600" />
-                        </div>
-                        <h3 className="text-sm sm:text-base font-semibold mb-2">Price Comparison</h3>
-                        <p className="text-sm text-muted-foreground">Compare prices across markets and get best deals</p>
-                    </div>
+                    <Card className="hover:shadow-md transition-shadow">
+                        <CardContent>
+                            <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
+                                <TrendingDown className="h-6 w-6 text-blue-600" />
+                            </div>
+                            <h3 className="text-sm sm:text-base font-semibold mb-2">Price Comparison</h3>
+                            <p className="text-sm text-muted-foreground">Compare prices across markets and get best deals</p>
+                        </CardContent>
+                    </Card>
 
-                    <div className="bg-card rounded-xl p-6 border hover:shadow-md transition-shadow">
-                        <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center mb-4">
-                            <Clock className="h-6 w-6 text-orange-600" />
-                        </div>
-                        <h3 className="text-sm sm:text-base font-semibold mb-2">Real-time Updates</h3>
-                        <p className="text-sm text-muted-foreground">Live price updates and market availability status</p>
-                    </div>
+                    <Card className="hover:shadow-md transition-shadow">
+                        <CardContent>
+                            <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center mb-4">
+                                <Clock className="h-6 w-6 text-orange-600" />
+                            </div>
+                            <h3 className="text-sm sm:text-base font-semibold mb-2">Real-time Updates</h3>
+                            <p className="text-sm text-muted-foreground">Live price updates and market availability status</p>
+                        </CardContent>
+                    </Card>
 
-                    <div className="bg-card rounded-xl p-6 border hover:shadow-md transition-shadow">
-                        <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
-                            <Users className="h-6 w-6 text-purple-600" />
-                        </div>
-                        <h3 className="text-sm sm:text-base font-semibold mb-2">Community Driven</h3>
-                        <p className="text-sm text-muted-foreground">Users can update prices and share market information</p>
-                    </div>
+                    <Card className="hover:shadow-md transition-shadow">
+                        <CardContent>
+                            <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
+                                <Users className="h-6 w-6 text-purple-600" />
+                            </div>
+                            <h3 className="text-sm sm:text-base font-semibold mb-2">Community Driven</h3>
+                            <p className="text-sm text-muted-foreground">Users can update prices and share market information</p>
+                        </CardContent>
+                    </Card>
                 </div> */}
 
             </div>

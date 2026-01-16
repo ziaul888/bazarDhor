@@ -1,7 +1,9 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
+import { useSearch as useSearchStore } from '@/store/hooks';
 
+// Keep the same interface for backward compatibility
 interface SearchContextType {
   isSearchVisible: boolean;
   showSearch: () => void;
@@ -12,11 +14,7 @@ interface SearchContextType {
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 export function SearchProvider({ children }: { children: ReactNode }) {
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
-
-  const showSearch = () => setIsSearchVisible(true);
-  const hideSearch = () => setIsSearchVisible(false);
-  const toggleSearch = () => setIsSearchVisible(prev => !prev);
+  const { isSearchVisible, showSearch, hideSearch, toggleSearch } = useSearchStore();
 
   return (
     <SearchContext.Provider value={{
@@ -30,6 +28,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Keep the old hook for backward compatibility, but it now uses Zustand
 export function useSearch() {
   const context = useContext(SearchContext);
   if (context === undefined) {

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSearch } from "@/app/_components/search-context";
 import { useAuth } from "@/components/auth/auth-context";
 import { useAddItem } from "@/components/add-item-context";
+
 import {
   Menu,
   Home,
@@ -121,6 +122,8 @@ export function MobileNavbar() {
                 <LogIn className="h-4 w-4 mr-2" />
                 Sign In
               </Button>
+
+
 
               {/* Wishlist */}
               <Button

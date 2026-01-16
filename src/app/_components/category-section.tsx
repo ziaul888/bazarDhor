@@ -1,7 +1,12 @@
+"use client";
+
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { useEffect, useState } from 'react';
 
-const categories = [
+// Fallback categories
+const fallbackCategories = [
   {
     id: 1,
     name: "Vegetables",
@@ -114,8 +119,65 @@ const categories = [
   }
 ];
 
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  vendors?: number;
+  markets?: number;
+  market_count?: number;
+  totalItems?: number;
+  product_count?: number;
+  rating?: number;
+  icon?: string;
+  popular?: boolean;
+}
+
 export function CategorySection() {
-  // Show first 9 categories on mobile, 10 on larger screens
+  const [categories, setCategories] = useState<Category[]>(fallbackCategories);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.chhagolnaiyasportareana.xyz/api';
+        const response = await fetch(`${baseUrl}/categories/list?limit=10&offset=0`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data?.data) {
+            // Map API data to our format
+            const apiCategories = data.data.data.map((cat: any) => ({
+              id: cat.id,
+              name: cat.name,
+              slug: cat.slug,
+              vendors: cat.vendor_count || 0,
+              markets: cat.market_count || 0,
+              totalItems: cat.product_count || 0,
+              rating: cat.rating || 4.5,
+              icon: cat.icon || '📦',
+              popular: cat.popular || false,
+            }));
+            setCategories(apiCategories);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        // Keep fallback categories
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchCategories();
+  }, []);
+
+  // Show first 9 categories
   const displayCategories = categories.slice(0, 9);
 
   return (
@@ -142,7 +204,7 @@ export function CategorySection() {
           {displayCategories.map((category) => (
 
             <Link key={category.id} href={`/category/${category.slug}`} className="group">
-              <div className="relative bg-gradient-to-br from-card to-card/50 rounded-2xl sm:rounded-3xl border-0 shadow-sm hover:shadow-lg sm:hover:shadow-xl hover:scale-105 transition-all duration-300 sm:duration-500 cursor-pointer overflow-hidden backdrop-blur-sm">
+              <Card className="relative bg-gradient-to-br from-card to-card/50 rounded-2xl sm:rounded-3xl border-0 shadow-sm hover:shadow-lg sm:hover:shadow-xl hover:scale-105 transition-all duration-300 sm:duration-500 cursor-pointer overflow-hidden backdrop-blur-sm py-2 sm:py-3 gap-0">
                 {/* Popular Badge */}
                 {category.popular && (
                   <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 z-10">
@@ -153,7 +215,7 @@ export function CategorySection() {
                 )}
 
                 {/* Card Content */}
-                <div className="p-2 sm:p-3 text-center relative z-10">
+                <CardContent className="p-2 sm:p-3 text-center relative z-10">
                   {/* Category Icon with Floating Effect */}
                   <div className="relative mb-1.5 sm:mb-2">
                     <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 mx-auto bg-gradient-to-br from-white to-gray-50 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md sm:shadow-lg group-hover:shadow-lg sm:group-hover:shadow-xl group-hover:-translate-y-0.5 sm:group-hover:-translate-y-1 transition-all duration-300 sm:duration-500 border border-gray-100">
@@ -172,35 +234,39 @@ export function CategorySection() {
                   <div className="hidden xs:block space-y-0.5 sm:space-y-1">
                     <div className="flex items-center justify-center space-x-1 text-xs text-muted-foreground">
                       <span className="text-xs">📦</span>
-                      <span className="font-medium text-xs">{category.totalItems > 999 ? `${Math.floor(category.totalItems / 1000)}k` : category.totalItems}</span>
+                      <span className="font-medium text-xs">
+                        {(category.totalItems || category.product_count || 0) > 999 
+                          ? `${Math.floor((category.totalItems || category.product_count || 0) / 1000)}k` 
+                          : (category.totalItems || category.product_count || 0)}
+                      </span>
                     </div>
                     <div className="flex items-center justify-center space-x-1 text-xs text-muted-foreground">
                       <span className="text-xs">🏪</span>
-                      <span className="font-medium text-xs">{category.markets}</span>
+                      <span className="font-medium text-xs">{category.markets || category.market_count || 0}</span>
                     </div>
                   </div>
 
                   {/* Simplified stats for very small screens */}
                   <div className="xs:hidden">
                     <div className="flex items-center justify-center space-x-1 text-xs text-muted-foreground">
-                      <span className="font-medium text-xs">{category.markets} markets</span>
+                      <span className="font-medium text-xs">{category.markets || category.market_count || 0} markets</span>
                     </div>
                   </div>
-                </div>
+                </CardContent>
 
                 {/* Animated Background Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:duration-500"></div>
 
                 {/* Subtle Border Glow */}
                 <div className="absolute inset-0 rounded-2xl sm:rounded-3xl border border-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:duration-500"></div>
-              </div>
+              </Card>
             </Link>
           ))}
 
           {/* View All Button */}
           <Link href="/category" className="group">
-            <div className="relative bg-gradient-to-br from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-2xl sm:rounded-3xl border-2 border-dashed border-primary/40 hover:border-primary/60 hover:scale-105 transition-all duration-300 sm:duration-500 cursor-pointer overflow-hidden">
-              <div className="p-2 sm:p-3 text-center relative z-10">
+            <Card className="relative bg-gradient-to-br from-primary/10 to-primary/20 hover:from-primary/20 hover:to-primary/30 rounded-2xl sm:rounded-3xl border-2 border-dashed border-primary/40 hover:border-primary/60 hover:scale-105 transition-all duration-300 sm:duration-500 cursor-pointer overflow-hidden py-2 sm:py-3 gap-0">
+              <CardContent className="p-2 sm:p-3 text-center relative z-10">
                 <div className="relative mb-1.5 sm:mb-2">
                   <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 mx-auto bg-gradient-to-br from-primary/30 to-primary/20 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md sm:shadow-lg group-hover:shadow-lg sm:group-hover:shadow-xl group-hover:-translate-y-0.5 sm:group-hover:-translate-y-1 transition-all duration-300 sm:duration-500 border border-primary/30">
                     <Plus className="h-3 w-3 xs:h-4 xs:w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary group-hover:rotate-90 transition-transform duration-300 sm:duration-500" />
@@ -230,11 +296,11 @@ export function CategorySection() {
                     <span className="font-medium text-xs">Explore</span>
                   </div>
                 </div>
-              </div>
+              </CardContent>
 
               {/* Animated Background */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:duration-500"></div>
-            </div>
+            </Card>
           </Link>
         </div>
       </div>

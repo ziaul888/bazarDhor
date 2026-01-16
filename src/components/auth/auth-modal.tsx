@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, CheckCircle, AlertCircle, Calendar, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from './auth-context';
+import { useLogin, useRegister } from '@/lib/api/hooks/useAuth';
+import { toast } from 'sonner';
 
 export function AuthModal() {
   const { isAuthModalOpen, authModalMode, closeAuthModal } = useAuth();
@@ -16,35 +18,177 @@ export function AuthModal() {
       setMode(authModalMode);
     }
   }, [isAuthModalOpen, authModalMode]);
+  
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
+    dob: '',
+    gender: '',
+    city: '',
+    division: '',
     password: '',
     confirmPassword: ''
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // API hooks
+  const loginMutation = useLogin();
+  const registerMutation = useRegister();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error for this field
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle authentication logic here
-    console.log('Auth submission:', { mode, formData });
-    closeAuthModal();
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (mode === 'signup') {
+      if (!formData.firstName.trim()) {
+        newErrors.firstName = 'First name is required';
+      }
+      if (!formData.lastName.trim()) {
+        newErrors.lastName = 'Last name is required';
+      }
+      if (!formData.phone.trim()) {
+        newErrors.phone = 'Phone number is required';
+      }
+      if (!formData.dob.trim()) {
+        newErrors.dob = 'Date of birth is required';
+      }
+      if (!formData.gender) {
+        newErrors.gender = 'Gender is required';
+      }
+      if (!formData.city.trim()) {
+        newErrors.city = 'City is required';
+      }
+      if (!formData.division) {
+        newErrors.division = 'Division is required';
+      }
+      if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = 'Passwords do not match';
+      }
+      if (formData.password.length < 6) {
+        newErrors.password = 'Password must be at least 6 characters';
+      }
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+
+    if (!formData.password.trim()) {
+      newErrors.password = 'Password is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      if (mode === 'signin') {
+        // Login
+        await loginMutation.mutateAsync({
+          email: formData.email,
+          password: formData.password,
+        });
+        
+        toast.success('Welcome back!', {
+          description: 'You have successfully signed in.',
+          icon: <CheckCircle className="h-5 w-5" />,
+        });
+        
+        closeAuthModal();
+        
+        // Reset form
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          dob: '',
+          gender: '',
+          city: '',
+          division: '',
+          password: '',
+          confirmPassword: ''
+        });
+      } else {
+        // Register
+        await registerMutation.mutateAsync({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          password_confirmation: formData.confirmPassword,
+          phone: formData.phone,
+          dob: formData.dob,
+          gender: formData.gender,
+          city: formData.city,
+          division: formData.division,
+        });
+        
+        toast.success('Account created!', {
+          description: 'Welcome to MyMarket. Start exploring local markets.',
+          icon: <CheckCircle className="h-5 w-5" />,
+        });
+        
+        closeAuthModal();
+        
+        // Reset form
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          password: '',
+          confirmPassword: ''
+        });
+      }
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
+      
+      toast.error(mode === 'signin' ? 'Sign in failed' : 'Registration failed', {
+        description: errorMessage,
+        icon: <AlertCircle className="h-5 w-5" />,
+      });
+      
+      console.error('Auth error:', error);
+    }
+  };
+
+  const isLoading = loginMutation.isPending || registerMutation.isPending;
 
   const switchMode = () => {
     setMode(mode === 'signin' ? 'signup' : 'signin');
     setFormData({
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
       phone: '',
+      dob: '',
+      gender: '',
+      city: '',
+      division: '',
       password: '',
       confirmPassword: ''
     });
+    setErrors({});
   };
 
   return (
@@ -68,22 +212,53 @@ export function AuthModal() {
         {/* Form */}
         <div className="p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-            {/* Name Field - Sign Up Only */}
+            {/* Name Fields - Sign Up Only */}
             {mode === 'signup' && (
-              <div className="space-y-1 sm:space-y-2">
-                <label className="text-sm font-medium">Full Name</label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base"
-                    required
-                  />
+              <>
+                {/* First Name */}
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="text-sm font-medium">First Name</label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Enter your first name"
+                      value={formData.firstName}
+                      onChange={(e) => handleInputChange('firstName', e.target.value)}
+                      className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${
+                        errors.firstName ? 'border-destructive' : 'border-border'
+                      }`}
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                  {errors.firstName && (
+                    <p className="text-xs text-destructive mt-1">{errors.firstName}</p>
+                  )}
                 </div>
-              </div>
+
+                {/* Last Name */}
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="text-sm font-medium">Last Name</label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Enter your last name"
+                      value={formData.lastName}
+                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${
+                        errors.lastName ? 'border-destructive' : 'border-border'
+                      }`}
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                  {errors.lastName && (
+                    <p className="text-xs text-destructive mt-1">{errors.lastName}</p>
+                  )}
+                </div>
+              </>
             )}
 
             {/* Email Field */}
@@ -96,28 +271,135 @@ export function AuthModal() {
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base"
+                  className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${
+                    errors.email ? 'border-destructive' : 'border-border'
+                  }`}
                   required
+                  disabled={isLoading}
                 />
               </div>
+              {errors.email && (
+                <p className="text-xs text-destructive mt-1">{errors.email}</p>
+              )}
             </div>
 
             {/* Phone Field - Sign Up Only */}
             {mode === 'signup' && (
-              <div className="space-y-1 sm:space-y-2">
-                <label className="text-sm font-medium">Phone Number</label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <input
-                    type="tel"
-                    placeholder="Enter your phone number"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base"
-                    required
-                  />
+              <>
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="text-sm font-medium">Phone Number</label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="tel"
+                      placeholder="Enter your phone number"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${
+                        errors.phone ? 'border-destructive' : 'border-border'
+                      }`}
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                  {errors.phone && (
+                    <p className="text-xs text-destructive mt-1">{errors.phone}</p>
+                  )}
                 </div>
-              </div>
+
+                {/* Date of Birth */}
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="text-sm font-medium">Date of Birth</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="date"
+                      value={formData.dob}
+                      onChange={(e) => handleInputChange('dob', e.target.value)}
+                      className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${
+                        errors.dob ? 'border-destructive' : 'border-border'
+                      }`}
+                      required
+                      disabled={isLoading}
+                      max={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                  {errors.dob && (
+                    <p className="text-xs text-destructive mt-1">{errors.dob}</p>
+                  )}
+                </div>
+
+                {/* Gender */}
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="text-sm font-medium">Gender</label>
+                  <select
+                    value={formData.gender}
+                    onChange={(e) => handleInputChange('gender', e.target.value)}
+                    className={`w-full px-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${
+                      errors.gender ? 'border-destructive' : 'border-border'
+                    }`}
+                    required
+                    disabled={isLoading}
+                  >
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                  {errors.gender && (
+                    <p className="text-xs text-destructive mt-1">{errors.gender}</p>
+                  )}
+                </div>
+
+                {/* Division */}
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="text-sm font-medium">Division</label>
+                  <select
+                    value={formData.division}
+                    onChange={(e) => handleInputChange('division', e.target.value)}
+                    className={`w-full px-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${
+                      errors.division ? 'border-destructive' : 'border-border'
+                    }`}
+                    required
+                    disabled={isLoading}
+                  >
+                    <option value="">Select division</option>
+                    <option value="Dhaka">Dhaka</option>
+                    <option value="Chittagong">Chittagong</option>
+                    <option value="Rajshahi">Rajshahi</option>
+                    <option value="Khulna">Khulna</option>
+                    <option value="Barisal">Barisal</option>
+                    <option value="Sylhet">Sylhet</option>
+                    <option value="Rangpur">Rangpur</option>
+                    <option value="Mymensingh">Mymensingh</option>
+                  </select>
+                  {errors.division && (
+                    <p className="text-xs text-destructive mt-1">{errors.division}</p>
+                  )}
+                </div>
+
+                {/* City */}
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="text-sm font-medium">City</label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Enter your city"
+                      value={formData.city}
+                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${
+                        errors.city ? 'border-destructive' : 'border-border'
+                      }`}
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                  {errors.city && (
+                    <p className="text-xs text-destructive mt-1">{errors.city}</p>
+                  )}
+                </div>
+              </>
             )}
 
             {/* Password Field */}
@@ -130,17 +412,24 @@ export function AuthModal() {
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
-                  className="w-full pl-10 pr-12 py-2.5 sm:py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base"
+                  className={`w-full pl-10 pr-12 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${
+                    errors.password ? 'border-destructive' : 'border-border'
+                  }`}
                   required
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+                  disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {errors.password && (
+                <p className="text-xs text-destructive mt-1">{errors.password}</p>
+              )}
             </div>
 
             {/* Confirm Password Field - Sign Up Only */}
@@ -154,10 +443,16 @@ export function AuthModal() {
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base"
+                    className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${
+                      errors.confirmPassword ? 'border-destructive' : 'border-border'
+                    }`}
                     required
+                    disabled={isLoading}
                   />
                 </div>
+                {errors.confirmPassword && (
+                  <p className="text-xs text-destructive mt-1">{errors.confirmPassword}</p>
+                )}
               </div>
             )}
 
@@ -192,8 +487,19 @@ export function AuthModal() {
             )}
 
             {/* Submit Button */}
-            <Button type="submit" className="w-full py-2.5 sm:py-3 text-base sm:text-lg font-semibold mt-4 sm:mt-6">
-              {mode === 'signin' ? 'Sign In' : 'Create Account'}
+            <Button 
+              type="submit" 
+              className="w-full py-2.5 sm:py-3 text-base sm:text-lg font-semibold mt-4 sm:mt-6"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  {mode === 'signin' ? 'Signing In...' : 'Creating Account...'}
+                </>
+              ) : (
+                mode === 'signin' ? 'Sign In' : 'Create Account'
+              )}
             </Button>
           </form>
 

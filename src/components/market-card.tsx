@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin, Clock, Star, TrendingUp, TrendingDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
 interface Market {
   id: number;
@@ -31,8 +32,8 @@ interface MarketCardProps {
   className?: string;
 }
 
-export function MarketCard({ 
-  market, 
+export function MarketCard({
+  market,
   showCategoryItems = false,
   showPriceChange = false,
   showPriceRange = true,
@@ -42,7 +43,7 @@ export function MarketCard({
   const isCompact = variant === 'compact';
 
   return (
-    <div className={`bg-card rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300 ${className}`}>
+    <Card className={`overflow-hidden hover:shadow-lg transition-all duration-300 py-0 gap-0 ${className}`}>
       {/* Market Image */}
       <div className={`relative overflow-hidden ${isCompact ? 'h-32' : 'h-48'}`}>
         <Image
@@ -51,14 +52,13 @@ export function MarketCard({
           fill
           className="object-cover"
         />
-        
+
         {/* Status Badge */}
         <div className="absolute top-3 left-3">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            market.isOpen
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${market.isOpen
               ? 'bg-green-500 text-white'
               : 'bg-gray-500 text-white'
-          }`}>
+            }`}>
             {market.isOpen ? 'Open Now' : 'Closed'}
           </span>
         </div>
@@ -72,7 +72,7 @@ export function MarketCard({
           </div>
         )}
 
-     
+
 
         {/* Distance Badge */}
         <div className="absolute bottom-3 right-3">
@@ -83,7 +83,7 @@ export function MarketCard({
       </div>
 
       {/* Market Info */}
-      <div className={`${isCompact ? 'p-3' : 'p-4'}`}>
+      <CardContent className={`${isCompact ? 'p-3' : 'p-4'}`}>
         {/* Market Name & Rating */}
         <div className="flex items-start justify-between mb-1">
           <div className="flex-1 min-w-0">
@@ -120,7 +120,7 @@ export function MarketCard({
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">{market.openTime}</span>
             </div>
-          
+
           </div>
         )}
         {/* Specialties */}
@@ -128,9 +128,8 @@ export function MarketCard({
           {market.specialties.slice(0, isCompact ? 1 : 2).map((specialty, index) => (
             <span
               key={index}
-              className={`px-2 py-1 bg-accent text-accent-foreground rounded-md ${
-                isCompact ? 'text-xs' : 'text-xs'
-              }`}
+              className={`px-2 py-1 bg-accent text-accent-foreground rounded-md ${isCompact ? 'text-xs' : 'text-xs'
+                }`}
             >
               {specialty}
             </span>
@@ -138,7 +137,7 @@ export function MarketCard({
         </div>
 
         {/* Actions */}
-        <div className="flex space-x-2">
+        <CardFooter className="flex space-x-2 px-0 pt-4">
           <Button className="flex-1" size={isCompact ? "sm" : "default"} asChild>
             <Link href={`/markets/${market.id}`}>
               View Market
@@ -147,22 +146,22 @@ export function MarketCard({
           <Button variant="outline" size={isCompact ? "sm" : "default"}>
             <MapPin className="h-4 w-4" />
           </Button>
-        </div>
-      </div>
-    </div>
+        </CardFooter>
+      </CardContent>
+    </Card>
   );
 }
 
 // Market List Item Component for horizontal layout
-export function MarketListItem({ 
-  market, 
+export function MarketListItem({
+  market,
   showCategoryItems = false,
   showPriceChange = false,
   className = ''
 }: MarketCardProps) {
   return (
-    <div className={`bg-card rounded-xl border p-4 hover:shadow-lg transition-all duration-300 ${className}`}>
-      <div className="flex items-center space-x-4">
+    <Card className={`hover:shadow-lg transition-all duration-300 ${className}`}>
+      <CardContent className="flex items-center space-x-4">
         {/* Market Image */}
         <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
           <Image
@@ -185,11 +184,10 @@ export function MarketListItem({
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                 <span className="text-sm font-medium">{market.rating}</span>
               </div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                market.isOpen
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${market.isOpen
                   ? 'bg-green-500 text-white'
                   : 'bg-gray-500 text-white'
-              }`}>
+                }`}>
                 {market.isOpen ? 'Open' : 'Closed'}
               </span>
             </div>
@@ -224,7 +222,7 @@ export function MarketListItem({
             <MapPin className="h-4 w-4" />
           </Button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
