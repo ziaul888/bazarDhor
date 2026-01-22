@@ -3,66 +3,73 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import Image from 'next/image';
-import { ArrowRight, MapPin, DollarSign, Beef, Carrot, TrendingDown, Users, Clock } from 'lucide-react';
+import { ArrowRight, MapPin, DollarSign, Beef, Carrot, TrendingDown, Users, Clock, Loader2, LucideIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useBanners } from '@/lib/api/hooks/useBanners';
+import { useMemo } from 'react';
+
+interface BannerSlide {
+    id: string | number;
+    badge: { icon: LucideIcon; text: string };
+    title: string;
+    subtitle: string;
+    description: string;
+    image: string;
+    emoji: string;
+    gradient: string;
+    primaryBtn: string;
+    secondaryBtn: string;
+}
 
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
 
-const bannerSlides = [
-    {
-        id: 1,
-        badge: { icon: MapPin, text: "Find Nearest Market" },
-        title: "Fresh Groceries",
-        subtitle: "From Local Markets Near You",
-        description: "Discover the freshest vegetables, fruits, meat, and daily essentials from markets within 5km of your location.",
-        image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&h=300&fit=crop&auto=format",
-        emoji: "🛒",
-        gradient: "from-green-600 via-green-500 to-green-400",
-        primaryBtn: "Find Markets",
-        secondaryBtn: "View Products"
-    },
-    {
-        id: 2,
-        badge: { icon: DollarSign, text: "Best Price Guarantee" },
-        title: "Compare Prices",
-        subtitle: "Across All Local Markets",
-        description: "Get the best deals on fresh produce, meat, and groceries. Compare prices and update market rates in real-time.",
-        image: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=300&h=300&fit=crop&auto=format",
-        emoji: "💰",
-        gradient: "from-blue-600 via-blue-500 to-blue-400",
-        primaryBtn: "Compare Prices",
-        secondaryBtn: "Update Prices"
-    },
-    {
-        id: 3,
-        badge: { icon: Beef, text: "Fresh Meat & Poultry" },
-        title: "Premium Meat",
-        subtitle: "Farm Fresh Quality",
-        description: "Source the finest cuts of meat, chicken, and seafood from trusted local butchers and meat markets.",
-        image: "https://images.unsplash.com/photo-1588347818481-c7c1b6b8b4b4?w=300&h=300&fit=crop&auto=format",
-        emoji: "🥩",
-        gradient: "from-red-600 via-red-500 to-red-400",
-        primaryBtn: "Browse Meat",
-        secondaryBtn: "Find Butchers"
-    },
-    {
-        id: 4,
-        badge: { icon: Carrot, text: "Farm Fresh Produce" },
-        title: "Organic Vegetables",
-        subtitle: "Straight from Local Farms",
-        description: "Get the freshest organic vegetables, seasonal fruits, and herbs directly from local farmers and vendors.",
-        image: "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=300&h=300&fit=crop&auto=format",
-        emoji: "🥕",
-        gradient: "from-orange-600 via-orange-500 to-orange-400",
-        primaryBtn: "Shop Organic",
-        secondaryBtn: "Meet Farmers"
-    }
-];
+const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
 
 export function BannerSection() {
+    const { data: apiBanners, isLoading } = useBanners(10, 1);
+
+    const bannerSlides = useMemo<BannerSlide[]>(() => {
+        if (apiBanners && apiBanners.length > 0) {
+            return apiBanners.map((banner, index) => {
+                // Determine theme based on index or type
+                const themes = [
+                    { gradient: "from-green-600 via-green-500 to-green-400", emoji: "🥦", icon: Carrot },
+                    { gradient: "from-blue-600 via-blue-500 to-blue-400", emoji: "💰", icon: DollarSign },
+                    { gradient: "from-red-600 via-red-500 to-red-400", emoji: "🍖", icon: Beef },
+                    { gradient: "from-orange-600 via-orange-500 to-orange-400", emoji: "🛒", icon: MapPin }
+                ];
+                const theme = themes[index % themes.length];
+
+                return {
+                    id: banner.id,
+                    badge: { icon: theme.icon, text: banner.badge_text || "Special Offer" },
+                    title: banner.title,
+                    subtitle: "Local Market Deals",
+                    description: banner.description || "Discover fresh products and amazing deals in your neighborhood markets.",
+                    image: banner.image_path ? (banner.image_path.startsWith('http') ? banner.image_path : `${IMAGE_BASE_URL}${banner.image_path}`) : '',
+                    emoji: theme.emoji,
+                    gradient: banner.badge_background_color || theme.gradient,
+                    primaryBtn: banner.button_text || "Explore Now",
+                    secondaryBtn: "Learn More"
+                };
+            });
+        }
+        return [];
+    }, [apiBanners]);
+
+    if (isLoading) {
+        return (
+            <div className="py-12 flex flex-col items-center justify-center bg-muted/5 rounded-3xl mx-4 sm:mx-8">
+                <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+                <p className="text-muted-foreground font-medium">Loading fresh deals...</p>
+            </div>
+        );
+    }
+
+    if (bannerSlides.length === 0) return null;
     return (
         <section className="py-4 sm:py-8 lg:py-8">
             <div className="container mx-auto px-3 sm:px-4 lg:px-6">

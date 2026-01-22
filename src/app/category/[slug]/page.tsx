@@ -1,25 +1,18 @@
-"use client";
-
-import { useState } from 'react';
-import { useParams } from 'next/navigation';
-import Image from 'next/image';
+import { CategoryClientPage } from './_components/category-client-page';
+import { categoryServerApi } from '@/lib/api/services/server/category-server';
+import { marketServerApi } from '@/lib/api/services/server/market-server';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { cookies } from 'next/headers';
+import Image from 'next/image';
 import {
   ArrowLeft,
   TrendingUp,
-  TrendingDown,
-  Grid3X3,
-  List,
-  Search,
-  SlidersHorizontal
+  TrendingDown
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Pagination, usePagination } from '@/components/ui/pagination';
-import { MarketCard, MarketListItem } from '@/components/market-card';
 
-// Mock data for category details
-const categoryData = {
+// Mock data for category details (kept as fallback)
+const categoryData: Record<string, any> = {
   "fresh-vegetables": {
     id: 1,
     name: "Fresh Vegetables",
@@ -28,7 +21,7 @@ const categoryData = {
     icon: "🥬",
     productCount: 85,
     marketCount: 45,
-    priceChange: "down" as const,
+    priceChange: "down",
     avgPriceChange: -5.2,
     popularItems: ["Tomatoes", "Onions", "Potatoes", "Carrots", "Spinach"]
   },
@@ -40,7 +33,7 @@ const categoryData = {
     icon: "🍎",
     productCount: 72,
     marketCount: 38,
-    priceChange: "up" as const,
+    priceChange: "up",
     avgPriceChange: 3.8,
     popularItems: ["Apples", "Bananas", "Oranges", "Grapes", "Mangoes"]
   },
@@ -52,7 +45,7 @@ const categoryData = {
     icon: "🥩",
     productCount: 45,
     marketCount: 28,
-    priceChange: "down" as const,
+    priceChange: "down",
     avgPriceChange: -2.1,
     popularItems: ["Chicken", "Beef", "Lamb", "Pork", "Turkey"]
   }
@@ -300,75 +293,72 @@ const categoryMarkets = [
   }
 ];
 
-export default function CategoryDetailsPage() {
-  const params = useParams();
-  const slug = params.slug as string;
+export default async function CategoryDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
 
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState('distance');
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredMarkets, setFilteredMarkets] = useState(categoryMarkets);
-  const [currentPage, setCurrentPage] = useState(1);
+  // Get zoneId from cookies on the server
+  const cookieStore = await cookies();
+  const zoneId = (await cookieStore).get('zoneId')?.value;
 
-  // Pagination logic - 9 items per page
-  const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredMarkets, 9);
-  const paginatedMarkets = getPaginatedItems(currentPage);
-  const paginationInfo = getPaginationInfo(currentPage);
+  const headers: Record<string, string> = {};
+  if (zoneId) {
+    headers['zoneId'] = zoneId;
+  }
 
-  // Get category data
-  const category = categoryData[slug as keyof typeof categoryData];
+  // Fetch real category data from organized server service
+  const apiCategory = await categoryServerApi.getCategoryById(slug, headers);
+
+  // Determine which category data to use
+  let category = apiCategory ? {
+    id: apiCategory.id,
+    name: apiCategory.name,
+    description: apiCategory.description || "Local market category",
+    image: apiCategory.image_path ? (apiCategory.image_path.startsWith('http') ? apiCategory.image_path : `https://bazardor.chhagolnaiyasportareana.xyz/storage/${apiCategory.image_path}`) : (categoryData[slug]?.image || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=400&fit=crop"),
+    icon: apiCategory.icon || categoryData[slug]?.icon || "📦",
+    productCount: apiCategory.product_count || 0,
+    marketCount: apiCategory.market_count || apiCategory.unique_market_count || categoryData[slug]?.marketCount || 0,
+    priceChange: categoryData[slug]?.priceChange || "down",
+    avgPriceChange: categoryData[slug]?.avgPriceChange || 0,
+  } : categoryData[slug];
+
+  // If still not found, search mock data by ID
+  if (!category) {
+    const mockMatch = Object.values(categoryData).find(c => c.id.toString() === slug);
+    if (mockMatch) {
+      category = mockMatch;
+    }
+  }
 
   if (!category) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Category Not Found</h1>
-          {/* <p className="text-muted-foreground mb-4">The category you're looking for doesnt exist.</p> */}
-          <Button asChild>
-            <Link href="/category">Back to Categories</Link>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl text-muted-foreground">?</span>
+          </div>
+          <h1 className="text-2xl font-bold mb-4">Category Not Found</h1>
+          <p className="text-muted-foreground mb-8">
+            We couldn't find the category you're looking for.
+          </p>
+          <Button asChild size="lg" className="rounded-full px-8">
+            <Link href="/category">Browse All Categories</Link>
           </Button>
         </div>
       </div>
     );
   }
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    const filtered = categoryMarkets.filter(market =>
-      market.name.toLowerCase().includes(query.toLowerCase()) ||
-      market.address.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredMarkets(filtered);
-    setCurrentPage(1); // Reset to first page when searching
-  };
+  // Fetch real markets for this category from organized server service
+  let markets = await marketServerApi.getMarketsByCategory(category.id.toString(), 50, headers);
 
-  const handleSort = (sortOption: string) => {
-    setSortBy(sortOption);
-    const sorted = [...filteredMarkets];
-
-    switch (sortOption) {
-      case 'distance':
-        sorted.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
-        break;
-      case 'rating':
-        sorted.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'price':
-        sorted.sort((a, b) => parseFloat(a.avgPrice.replace('$', '')) - parseFloat(b.avgPrice.replace('$', '')));
-        break;
-      case 'items':
-        sorted.sort((a, b) => b.categoryItems - a.categoryItems);
-        break;
-    }
-
-    setFilteredMarkets(sorted);
-    setCurrentPage(1); // Reset to first page when sorting
-  };
+  // If no real markets, use mock data for demonstration
+  if (markets.length === 0) {
+    markets = categoryMarkets as any;
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Header - Server Rendered */}
       <div className="relative">
         {/* Hero Image */}
         <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
@@ -377,6 +367,7 @@ export default function CategoryDetailsPage() {
             alt={category.name}
             fill
             className="object-cover"
+            priority
           />
           <div className="absolute inset-0 bg-black/40" />
 
@@ -410,7 +401,7 @@ export default function CategoryDetailsPage() {
           </div>
         </div>
 
-        {/* Stats Bar */}
+        {/* Stats Bar - Server Rendered */}
         <div className="bg-card border-b">
           <div className="container mx-auto px-4 py-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -443,135 +434,7 @@ export default function CategoryDetailsPage() {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 py-6">
-        {/* Search and Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          {/* Search */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search markets..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background"
-            />
-          </div>
-
-          {/* Controls */}
-          <div className="flex items-center space-x-2">
-            {/* View Mode Toggle */}
-            <div className="flex border border-border rounded-lg p-1">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
-              >
-                <Grid3X3 className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
-              >
-                <List className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Sort */}
-            <select
-              value={sortBy}
-              onChange={(e) => handleSort(e.target.value)}
-              className="px-3 py-2 border border-border rounded-lg bg-background text-sm"
-            >
-              <option value="distance">Sort by Distance</option>
-              <option value="rating">Sort by Rating</option>
-              <option value="price">Sort by Price</option>
-              <option value="items">Sort by Items</option>
-            </select>
-
-            {/* Mobile Filter */}
-            <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="sm:hidden">
-                  <SlidersHorizontal className="h-4 w-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <SheetHeader>
-                  <SheetTitle>Filter Markets</SheetTitle>
-                </SheetHeader>
-                <div className="py-4">
-                  {/* Filter content would go here */}
-                  <p className="text-muted-foreground">Filter options coming soon...</p>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-
-        {/* Results Info */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-sm text-muted-foreground">
-            Showing {paginationInfo.startIndex}-{paginationInfo.endIndex} of {paginationInfo.totalItems} markets
-          </span>
-          {totalPages > 1 && (
-            <span className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages}
-            </span>
-          )}
-        </div>
-
-        {/* Markets Grid/List */}
-        {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginatedMarkets.map((market) => (
-              <MarketCard
-                key={market.id}
-                market={market}
-                showCategoryItems={true}
-                showPriceChange={true}
-                showPriceRange={true}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {paginatedMarkets.map((market) => (
-              <MarketListItem
-                key={market.id}
-                market={market}
-                showCategoryItems={true}
-                showPriceChange={true}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-8">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </div>
-        )}
-
-        {/* No Results */}
-        {filteredMarkets.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">No markets found</h3>
-            <p className="text-muted-foreground">
-              Try adjusting your search or check back later for new markets.
-            </p>
-          </div>
-        )}
-      </div>
+      <CategoryClientPage markets={markets} />
     </div>
   );
 }
-

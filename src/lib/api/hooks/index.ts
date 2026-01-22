@@ -7,7 +7,7 @@ export {
   useMarketItems as useMarketItemsList,
   useSearchMarkets,
   useNearbyMarkets,
-  useCategories,
+  useCategories as useMarketCategories,
   marketKeys,
 } from './useMarkets';
 
@@ -36,7 +36,7 @@ export * from './useAuth';
 
 // Categories hooks (separate to avoid conflicts)
 export {
-  useCategories as useCategoriesList,
+  useCategories,
   useCategory,
   usePopularCategories,
   categoryKeys,

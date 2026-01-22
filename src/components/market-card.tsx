@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Clock, Star, TrendingUp, TrendingDown } from 'lucide-react';
+import { MapPin, Clock, Star, TrendingUp, TrendingDown, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
@@ -41,23 +42,34 @@ export function MarketCard({
   className = ''
 }: MarketCardProps) {
   const isCompact = variant === 'compact';
+  const [imgError, setImgError] = useState(false);
 
   return (
     <Card className={`overflow-hidden hover:shadow-lg transition-all duration-300 py-0 gap-0 ${className}`}>
       {/* Market Image */}
-      <div className={`relative overflow-hidden ${isCompact ? 'h-32' : 'h-48'}`}>
-        <Image
-          src={market.image}
-          alt={market.name}
-          fill
-          className="object-cover"
-        />
+      <div className={`relative overflow-hidden ${isCompact ? 'h-32' : 'h-48'} bg-muted flex items-center justify-center`}>
+        {!imgError ? (
+          <Image
+            src={market.image}
+            alt={market.name}
+            fill
+            className="object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center p-4 text-center">
+            <Store className="h-10 w-10 text-primary/20 mb-2" />
+            <span className="text-[10px] uppercase tracking-wider font-bold text-primary/40 leading-tight">
+              {market.name}
+            </span>
+          </div>
+        )}
 
         {/* Status Badge */}
         <div className="absolute top-3 left-3">
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${market.isOpen
-              ? 'bg-green-500 text-white'
-              : 'bg-gray-500 text-white'
+            ? 'bg-green-500 text-white'
+            : 'bg-gray-500 text-white'
             }`}>
             {market.isOpen ? 'Open Now' : 'Closed'}
           </span>
@@ -159,17 +171,26 @@ export function MarketListItem({
   showPriceChange = false,
   className = ''
 }: MarketCardProps) {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <Card className={`hover:shadow-lg transition-all duration-300 ${className}`}>
       <CardContent className="flex items-center space-x-4">
         {/* Market Image */}
-        <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-          <Image
-            src={market.image}
-            alt={market.name}
-            fill
-            className="object-cover"
-          />
+        <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center">
+          {!imgError ? (
+            <Image
+              src={market.image}
+              alt={market.name}
+              fill
+              className="object-cover"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center">
+              <Store className="h-8 w-8 text-primary/20" />
+            </div>
+          )}
         </div>
 
         {/* Market Info */}
@@ -185,8 +206,8 @@ export function MarketListItem({
                 <span className="text-sm font-medium">{market.rating}</span>
               </div>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${market.isOpen
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-500 text-white'
+                ? 'bg-green-500 text-white'
+                : 'bg-gray-500 text-white'
                 }`}>
                 {market.isOpen ? 'Open' : 'Closed'}
               </span>

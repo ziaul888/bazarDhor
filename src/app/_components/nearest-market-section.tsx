@@ -2,8 +2,10 @@
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { MarketCard } from '@/components/market-card';
+import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
+import { useMemo } from 'react';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -82,7 +84,41 @@ const nearestMarkets = [
     }
 ];
 
+const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+
 export function NearestMarketSection() {
+    const { data: apiMarkets, isLoading, error } = useRandomMarkets();
+
+    const markets = useMemo(() => {
+        if (apiMarkets && apiMarkets.length > 0) {
+            return apiMarkets.slice(0, 10).map((m: any) => ({
+                id: m.id,
+                name: m.name,
+                address: m.address || 'Address not available',
+                distance: m.distance_km ? `${m.distance_km} km` : 'N/A',
+                openTime: m.opening_hours?.is_closed ? 'Closed' : (m.opening_hours?.opening || '8:00 AM - 8:00 PM'),
+                rating: 4.5, // API doesn't seem to provide rating yet
+                reviews: 0,
+                vendors: 0,
+                image: m.image_path ? `${IMAGE_BASE_URL}${m.image_path}` : "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop",
+                isOpen: m.is_open || false,
+                specialties: [m.type || "Local Market"],
+                featured: m.is_featured || false
+            }));
+        }
+        return nearestMarkets;
+    }, [apiMarkets]);
+
+    if (isLoading) {
+        return (
+            <section className="py-4 sm:py-8 bg-muted/30">
+                <div className="container mx-auto px-4 text-center">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
+                    <p className="text-muted-foreground">Finding nearest markets...</p>
+                </div>
+            </section>
+        );
+    }
     return (
         <section className="py-4 sm:py-8 bg-muted/30">
             <div className="container mx-auto px-4">
@@ -131,7 +167,7 @@ export function NearestMarketSection() {
                         loop={true}
                         className="market-swiper"
                     >
-                        {nearestMarkets.map((market) => (
+                        {markets.map((market) => (
                             <SwiperSlide key={market.id}>
                                 <MarketCard market={market} />
                             </SwiperSlide>

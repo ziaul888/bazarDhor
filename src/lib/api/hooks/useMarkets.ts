@@ -14,6 +14,8 @@ export const marketKeys = {
   search: (query: string) => [...marketKeys.all, 'search', query] as const,
   nearby: (lat: number, lng: number) => [...marketKeys.all, 'nearby', lat, lng] as const,
   categories: () => [...marketKeys.all, 'categories'] as const,
+  random: () => [...marketKeys.all, 'random'] as const,
+  randomProducts: () => [...marketKeys.all, 'random-products'] as const,
 };
 
 // Get markets with filters
@@ -71,5 +73,21 @@ export const useCategories = () => {
     queryKey: marketKeys.categories(),
     queryFn: () => marketsApi.getCategories(),
     staleTime: 60 * 60 * 1000, // 1 hour
+  });
+};
+
+export const useRandomMarkets = () => {
+  return useQuery({
+    queryKey: marketKeys.random(),
+    queryFn: () => marketsApi.getRandomMarkets(),
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useRandomProducts = () => {
+  return useQuery({
+    queryKey: marketKeys.randomProducts(),
+    queryFn: () => marketsApi.getRandomProducts(),
+    staleTime: 5 * 60 * 1000,
   });
 };

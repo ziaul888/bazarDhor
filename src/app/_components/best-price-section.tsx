@@ -1,12 +1,14 @@
 "use client";
 
+import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
-import { TrendingUp, TrendingDown, Tag } from 'lucide-react';
-import { useState } from 'react';
+import Link from 'next/link';
+import { TrendingUp, TrendingDown, Tag, Clock, Loader2, Package } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { useRandomProducts } from '@/lib/api/hooks/useMarkets';
 
 const bestPriceItems = [
     {
@@ -131,11 +133,49 @@ const bestPriceItems = [
     }
 ];
 
+const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+
 export function BestPriceSection() {
-    const [items, setItems] = useState(bestPriceItems);
-    const [selectedItem, setSelectedItem] = useState<typeof bestPriceItems[0] | null>(null);
+    const { data: apiProducts, isLoading } = useRandomProducts();
+    const [items, setItems] = useState<any[]>([]);
+    const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+    const [selectedItem, setSelectedItem] = useState<any | null>(null);
     const [newPrice, setNewPrice] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Update items when API data changes
+    useEffect(() => {
+        if (apiProducts && apiProducts.length > 0) {
+            const mapped = apiProducts.slice(0, 10).map((p) => {
+                const lowestPrice = p.market_prices[0];
+                const hasDiscount = lowestPrice?.discount_price && lowestPrice.discount_price > 0;
+
+                return {
+                    id: p.id,
+                    name: p.name,
+                    marketId: lowestPrice?.market?.id,
+                    marketName: lowestPrice?.market?.name || 'Local Market',
+                    currentPrice: hasDiscount ? lowestPrice.discount_price : (lowestPrice?.price || 0),
+                    image: p.image_path ? (p.image_path.startsWith('http') ? p.image_path : `${IMAGE_BASE_URL}${p.image_path}`) : '',
+                    category: p.category?.name || 'Fresh Items',
+                    priceChange: Math.random() > 0.5 ? 'up' : 'down', // Local simulation for UI
+                    lastUpdated: lowestPrice?.last_update || 'Recently',
+                    unit: p.unit?.symbol || p.unit?.name || 'unit'
+                };
+            });
+            setItems(mapped);
+        } else if (!isLoading) {
+            // Fallback if no products from API
+            setItems(bestPriceItems.map(item => ({
+                ...item,
+                unit: 'unit'
+            })));
+        }
+    }, [apiProducts, isLoading]);
+
+    const handleImageError = (id: string) => {
+        setImageErrors(prev => ({ ...prev, [id]: true }));
+    };
 
     const handleUpdatePrice = (item: typeof bestPriceItems[0]) => {
         setSelectedItem(item);
@@ -178,69 +218,96 @@ export function BestPriceSection() {
                 </div>
 
                 {/* Products Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4">
-                    {items.map((item) => (
-                        <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 py-0 gap-0">
-                            {/* Product Image */}
-                            <div className="relative aspect-[4/3] overflow-hidden">
-                                <Image
-                                    src={item.image}
-                                    alt={item.name}
-                                    fill
-                                    className="object-cover"
-                                />
-                                {/* Price Trend Badge */}
-                                <div className="absolute top-1 right-1">
-                                    <span className={`px-1.5 py-0.5 text-white text-xs font-bold rounded-full flex items-center space-x-1 ${item.priceChange === 'up' ? 'bg-red-500' : 'bg-green-500'
-                                        }`}>
-                                        {item.priceChange === 'up' ? (
-                                            <TrendingUp className="h-2.5 w-2.5" />
-                                        ) : (
-                                            <TrendingDown className="h-2.5 w-2.5" />
-                                        )}
-                                    </span>
-                                </div>
-                                {/* Category Badge */}
-                                <div className="absolute bottom-1 left-1">
-                                    <span className="px-1.5 py-0.5 bg-black/70 text-white text-xs rounded-full backdrop-blur-sm">
-                                        {item.category}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Product Info */}
-                            <CardContent className="p-2 sm:p-3">
-                                {/* Item Name */}
-                                <h3 className="text-xs sm:text-sm font-semibold mb-1 line-clamp-2">
-                                    {item.name}
-                                </h3>
-
-                                {/* Market Name */}
-                                <p className="text-xs text-muted-foreground mb-2 line-clamp-1">
-                                    {item.marketName}
-                                </p>
-
-                                {/* Current Price */}
-                                <div className="mb-2">
-                                    <span className="text-sm sm:text-base font-bold text-foreground">${item.currentPrice}</span>
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-20 bg-muted/10 rounded-2xl border-2 border-dashed">
+                        <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+                        <p className="text-muted-foreground font-medium">Fetching real-time market data...</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4">
+                        {items.map((item) => (
+                            <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 py-0 gap-0 group h-full flex flex-col">
+                                {/* Product Image */}
+                                <div className="relative aspect-[4/3] overflow-hidden bg-muted flex items-center justify-center">
+                                    {!imageErrors[item.id] ? (
+                                        <Image
+                                            src={item.image}
+                                            alt={item.name}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            onError={() => handleImageError(item.id.toString())}
+                                        />
+                                    ) : (
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center p-4">
+                                            <Package className="h-10 w-10 text-primary/20" />
+                                        </div>
+                                    )}
+                                    {/* Price Trend Badge */}
+                                    <div className="absolute top-1 right-1">
+                                        <span className={`px-1.5 py-0.5 text-white text-xs font-bold rounded-full flex items-center space-x-1 ${item.priceChange === 'up' ? 'bg-red-500' : 'bg-green-500'
+                                            }`}>
+                                            {item.priceChange === 'up' ? (
+                                                <TrendingUp className="h-2.5 w-2.5" />
+                                            ) : (
+                                                <TrendingDown className="h-2.5 w-2.5" />
+                                            )}
+                                        </span>
+                                    </div>
+                                    {/* Category Badge */}
+                                    <div className="absolute bottom-1 left-1">
+                                        <span className="px-1.5 py-0.5 bg-black/70 text-white text-xs rounded-full backdrop-blur-sm">
+                                            {item.category}
+                                        </span>
+                                    </div>
                                 </div>
 
-                                {/* Last Updated */}
-                                <div className="mb-2">
-                                    <span className="text-xs text-muted-foreground">{item.lastUpdated}</span>
-                                </div>
+                                {/* Product Info */}
+                                <CardContent className="p-2 sm:p-3 flex-1 flex flex-col">
+                                    {/* Item Name */}
+                                    <h3 className="text-xs sm:text-sm font-semibold mb-1 line-clamp-2 min-h-[2.5rem]">
+                                        {item.name}
+                                    </h3>
 
-                                {/* Update Price Button */}
-                                <button
-                                    onClick={() => handleUpdatePrice(item)}
-                                    className="w-full py-1.5 text-xs bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors"
-                                >
-                                    Update
-                                </button>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+                                    {/* Market Name */}
+                                    {item.marketId ? (
+                                        <Link
+                                            href={`/markets/${item?.marketId}`}
+                                            className="text-[10px] sm:text-xs text-muted-foreground mb-2 line-clamp-1 italic hover:text-primary hover:not-italic font-medium transition-all"
+                                        >
+                                            @{item.marketName}
+                                        </Link>
+                                    ) : (
+                                        <p className="text-[10px] sm:text-xs text-muted-foreground mb-2 line-clamp-1 italic">
+                                            @{item.marketName}
+                                        </p>
+                                    )}
+
+                                    {/* Current Price */}
+                                    <div className="mb-1">
+                                        <span className="text-sm sm:text-base font-bold text-primary">৳{item.currentPrice}</span>
+                                        <span className="text-[10px] text-muted-foreground ml-1">/ {item.unit}</span>
+                                    </div>
+
+                                    {/* Last Updated */}
+                                    <div className="mb-3 mt-auto">
+                                        <div className="flex items-center text-[10px] text-muted-foreground/80">
+                                            <Clock className="h-3 w-3 mr-1" />
+                                            {item.lastUpdated}
+                                        </div>
+                                    </div>
+
+                                    {/* Update Price Button */}
+                                    <button
+                                        onClick={() => handleUpdatePrice(item)}
+                                        className="w-full py-1.5 text-[10px] sm:text-xs bg-primary/10 text-primary rounded-md font-bold hover:bg-primary hover:text-white transition-all duration-300"
+                                    >
+                                        Update Price
+                                    </button>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                )}
 
                 {/* View All Button */}
                 <div className="text-center mt-6">
@@ -260,72 +327,56 @@ export function BestPriceSection() {
                             <div className="space-y-4">
                                 {/* Product Info */}
                                 <div className="flex items-center space-x-3">
-                                    <div className="relative w-16 h-16 rounded-lg overflow-hidden">
-                                        <Image
-                                            src={selectedItem.image}
-                                            alt={selectedItem.name}
-                                            fill
-                                            className="object-cover"
-                                        />
+                                    <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-muted">
+                                        {!imageErrors[selectedItem.id] ? (
+                                            <Image
+                                                src={selectedItem.image}
+                                                alt={selectedItem.name}
+                                                fill
+                                                className="object-cover"
+                                                onError={() => handleImageError(selectedItem.id.toString())}
+                                            />
+                                        ) : (
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <Package className="h-6 w-6 text-primary/20" />
+                                            </div>
+                                        )}
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-sm">{selectedItem.name}</h3>
-                                        <p className="text-xs text-muted-foreground">{selectedItem.marketName}</p>
-                                        <p className="text-xs text-muted-foreground">Current: ${selectedItem.currentPrice}</p>
+                                        {selectedItem.marketId ? (
+                                            <Link
+                                                href={`/markets/${selectedItem.marketId}`}
+                                                className="text-xs text-muted-foreground hover:text-primary transition-colors block"
+                                            >
+                                                @{selectedItem.marketName}
+                                            </Link>
+                                        ) : (
+                                            <p className="text-xs text-muted-foreground">@{selectedItem.marketName}</p>
+                                        )}
+                                        <p className="text-xs font-bold text-primary">Current: ৳{selectedItem.currentPrice}</p>
                                     </div>
                                 </div>
 
                                 {/* Quick Adjustment Buttons */}
                                 <div className="space-y-3">
                                     <label className="text-sm font-medium">Quick Adjustments</label>
-                                    <div className="grid grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-2 gap-2">
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handlePredefinedAmount(-0.50)}
+                                            onClick={() => handlePredefinedAmount(-5)}
                                             className="text-xs"
                                         >
-                                            -$0.50
+                                            -৳5
                                         </Button>
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handlePredefinedAmount(-0.25)}
+                                            onClick={() => handlePredefinedAmount(5)}
                                             className="text-xs"
                                         >
-                                            -$0.25
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handlePredefinedAmount(-0.10)}
-                                            className="text-xs"
-                                        >
-                                            -$0.10
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handlePredefinedAmount(0.10)}
-                                            className="text-xs"
-                                        >
-                                            +$0.10
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handlePredefinedAmount(0.25)}
-                                            className="text-xs"
-                                        >
-                                            +$0.25
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handlePredefinedAmount(0.50)}
-                                            className="text-xs"
-                                        >
-                                            +$0.50
+                                            +৳5
                                         </Button>
                                     </div>
                                 </div>
@@ -333,7 +384,7 @@ export function BestPriceSection() {
                                 {/* Price Input */}
                                 <div className="space-y-2">
                                     <label htmlFor="price" className="text-sm font-medium">
-                                        New Price ($)
+                                        New Price (৳)
                                     </label>
                                     <Input
                                         id="price"

@@ -53,6 +53,38 @@ export interface MarketItem {
   marketId: string;
 }
 
+export interface ProductPrice {
+  id: string;
+  price: number;
+  discount_price: number | null;
+  price_date: string;
+  last_update: string;
+  market: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  image_path: string;
+  description: string;
+  status: string;
+  is_visible: boolean;
+  is_featured: boolean;
+  brand?: string;
+  country_of_origin?: string;
+  category: Category;
+  unit: {
+    id: string;
+    name: string;
+    symbol: string;
+    unit_type: string;
+  };
+  market_prices: ProductPrice[];
+}
+
 // User types
 export interface User {
   id: string;
@@ -98,14 +130,21 @@ export interface ItemFilters {
 
 // Category types
 export interface Category {
-  id: string;
+  id: string | number;
   name: string;
   slug: string;
   icon: string;
-  description: string;
-  itemCount: number;
-  marketCount: number;
-  popular: boolean;
+  description?: string;
+  itemCount?: number;
+  marketCount?: number;
+  product_count?: number;
+  market_count?: number;
+  unique_market_count?: number;
+  vendor_count?: number;
+  popular: boolean | number;
+  image?: string;
+  image_path?: string;
+  rating?: number;
 }
 
 // Review types
@@ -201,3 +240,25 @@ export interface GetZoneRequest {
 
 // Based on the user's JSON, the response data IS the zone object
 export type GetZoneResponse = Zone;
+
+// Banner types
+export interface Banner {
+  id: string;
+  title: string;
+  image_path: string;
+  url: string | null;
+  type: string;
+  description: string | null;
+  badge_text: string | null;
+  badge_color: string | null;
+  badge_background_color: string | null;
+  badge_icon: string | null;
+  button_text: string | null;
+  is_active: boolean;
+  position: number;
+}
+
+export interface BannerResponse {
+  data: Banner[];
+  errors: any[];
+}

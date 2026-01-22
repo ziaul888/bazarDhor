@@ -20,14 +20,14 @@ export const useCategories = (): UseQueryResult<Category[], Error> => {
 
   return useQuery({
     queryKey: categoryKeys.lists(),
-    queryFn: categoriesApi.getAll,
+    queryFn: () => categoriesApi.getAll(),
     staleTime: 5 * 60 * 1000,
     enabled: !!zone?.id,
   });
 };
 
 // Get category by slug
-export const useCategory = (slug: string): UseQueryResult<Category, Error> => {
+export const useCategory = (slug: string): UseQueryResult<Category | null, Error> => {
   return useQuery({
     queryKey: categoryKeys.detail(slug),
     queryFn: () => categoriesApi.getBySlug(slug),

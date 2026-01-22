@@ -1,10 +1,12 @@
 "use client";
 
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
-import { Heart, Star, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, Star, ShoppingCart, ChevronLeft, ChevronRight, Loader2, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useRandomProducts } from '@/lib/api/hooks/useMarkets';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -76,7 +78,49 @@ const products = [
   }
 ];
 
+const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+
 export function ProductCarousel() {
+  const { data: apiProducts, isLoading, error } = useRandomProducts();
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+
+  const mappedProducts = useMemo(() => {
+    if (apiProducts && apiProducts.length > 0) {
+      return apiProducts.map((p) => {
+        const lowestPrice = p.market_prices[0];
+        const hasDiscount = lowestPrice?.discount_price && lowestPrice.discount_price > 0;
+
+        return {
+          id: p.id,
+          name: p.name,
+          price: hasDiscount ? lowestPrice.discount_price : (lowestPrice?.price || 0),
+          originalPrice: hasDiscount ? lowestPrice.price : null,
+          rating: 4.5,
+          reviews: 0,
+          image: p.image_path ? (p.image_path.startsWith('http') ? p.image_path : `${IMAGE_BASE_URL}${p.image_path}`) : '',
+          badge: p.is_featured ? 'Featured' : null,
+          isLiked: false,
+          unit: p.unit?.symbol || p.unit?.name || ''
+        };
+      });
+    }
+    return products;
+  }, [apiProducts]);
+
+  const handleImageError = (id: string) => {
+    setImageErrors(prev => ({ ...prev, [id]: true }));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="py-12">
+        <div className="container mx-auto px-4 text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
+          <p className="text-muted-foreground">Loading fresh products...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
@@ -86,7 +130,7 @@ export function ProductCarousel() {
             <h2 className="text-3xl font-bold mb-2">Featured Products</h2>
             <p className="text-muted-foreground">Handpicked artisanal goods from local makers</p>
           </div>
-          
+
           {/* Navigation Buttons */}
           <div className="hidden sm:flex space-x-2">
             <button className="product-carousel-prev w-10 h-10 bg-primary/10 hover:bg-primary/20 rounded-full flex items-center justify-center text-primary transition-colors">
@@ -129,38 +173,45 @@ export function ProductCarousel() {
           }}
           className="pb-12"
         >
-          {products.map((product) => (
+          {mappedProducts.map((product) => (
             <SwiperSlide key={product.id}>
               <div className="bg-card rounded-xl border hover:shadow-lg transition-all duration-300 group overflow-hidden">
                 {/* Product Image */}
-                <div className="relative aspect-square overflow-hidden">
-                  <Image 
-                    src={product.image} 
-                    alt={product.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  
+                <div className="relative aspect-square overflow-hidden bg-muted flex items-center justify-center">
+                  {!imageErrors[product.id] ? (
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={() => handleImageError(product.id.toString())}
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center p-4">
+                      <Package className="h-10 w-10 text-primary/20 mb-2" />
+                    </div>
+                  )}
+
                   {/* Badge */}
-                  <div className="absolute top-3 left-3">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      product.badge === 'Sale' ? 'bg-destructive text-destructive-foreground' :
-                      product.badge === 'New' ? 'bg-success text-success-foreground' :
-                      'bg-primary text-primary-foreground'
-                    }`}>
-                      {product.badge}
-                    </span>
-                  </div>
-                  
+                  {product.badge && (
+                    <div className="absolute top-3 left-3">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${product.badge === 'Sale' ? 'bg-destructive text-destructive-foreground' :
+                        product.badge === 'New' ? 'bg-success text-success-foreground' :
+                          'bg-primary text-primary-foreground'
+                        }`}>
+                        {product.badge}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Wishlist Button */}
                   <button className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm hover:bg-white rounded-full flex items-center justify-center transition-colors group/heart">
-                    <Heart className={`h-4 w-4 transition-colors ${
-                      product.isLiked 
-                        ? 'text-red-500 fill-red-500' 
-                        : 'text-gray-600 group-hover/heart:text-red-500'
-                    }`} />
+                    <Heart className={`h-4 w-4 transition-colors ${product.isLiked
+                      ? 'text-red-500 fill-red-500'
+                      : 'text-gray-600 group-hover/heart:text-red-500'
+                      }`} />
                   </button>
-                  
+
                   {/* Quick Add Button */}
                   <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
@@ -169,40 +220,42 @@ export function ProductCarousel() {
                     </Button>
                   </div>
                 </div>
-                
+
                 {/* Product Info */}
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2 line-clamp-1">{product.name}</h3>
-                  
+                <div className="p-4 flex-1 flex flex-col">
+                  <h3 className="font-semibold text-lg mb-1 line-clamp-1">{product.name}</h3>
+                  <div className="text-xs text-muted-foreground mb-3 font-medium">Per {(product as any).unit || 'unit'}</div>
+
                   {/* Rating */}
                   <div className="flex items-center space-x-1 mb-3">
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`h-4 w-4 ${
-                            i < Math.floor(product.rating) 
-                              ? 'text-yellow-400 fill-yellow-400' 
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${i < Math.floor(product.rating)
+                              ? 'text-yellow-400 fill-yellow-400'
                               : 'text-gray-300'
-                          }`} 
+                            }`}
                         />
                       ))}
                     </div>
-                    <span className="text-sm text-muted-foreground">
-                      {product.rating} ({product.reviews})
+                    <span className="text-sm text-muted-foreground ml-1">
+                      {product.rating}
                     </span>
                   </div>
-                  
+
                   {/* Price */}
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xl font-bold text-primary">
-                      ${product.price}
-                    </span>
-                    {product.originalPrice && (
-                      <span className="text-sm text-muted-foreground line-through">
-                        ${product.originalPrice}
+                  <div className="mt-auto">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xl font-bold text-primary">
+                        ৳{product.price}
                       </span>
-                    )}
+                      {product.originalPrice && (
+                        <span className="text-sm text-muted-foreground line-through">
+                          ৳{product.originalPrice}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -210,7 +263,7 @@ export function ProductCarousel() {
           ))}
         </Swiper>
       </div>
-      
+
       {/* Custom Pagination Styles */}
       <style jsx global>{`
         .product-pagination-bullet {
