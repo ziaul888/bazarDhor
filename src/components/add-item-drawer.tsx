@@ -56,7 +56,7 @@ export function AddItemDrawer() {
       />
       
       {/* Side Drawer */}
-      <div className={`fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${
+      <div className={`fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
         {/* Header */}
@@ -79,7 +79,7 @@ export function AddItemDrawer() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto min-h-0">
           <div className="p-6 space-y-6">
           {/* Image Upload */}
           <div className="space-y-3">

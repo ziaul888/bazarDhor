@@ -11,7 +11,7 @@ interface FloatingAddButtonProps {
 export function FloatingAddButton({ onClick, className = "" }: FloatingAddButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
-  
+
 
   const handleClick = () => {
     setIsPressed(true);
@@ -20,13 +20,12 @@ export function FloatingAddButton({ onClick, className = "" }: FloatingAddButton
   };
 
   return (
-    <div   onClick={handleClick} className="fixed bottom-20 right-4 z-50">
+    <div onClick={handleClick} className="fixed bottom-20 right-4 z-50">
       {/* Enhanced glow effect */}
       <div className="absolute inset-0 bg-primary rounded-full blur-xl opacity-40 animate-pulse scale-125" />
       <div className="absolute inset-0 bg-primary rounded-full blur-md opacity-60 animate-ping" />
-      
+
       <button
-      
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className={`
@@ -47,16 +46,15 @@ export function FloatingAddButton({ onClick, className = "" }: FloatingAddButton
       >
         {/* Inner highlight */}
         <div className="absolute inset-2 bg-gradient-to-br from-white/30 to-transparent rounded-full" />
-        
+
         {/* Icon container */}
         <div className="relative z-10 flex items-center justify-center">
-          <Plus 
-            className={`h-8 w-8 font-bold transition-all duration-300 ${
-              isPressed ? 'rotate-90 scale-75' : isHovered ? 'rotate-45 scale-110' : 'rotate-0'
-            }`} 
+          <Plus
+            className={`h-8 w-8 font-bold transition-all duration-300 ${isPressed ? 'rotate-90 scale-75' : isHovered ? 'rotate-45 scale-110' : 'rotate-0'
+              }`}
             strokeWidth={3}
           />
-          
+
           {/* Enhanced sparkle effects */}
           {isHovered && (
             <>
@@ -66,7 +64,7 @@ export function FloatingAddButton({ onClick, className = "" }: FloatingAddButton
             </>
           )}
         </div>
-        
+
         {/* Pulsing ring */}
         <div className={`
           absolute inset-0 rounded-full border-4 border-primary/50
@@ -75,7 +73,7 @@ export function FloatingAddButton({ onClick, className = "" }: FloatingAddButton
           animate-ping
         `} />
       </button>
-      
+
       {/* Attention-grabbing pulse animation */}
       <div className="absolute inset-0 rounded-full border-2 border-primary animate-ping opacity-75" />
     </div>
