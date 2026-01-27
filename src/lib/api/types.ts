@@ -116,6 +116,13 @@ export interface MarketFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
+export interface MarketListParams {
+  user_lat: number;
+  user_lng: number;
+  limit?: number;
+  offset?: number;
+}
+
 export interface ItemFilters {
   search?: string;
   category?: string;
@@ -145,6 +152,11 @@ export interface Category {
   image?: string;
   image_path?: string;
   rating?: number;
+}
+
+export interface CategoryListParams {
+  limit?: number;
+  offset?: number;
 }
 
 // Review types

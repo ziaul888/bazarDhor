@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { marketsApi } from '../services/markets';
-import type { MarketFilters, ItemFilters } from '../types';
+import type { MarketFilters, MarketListParams, ItemFilters } from '../types';
 
 // Query keys for better cache management
 export const marketKeys = {
   all: ['markets'] as const,
   lists: () => [...marketKeys.all, 'list'] as const,
   list: (filters: MarketFilters) => [...marketKeys.lists(), filters] as const,
+  listByLocation: (params: MarketListParams) => [...marketKeys.lists(), 'by-location', params] as const,
   details: () => [...marketKeys.all, 'detail'] as const,
   detail: (id: string) => [...marketKeys.details(), id] as const,
   items: (id: string) => [...marketKeys.detail(id), 'items'] as const,
@@ -23,6 +24,15 @@ export const useMarkets = (filters?: MarketFilters) => {
   return useQuery({
     queryKey: marketKeys.list(filters || {}),
     queryFn: () => marketsApi.getMarkets(filters),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+// Get markets list by user location (offset/limit)
+export const useMarketList = (params: MarketListParams) => {
+  return useQuery({
+    queryKey: marketKeys.listByLocation(params),
+    queryFn: () => marketsApi.getMarketList(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

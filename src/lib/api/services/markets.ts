@@ -3,6 +3,7 @@ import type {
   Market,
   MarketItem,
   MarketFilters,
+  MarketListParams,
   ItemFilters,
   ApiResponse,
   PaginatedResponse,
@@ -52,6 +53,12 @@ export const marketsApi = {
   getRandomMarkets: async (): Promise<Market[]> => {
     const { data } = await apiClient.get<{ data: Market[] }>('/markets/random-list');
     return data.data || [];
+  },
+
+  // Get markets list by user location (offset/limit)
+  getMarketList: async (params: MarketListParams): Promise<unknown> => {
+    const { data } = await apiClient.get('/markets/list', { params });
+    return data;
   },
 
   // Get random list of products

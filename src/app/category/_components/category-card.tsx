@@ -1,11 +1,12 @@
 "use client";
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { TrendingUp, TrendingDown, ArrowRight, MapPin, GitCompare } from 'lucide-react';
+import { TrendingUp, TrendingDown, ArrowRight, MapPin, GitCompare, Store } from 'lucide-react';
 
 interface Category {
-  id: number;
+  id: number | string;
   name: string;
   image: string;
   productCount: number;
@@ -19,17 +20,29 @@ interface CategoryCardProps {
 }
 
 export function CategoryCard({ category }: CategoryCardProps) {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <Link href={`/category/${category.id}`}>
       <div className="group bg-card rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
         {/* Category Image */}
         <div className="relative h-40 overflow-hidden">
-          <Image
-            src={category.image}
-            alt={category.name}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+          {!imgError ? (
+            <Image
+              src={category.image}
+              alt={category.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center p-4 text-center">
+              <Store className="h-10 w-10 text-primary/20 mb-2" />
+              <span className="text-[10px] uppercase tracking-wider font-bold text-primary/40 leading-tight">
+                {category.name}
+              </span>
+            </div>
+          )}
 
           {/* Overlay */}
           <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
