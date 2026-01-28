@@ -1,5 +1,5 @@
 import { apiClient } from '../client';
-import type { User, ApiResponse } from '../types';
+import type { User, ApiResponse, CreateUserProductPayload, UserProduct } from '../types';
 
 export const userApi = {
   // Get current user profile
@@ -29,6 +29,14 @@ export const userApi = {
   // Get user's favorite markets
   getFavoriteMarkets: async (): Promise<ApiResponse<string[]>> => {
     const { data } = await apiClient.get('/user/favorites');
+    return data;
+  },
+
+  // Create a product for the current user
+  createProduct: async (
+    payload: CreateUserProductPayload | FormData
+  ): Promise<ApiResponse<UserProduct>> => {
+    const { data } = await apiClient.post('/user/products/create', payload);
     return data;
   },
 };

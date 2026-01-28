@@ -226,6 +226,28 @@ export interface NewItem {
   description?: string;
 }
 
+// User product contribution types
+export interface CreateUserProductPayload {
+  name: string;
+  category?: string;
+  categoryId?: string;
+  marketId?: string;
+  price?: number;
+  unit?: string;
+  image?: string;
+  description?: string;
+  [key: string]: unknown;
+}
+
+export interface UserProduct {
+  id: string | number;
+  name?: string;
+  price?: number;
+  image?: string;
+  description?: string;
+  [key: string]: unknown;
+}
+
 // Zone types
 export interface ZoneCoordinates {
   lat: number;

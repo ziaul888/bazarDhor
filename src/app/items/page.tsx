@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { ItemCard } from '@/components/item-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, Grid3X3, List, SlidersHorizontal, MapPin, Star } from 'lucide-react';
+import { Search, Filter, Grid3X3, List, SlidersHorizontal } from 'lucide-react';
+import { ProductCard } from '@/components/product-card';
+import { ProductPriceDialog } from '@/components/product-price-dialog';
 import {
   Select,
   SelectContent,
@@ -353,7 +354,6 @@ const sortOptions = [
 export default function ItemsPage() {
   const [items, setItems] = useState(allItems);
   const [filteredItems, setFilteredItems] = useState(allItems);
-  const [favorites, setFavorites] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [sortBy, setSortBy] = useState("name");
@@ -362,6 +362,9 @@ export default function ItemsPage() {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 100 });
   const [showInStockOnly, setShowInStockOnly] = useState(false);
   const [showOrganicOnly, setShowOrganicOnly] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<(typeof allItems)[number] | null>(null);
+  const [newPrice, setNewPrice] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Filter and sort items
   useEffect(() => {
@@ -419,17 +422,32 @@ export default function ItemsPage() {
     setFilteredItems(filtered);
   }, [items, searchQuery, selectedCategory, sortBy, priceRange, showInStockOnly, showOrganicOnly]);
 
-  const handleAddToCart = (itemId: number) => {
-    console.log(`Added item ${itemId} to cart`);
-    // Implement cart functionality
+  const handleUpdatePrice = (item: (typeof allItems)[number]) => {
+    setSelectedItem(item);
+    setNewPrice(item.currentPrice.toString());
+    setIsModalOpen(true);
   };
 
-  const handleToggleFavorite = (itemId: number) => {
-    setFavorites(prev => 
-      prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId]
+  const handleSavePrice = () => {
+    if (!selectedItem) return;
+    const parsed = parseFloat(newPrice);
+    if (Number.isNaN(parsed)) return;
+    setItems(prev =>
+      prev.map(item =>
+        item.id === selectedItem.id
+          ? { ...item, currentPrice: parsed, lastUpdated: 'Just now' }
+          : item
+      )
     );
+    setIsModalOpen(false);
+  };
+
+  const handlePredefinedAmount = (amount: number) => {
+    if (selectedItem) {
+      const currentPrice = parseFloat(newPrice) || selectedItem.currentPrice;
+      const newPriceValue = Math.max(0, currentPrice + amount);
+      setNewPrice(newPriceValue.toFixed(2));
+    }
   };
 
   return (
@@ -589,18 +607,26 @@ export default function ItemsPage() {
               : "grid-cols-1 max-w-4xl mx-auto"
           }`}>
             {filteredItems.map((item) => (
-              <ItemCard
+              <ProductCard
                 key={item.id}
                 item={item}
-                onAddToCart={handleAddToCart}
-                onToggleFavorite={handleToggleFavorite}
-                isFavorite={favorites.includes(item.id)}
-                compact={viewMode === "list"}
+                onUpdatePrice={handleUpdatePrice}
               />
             ))}
           </div>
         )}
       </div>
+
+      <ProductPriceDialog
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        item={selectedItem}
+        newPrice={newPrice}
+        onNewPriceChange={setNewPrice}
+        onSave={handleSavePrice}
+        onQuickAdjust={handlePredefinedAmount}
+        disableSave={!newPrice || parseFloat(newPrice) <= 0}
+      />
     </div>
   );
 }
