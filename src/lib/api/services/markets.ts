@@ -6,7 +6,9 @@ import type {
   ItemFilters,
   ApiResponse,
   PaginatedResponse,
-  Product
+  Product,
+  MarketComparisonParams,
+  MarketComparisonResponse
 } from '../types';
 
 export const marketsApi = {
@@ -58,5 +60,11 @@ export const marketsApi = {
   getRandomProducts: async (): Promise<Product[]> => {
     const { data } = await apiClient.get<{ data: Product[] }>('/markets/random-product-list');
     return data.data || [];
+  },
+
+  // Compare two markets
+  compareMarkets: async (params: MarketComparisonParams): Promise<ApiResponse<MarketComparisonResponse>> => {
+    const { data } = await apiClient.get('/markets/compare', { params });
+    return data;
   },
 };

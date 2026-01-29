@@ -161,6 +161,41 @@ export interface Review {
 }
 
 // Price comparison types
+export interface MarketComparisonParams {
+  market_id_1: string;
+  market_id_2: string;
+  user_lat: number;
+  user_lng: number;
+}
+
+export interface ComparedMarket {
+  id: string;
+  name: string;
+  type: string;
+  address: string;
+  distance_km: number;
+  active_products_count: number;
+  open_days_count: number;
+  features: {
+    non_veg_available: boolean;
+    halal_available: boolean;
+    parking_available: boolean;
+    restroom_available: boolean;
+    home_delivery: boolean;
+  };
+  opening_hours: Array<{
+    day: string;
+    is_closed: boolean;
+    opening: string | null;
+    closing: string | null;
+  }>;
+}
+
+export interface MarketComparisonResponse {
+  market_1: ComparedMarket;
+  market_2: ComparedMarket;
+}
+
 export interface PriceComparison {
   itemName: string;
   category: string;
