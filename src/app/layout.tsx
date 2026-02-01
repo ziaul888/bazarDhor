@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins, Source_Code_Pro, Playfair_Display, Open_Sans } from "next/font/google";
 import "./globals.css";
 import { MobileNavbar } from "@/components/mobile-navbar";
@@ -45,11 +45,14 @@ const openSans = Open_Sans({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#10b981",
+};
+
 export const metadata: Metadata = {
   title: "Fresh Market Finder - Find Local Groceries",
   description: "Discover fresh groceries from local markets and farmers. Compare prices, find the best deals, and support your community.",
   manifest: "/manifest.json",
-  themeColor: "#10b981",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
