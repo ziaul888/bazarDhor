@@ -12,7 +12,7 @@ export const categoryServerApi = {
             });
 
             // Handle common error pattern if any (fetchClient already unwraps 'data')
-            if (category && 'error' in (category as any)) {
+            if (category && typeof category === 'object' && 'error' in category) {
                 return null;
             }
 

@@ -20,7 +20,7 @@ export function AddItemModal() {
     category: '',
     market: '',
     description: '',
-    image: null as File | null,
+    image: null as any,
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export function AddItemModal() {
   };
 
   // Prevent body scroll when sheet is open - Enhanced for all devices
-  
+
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>

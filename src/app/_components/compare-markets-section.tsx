@@ -1,99 +1,51 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Star, ChevronDown, ArrowRight, Scale, MapPin, Users } from 'lucide-react';
+import { Star, ChevronDown, ArrowRight, Scale, MapPin, Users, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-
-const markets = [
-    {
-        id: 1,
-        name: "Downtown Farmers Market",
-        address: "123 Main Street, Downtown",
-        distance: "0.5 km",
-        rating: 4.8,
-        reviews: 245,
-        vendors: 32,
-        image: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=200&fit=crop",
-        openHours: "8:00 AM - 6:00 PM",
-        features: {
-            freeParking: true,
-            organicCertified: true,
-            delivery: true,
-        },
-        avgPrices: {
-            produce: 4.50,
-            bread: 6.99,
-        }
-    },
-    {
-        id: 2,
-        name: "Riverside Artisan Market",
-        address: "456 River Road, Riverside",
-        distance: "1.2 km",
-        rating: 4.7,
-        reviews: 189,
-        vendors: 28,
-        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=200&fit=crop",
-        openHours: "9:00 AM - 5:00 PM",
-        features: {
-            organicCertified: true,
-            petFriendly: true,
-            creditCards: true,
-        },
-        avgPrices: {
-            produce: 5.20,
-            bread: 7.50,
-        }
-    },
-    {
-        id: 3,
-        name: "Central Plaza Market",
-        address: "789 Plaza Avenue, Central",
-        distance: "2.1 km",
-        rating: 4.6,
-        reviews: 156,
-        vendors: 45,
-        image: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400&h=200&fit=crop",
-        openHours: "7:00 AM - 7:00 PM",
-        features: {
-            freeParking: true,
-            creditCards: true,
-            delivery: true,
-        },
-        avgPrices: {
-            produce: 3.99,
-            bread: 5.99,
-        }
-    },
-    {
-        id: 4,
-        name: "Sunset Weekend Market",
-        address: "321 Sunset Boulevard, West",
-        distance: "3.5 km",
-        rating: 4.9,
-        reviews: 298,
-        vendors: 38,
-        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=200&fit=crop",
-        openHours: "10:00 AM - 4:00 PM",
-        features: {
-            freeParking: true,
-            organicCertified: true,
-            petFriendly: true,
-        },
-        avgPrices: {
-            produce: 4.75,
-            bread: 8.99,
-        }
-    }
-];
+import { useRandomMarkets, useCompareMarkets } from '@/lib/api/hooks/useMarkets';
+import type { Market } from '@/lib/api/types';
 
 export function CompareMarketsSection() {
-    const [selectedMarket1, setSelectedMarket1] = useState(markets[0]);
-    const [selectedMarket2, setSelectedMarket2] = useState(markets[1]);
+    const { data: apiMarkets, isLoading: isLoadingMarkets } = useRandomMarkets();
+
+    // User location (defaults to user's requested values)
+    const [userLoc, setUserLoc] = useState({ lat: 23.8103, lng: 90.4125 });
+
+    const [selectedMarket1, setSelectedMarket1] = useState<Market | null>(null);
+    const [selectedMarket2, setSelectedMarket2] = useState<Market | null>(null);
     const [dropdown1Open, setDropdown1Open] = useState(false);
     const [dropdown2Open, setDropdown2Open] = useState(false);
+    const [showResults, setShowResults] = useState(false);
+
+    // Get comparison data
+    const { data: comparisonData, isLoading: isComparing } = useCompareMarkets({
+        market_id_1: selectedMarket1?.id || '',
+        market_id_2: selectedMarket2?.id || '',
+        user_lat: userLoc.lat,
+        user_lng: userLoc.lng
+    }, showResults);
+
+    // Initialize selections when data arrives
+    useEffect(() => {
+        if (apiMarkets && apiMarkets.length >= 2) {
+            if (!selectedMarket1) setSelectedMarket1(apiMarkets[0]);
+            if (!selectedMarket2) setSelectedMarket2(apiMarkets[1]);
+        }
+    }, [apiMarkets]);
+
+    // Update location from localStorage if available
+    useEffect(() => {
+        const lat = localStorage.getItem('user_lat');
+        const lng = localStorage.getItem('user_lng');
+        if (lat && lng) {
+            setUserLoc({ lat: parseFloat(lat), lng: parseFloat(lng) });
+        }
+    }, []);
+
+    const markets = apiMarkets || [];
 
     return (
         <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-r from-primary/5 via-background to-secondary/5">
@@ -126,31 +78,38 @@ export function CompareMarketsSection() {
                                     </div>
                                     <h3 className="text-lg sm:text-xl font-semibold text-gray-800">First Market</h3>
                                 </div>
-                                
+
                                 <button
                                     onClick={() => {
                                         setDropdown1Open(!dropdown1Open);
                                         setDropdown2Open(false);
                                     }}
-                                    className="w-full p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-2 sm:border-3 border-primary/20 rounded-xl sm:rounded-2xl hover:border-primary/40 hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-primary/20 group"
+                                    disabled={isLoadingMarkets}
+                                    className="w-full p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-2 sm:border-3 border-primary/20 rounded-xl sm:rounded-2xl hover:border-primary/40 hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-primary/20 group disabled:opacity-50"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="text-left flex-1 min-w-0">
-                                            <div className="font-bold text-base sm:text-lg text-gray-900 mb-1 sm:mb-2 truncate">{selectedMarket1.name}</div>
-                                            <div className="text-xs sm:text-sm text-gray-600 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 lg:space-x-3">
-                                                <div className="flex items-center space-x-1">
-                                                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    <span className="truncate">{selectedMarket1.distance}</span>
-                                                </div>
-                                                <div className="hidden sm:flex items-center space-x-1">
-                                                    <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    <span className="whitespace-nowrap">{selectedMarket1.vendors} vendors</span>
-                                                </div>
-                                                <div className="flex items-center space-x-1">
-                                                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
-                                                    <span>{selectedMarket1.rating}</span>
-                                                </div>
-                                            </div>
+                                            {selectedMarket1 ? (
+                                                <>
+                                                    <div className="font-bold text-base sm:text-lg text-gray-900 mb-1 sm:mb-2 truncate">{selectedMarket1.name}</div>
+                                                    <div className="text-xs sm:text-sm text-gray-600 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 lg:space-x-3">
+                                                        <div className="flex items-center space-x-1">
+                                                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                            <span className="truncate">{selectedMarket1.distance || 'N/A'}</span>
+                                                        </div>
+                                                        <div className="hidden sm:flex items-center space-x-1">
+                                                            <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                            <span className="whitespace-nowrap">{selectedMarket1.vendors || 0} vendors</span>
+                                                        </div>
+                                                        <div className="flex items-center space-x-1">
+                                                            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                                                            <span>{selectedMarket1.rating || 'N/A'}</span>
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <div className="text-muted-foreground italic">Select a market</div>
+                                            )}
                                         </div>
                                         <ChevronDown className={`h-5 w-5 sm:h-6 sm:w-6 text-primary transition-transform group-hover:scale-110 flex-shrink-0 ml-2 ${dropdown1Open ? 'rotate-180' : ''}`} />
                                     </div>
@@ -158,12 +117,13 @@ export function CompareMarketsSection() {
 
                                 {dropdown1Open && (
                                     <div className="absolute top-full left-0 right-0 mt-2 sm:mt-4 bg-white border-2 border-primary/20 rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl z-40 max-h-60 sm:max-h-80 overflow-y-auto">
-                                        {markets.filter(m => m.id !== selectedMarket2.id).map((market) => (
+                                        {markets.filter(m => m.id !== selectedMarket2?.id).map((market) => (
                                             <button
                                                 key={market.id}
                                                 onClick={() => {
                                                     setSelectedMarket1(market);
                                                     setDropdown1Open(false);
+                                                    setShowResults(false);
                                                 }}
                                                 className="w-full p-3 sm:p-4 lg:p-5 text-left hover:bg-primary/5 transition-colors border-b border-gray-100 last:border-b-0 first:rounded-t-xl first:sm:rounded-t-2xl last:rounded-b-xl last:sm:rounded-b-2xl"
                                             >
@@ -192,31 +152,38 @@ export function CompareMarketsSection() {
                                     </div>
                                     <h3 className="text-lg sm:text-xl font-semibold text-gray-800">Second Market</h3>
                                 </div>
-                                
+
                                 <button
                                     onClick={() => {
                                         setDropdown2Open(!dropdown2Open);
                                         setDropdown1Open(false);
                                     }}
-                                    className="w-full p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-secondary/5 to-secondary/10 border-2 sm:border-3 border-secondary/20 rounded-xl sm:rounded-2xl hover:border-secondary/40 hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-secondary/20 group"
+                                    disabled={isLoadingMarkets}
+                                    className="w-full p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-secondary/5 to-secondary/10 border-2 sm:border-3 border-secondary/20 rounded-xl sm:rounded-2xl hover:border-secondary/40 hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-secondary/20 group disabled:opacity-50"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="text-left flex-1 min-w-0">
-                                            <div className="font-bold text-base sm:text-lg text-gray-900 mb-1 sm:mb-2 truncate">{selectedMarket2.name}</div>
-                                            <div className="text-xs sm:text-sm text-gray-600 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 lg:space-x-3">
-                                                <div className="flex items-center space-x-1">
-                                                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    <span className="truncate">{selectedMarket2.distance}</span>
-                                                </div>
-                                                <div className="hidden sm:flex items-center space-x-1">
-                                                    <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    <span className="whitespace-nowrap">{selectedMarket2.vendors} vendors</span>
-                                                </div>
-                                                <div className="flex items-center space-x-1">
-                                                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
-                                                    <span>{selectedMarket2.rating}</span>
-                                                </div>
-                                            </div>
+                                            {selectedMarket2 ? (
+                                                <>
+                                                    <div className="font-bold text-base sm:text-lg text-gray-900 mb-1 sm:mb-2 truncate">{selectedMarket2.name}</div>
+                                                    <div className="text-xs sm:text-sm text-gray-600 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 lg:space-x-3">
+                                                        <div className="flex items-center space-x-1">
+                                                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                            <span className="truncate">{selectedMarket2.distance || 'N/A'}</span>
+                                                        </div>
+                                                        <div className="hidden sm:flex items-center space-x-1">
+                                                            <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                            <span className="whitespace-nowrap">{selectedMarket2.vendors || 0} vendors</span>
+                                                        </div>
+                                                        <div className="flex items-center space-x-1">
+                                                            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                                                            <span>{selectedMarket2.rating || 'N/A'}</span>
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <div className="text-muted-foreground italic">Select a market</div>
+                                            )}
                                         </div>
                                         <ChevronDown className={`h-5 w-5 sm:h-6 sm:w-6 text-secondary transition-transform group-hover:scale-110 flex-shrink-0 ml-2 ${dropdown2Open ? 'rotate-180' : ''}`} />
                                     </div>
@@ -224,12 +191,13 @@ export function CompareMarketsSection() {
 
                                 {dropdown2Open && (
                                     <div className="absolute top-full left-0 right-0 mt-2 sm:mt-4 bg-white border-2 border-secondary/20 rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl z-40 max-h-60 sm:max-h-80 overflow-y-auto">
-                                        {markets.filter(m => m.id !== selectedMarket1.id).map((market) => (
+                                        {markets.filter(m => m.id !== selectedMarket1?.id).map((market) => (
                                             <button
                                                 key={market.id}
                                                 onClick={() => {
                                                     setSelectedMarket2(market);
                                                     setDropdown2Open(false);
+                                                    setShowResults(false);
                                                 }}
                                                 className="w-full p-3 sm:p-4 lg:p-5 text-left hover:bg-secondary/5 transition-colors border-b border-gray-100 last:border-b-0 first:rounded-t-xl first:sm:rounded-t-2xl last:rounded-b-xl last:sm:rounded-b-2xl"
                                             >
@@ -252,14 +220,80 @@ export function CompareMarketsSection() {
                         </CardContent>
                     </Card>
 
-                {/* Call to Action */}
-                <div className="text-center px-2 sm:px-0">
-                        <Button asChild size="lg" className="w-full sm:w-auto px-6 sm:px-8 lg:px-12 py-4 sm:py-5 lg:py-6 text-base sm:text-lg lg:text-xl font-bold bg-gradient-to-r from-primary via-primary/90 to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg sm:shadow-xl lg:shadow-2xl hover:shadow-xl sm:hover:shadow-2xl lg:hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
-                            <Link href="/markets/compare" className="flex items-center justify-center space-x-2 sm:space-x-3 lg:space-x-4">
-                                <Scale className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 flex-shrink-0" />
-                                <span className="truncate">Compare These Markets</span>
-                                <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 flex-shrink-0" />
-                            </Link>
+                    {/* Comparison Results Card */}
+                    {showResults && (
+                        <Card className="bg-white/95 backdrop-blur-md rounded-2xl border-primary/20 shadow-xl mb-8 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500">
+                            <CardContent className="p-6 sm:p-8">
+                                {isComparing ? (
+                                    <div className="flex flex-col items-center justify-center py-12">
+                                        <Loader2 className="h-8 w-8 text-primary animate-spin mb-4" />
+                                        <p className="text-muted-foreground">Calculating best value...</p>
+                                    </div>
+                                ) : comparisonData?.data?.market_1 && comparisonData?.data?.market_2 ? (() => {
+                                    const m1 = comparisonData.data.market_1;
+                                    const m2 = comparisonData.data.market_2;
+                                    const d1 = m1.distance_km;
+                                    const d2 = m2.distance_km;
+                                    const closerId = d1 <= d2 ? selectedMarket1?.id : selectedMarket2?.id;
+                                    const closerName = d1 <= d2 ? m1.name : m2.name;
+                                    const difference = Math.abs(d1 - d2).toFixed(2);
+
+                                    return (
+                                        <div className="space-y-8">
+                                            {/* Distance Comparison */}
+                                            <div>
+                                                <h4 className="text-lg font-bold flex items-center mb-4">
+                                                    <MapPin className="h-5 w-5 mr-2 text-primary" />
+                                                    Location Advantage
+                                                </h4>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className={`p-4 rounded-xl border-2 ${closerId === selectedMarket1?.id ? 'border-primary bg-primary/5' : 'border-gray-100'}`}>
+                                                        <div className="text-sm text-muted-foreground mb-1">{m1.name}</div>
+                                                        <div className="text-xl font-bold">{d1} km</div>
+                                                        {closerId === selectedMarket1?.id && (
+                                                            <div className="mt-2 inline-block px-2 py-1 bg-primary text-primary-foreground text-xs font-bold rounded">CLOSER</div>
+                                                        )}
+                                                    </div>
+                                                    <div className={`p-4 rounded-xl border-2 ${closerId === selectedMarket2?.id ? 'border-secondary bg-secondary/5' : 'border-gray-100'}`}>
+                                                        <div className="text-sm text-muted-foreground mb-1">{m2.name}</div>
+                                                        <div className="text-xl font-bold">{d2} km</div>
+                                                        {closerId === selectedMarket2?.id && (
+                                                            <div className="mt-2 inline-block px-2 py-1 bg-secondary text-secondary-foreground text-xs font-bold rounded">CLOSER</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <p className="mt-4 text-sm text-center font-medium bg-muted py-2 rounded-lg">
+                                                    The {closerName} is <span className="text-primary font-bold">{difference} km closer</span> to you.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                })() : (
+                                    <div className="text-center py-8">
+                                        <p className="text-warning font-medium">Comparison failed. Please try different markets.</p>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Call to Action */}
+                    <div className="text-center px-2 sm:px-0">
+                        <Button
+                            onClick={() => setShowResults(true)}
+                            size="lg"
+                            disabled={!selectedMarket1 || !selectedMarket2 || isComparing}
+                            className="w-full sm:w-auto px-6 sm:px-8 lg:px-12 py-4 sm:py-5 lg:py-6 text-base sm:text-lg lg:text-xl font-bold bg-gradient-to-r from-primary via-primary/90 to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg sm:shadow-xl lg:shadow-2xl hover:shadow-xl sm:hover:shadow-2xl lg:hover:shadow-3xl transition-all duration-300 transform hover:scale-105"
+                        >
+                            <div className="flex items-center justify-center space-x-2 sm:space-x-3 lg:space-x-4">
+                                {isComparing ? (
+                                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 animate-spin" />
+                                ) : (
+                                    <Scale className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 flex-shrink-0" />
+                                )}
+                                <span className="truncate">{showResults && !isComparing ? "Refresh Comparison" : "Compare These Markets"}</span>
+                                {!isComparing && <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 flex-shrink-0" />}
+                            </div>
                         </Button>
                         <p className="text-muted-foreground text-sm sm:text-base lg:text-lg mt-3 sm:mt-4 max-w-2xl mx-auto px-2 sm:px-0 leading-relaxed">
                             Get detailed price comparisons, vendor information, features, and make the best choice for your shopping

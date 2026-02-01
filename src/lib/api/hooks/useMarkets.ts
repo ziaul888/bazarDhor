@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { marketsApi } from '../services/markets';
-import type { MarketFilters, MarketListParams, ItemFilters } from '../types';
+import type { MarketFilters, MarketListParams, ItemFilters, MarketComparisonParams } from '../types';
 
 // Query keys for better cache management
 export const marketKeys = {
@@ -17,6 +17,7 @@ export const marketKeys = {
   categories: () => [...marketKeys.all, 'categories'] as const,
   random: () => [...marketKeys.all, 'random'] as const,
   randomProducts: () => [...marketKeys.all, 'random-products'] as const,
+  compare: (params: MarketComparisonParams) => [...marketKeys.all, 'compare', params] as const,
 };
 
 // Get markets with filters
@@ -90,6 +91,15 @@ export const useRandomMarkets = () => {
   return useQuery({
     queryKey: marketKeys.random(),
     queryFn: () => marketsApi.getRandomMarkets(),
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useCompareMarkets = (params: MarketComparisonParams, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: marketKeys.compare(params),
+    queryFn: () => marketsApi.compareMarkets(params),
+    enabled: enabled && !!(params.market_id_1 && params.market_id_2),
     staleTime: 5 * 60 * 1000,
   });
 };

@@ -142,12 +142,12 @@ const toImageUrl = (value: unknown) => {
 
 const mapCategoryFromApi = (item: Record<string, unknown>, index: number) => {
   return {
-    id: item.id ?? item.slug ?? `category-${index + 1}`,
+    id: toNumber(item.id ?? index + 1, index + 1),
     name: String(item.name ?? item.category_name ?? 'Category'),
     image: toImageUrl(item.image ?? item.image_path),
     productCount: toNumber(item.productCount ?? item.product_count ?? item.item_count, 0),
     icon: String(item.icon ?? item.emoji ?? '📦'),
-    priceChange: index % 2 === 0 ? 'down' : 'up',
+    priceChange: index % 2 === 0 ? 'down' : 'up' as 'down' | 'up',
     markets: toNumber(item.marketCount ?? item.market_count ?? item.unique_market_count ?? item.vendor_count, 0),
   };
 };
@@ -245,7 +245,7 @@ export default function CategoryPage() {
       return;
     }
 
-    const mapped = apiCategories.map((category, index) => mapCategoryFromApi(category as Record<string, unknown>, index));
+    const mapped = apiCategories.map((category, index) => mapCategoryFromApi(category as unknown as Record<string, unknown>, index));
     setCategorySource(mapped);
     setFilteredCategories(computeFilteredCategories(mapped, searchQuery, activeFilters));
     setCurrentPage(1);

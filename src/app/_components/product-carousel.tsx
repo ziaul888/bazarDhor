@@ -103,7 +103,7 @@ export function ProductCarousel() {
       return apiProducts.map((p) => {
         const lowestPrice = p.market_prices[0];
         const hasDiscount = lowestPrice?.discount_price && lowestPrice.discount_price > 0;
-        const currentPrice = hasDiscount ? lowestPrice.discount_price : (lowestPrice?.price || 0);
+        const currentPrice = hasDiscount ? (lowestPrice.discount_price || 0) : (lowestPrice?.price || 0);
         const originalPrice = hasDiscount ? lowestPrice.price : null;
 
         return {
@@ -114,7 +114,7 @@ export function ProductCarousel() {
           currentPrice,
           image: p.image_path ? (p.image_path.startsWith('http') ? p.image_path : `${IMAGE_BASE_URL}${p.image_path}`) : '',
           category: p.category?.name || 'Featured',
-          priceChange: originalPrice && currentPrice < originalPrice ? 'down' : 'up',
+          priceChange: (originalPrice && currentPrice !== null && currentPrice < originalPrice) ? 'down' : 'up',
           lastUpdated: lowestPrice?.last_update || 'Recently',
           unit: p.unit?.symbol || p.unit?.name || 'unit'
         };

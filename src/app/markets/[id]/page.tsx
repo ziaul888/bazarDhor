@@ -274,6 +274,10 @@ export default function MarketDetailsPage({ params }: { params: { id: string } }
 
 
 
+  function handlePredefinedAmount(delta: number): void {
+    throw new Error('Function not implemented.');
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -536,7 +540,8 @@ export default function MarketDetailsPage({ params }: { params: { id: string } }
         newPrice={newPrice}
         onNewPriceChange={setNewPrice}
         onSave={handleSavePrice}
-        confirmLabel="Save"
+        onQuickAdjust={handlePredefinedAmount}
+        disableSave={!newPrice || parseFloat(newPrice) <= 0}
       />
 
     </div>
