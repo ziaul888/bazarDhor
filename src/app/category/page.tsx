@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, SlidersHorizontal, Store, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { CategoryCard } from './_components/category-card';
 import { Pagination, usePagination } from '@/components/ui/pagination';
 import { CategoryFilters } from './_components/category-filters';
+import { useCategoryList } from '@/lib/api/hooks/useCategories';
 
 const allCategories = [
   {
@@ -120,12 +121,46 @@ const allCategories = [
   }
 ];
 
+const CATEGORY_LIST_PARAMS = {
+  limit: 10,
+  offset: 1
+};
+
+const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+
+const toNumber = (value: unknown, fallback: number) => {
+  const numeric = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+};
+
+const toImageUrl = (value: unknown) => {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    return "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop";
+  }
+  return value.startsWith('http') ? value : `${IMAGE_BASE_URL}${value}`;
+};
+
+const mapCategoryFromApi = (item: Record<string, unknown>, index: number) => {
+  return {
+    id: toNumber(item.id ?? index + 1, index + 1),
+    name: String(item.name ?? item.category_name ?? 'Category'),
+    image: toImageUrl(item.image ?? item.image_path),
+    productCount: toNumber(item.productCount ?? item.product_count ?? item.item_count, 0),
+    icon: String(item.icon ?? item.emoji ?? '📦'),
+    priceChange: index % 2 === 0 ? 'down' : 'up' as 'down' | 'up',
+    markets: toNumber(item.marketCount ?? item.market_count ?? item.unique_market_count ?? item.vendor_count, 0),
+  };
+};
+
 export default function CategoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [categorySource, setCategorySource] = useState(allCategories);
   const [filteredCategories, setFilteredCategories] = useState(allCategories);
+  const [activeFilters, setActiveFilters] = useState<Record<string, unknown> | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [sortBy, setSortBy] = useState('popular');
+  const { data: apiCategories } = useCategoryList(CATEGORY_LIST_PARAMS);
 
   // Pagination logic
   const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredCategories, 12);
@@ -134,11 +169,17 @@ export default function CategoryPage() {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    filterCategories(query);
+    const filtered = computeFilteredCategories(categorySource, query, activeFilters);
+    setFilteredCategories(filtered);
+    setCurrentPage(1);
   };
 
-  const filterCategories = (query: string, filters?: Record<string, unknown>) => {
-    let filtered = allCategories;
+  const computeFilteredCategories = (
+    categories: typeof allCategories,
+    query: string,
+    filters?: Record<string, unknown>
+  ) => {
+    let filtered = categories;
 
     // Search filter
     if (query) {
@@ -174,8 +215,7 @@ export default function CategoryPage() {
       }
     }
 
-    setFilteredCategories(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
+    return filtered;
   };
 
   const handleSort = (sortOption: string) => {
@@ -199,6 +239,17 @@ export default function CategoryPage() {
     setFilteredCategories(sorted);
     setCurrentPage(1); // Reset to first page when sorting
   };
+
+  useEffect(() => {
+    if (!apiCategories || apiCategories.length === 0) {
+      return;
+    }
+
+    const mapped = apiCategories.map((category, index) => mapCategoryFromApi(category as unknown as Record<string, unknown>, index));
+    setCategorySource(mapped);
+    setFilteredCategories(computeFilteredCategories(mapped, searchQuery, activeFilters));
+    setCurrentPage(1);
+  }, [apiCategories, searchQuery, activeFilters]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -246,7 +297,10 @@ export default function CategoryPage() {
                     <CategoryFilters
                       isMobile={true}
                       onFilterChange={(filters: Record<string, unknown> | undefined) => {
-                        filterCategories(searchQuery, filters);
+                        setActiveFilters(filters);
+                        const filtered = computeFilteredCategories(categorySource, searchQuery, filters);
+                        setFilteredCategories(filtered);
+                        setCurrentPage(1);
                       }}
                     />
 
@@ -272,7 +326,12 @@ export default function CategoryPage() {
           {/* Filters Sidebar - Desktop Only */}
           <div className="hidden lg:block lg:w-80">
             <CategoryFilters
-              onFilterChange={(filters: Record<string, unknown> | undefined) => filterCategories(searchQuery, filters)}
+              onFilterChange={(filters: Record<string, unknown> | undefined) => {
+                setActiveFilters(filters);
+                const filtered = computeFilteredCategories(categorySource, searchQuery, filters);
+                setFilteredCategories(filtered);
+                setCurrentPage(1);
+              }}
             />
           </div>
 

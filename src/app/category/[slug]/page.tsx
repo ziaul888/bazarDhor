@@ -1,10 +1,10 @@
 import { CategoryClientPage } from './_components/category-client-page';
+import { CategoryHero } from './_components/category-hero';
 import { categoryServerApi } from '@/lib/api/services/server/category-server';
 import { marketServerApi } from '@/lib/api/services/server/market-server';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
-import Image from 'next/image';
 import {
   ArrowLeft,
   TrendingUp,
@@ -328,6 +328,8 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
       category = mockMatch;
     }
   }
+  console.log({ category });
+
 
   if (!category) {
     return (
@@ -362,14 +364,10 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
       <div className="relative">
         {/* Hero Image */}
         <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
-          <Image
-            src={category.image}
-            alt={category.name}
-            fill
-            className="object-cover"
-            priority
+          <CategoryHero
+            image={category.image}
+            name={category.name}
           />
-          <div className="absolute inset-0 bg-black/40" />
 
           {/* Back Button */}
           <div className="absolute top-4 left-4">

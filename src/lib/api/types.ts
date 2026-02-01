@@ -116,6 +116,13 @@ export interface MarketFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
+export interface MarketListParams {
+  user_lat: number;
+  user_lng: number;
+  limit?: number;
+  offset?: number;
+}
+
 export interface ItemFilters {
   search?: string;
   category?: string;
@@ -145,6 +152,11 @@ export interface Category {
   image?: string;
   image_path?: string;
   rating?: number;
+}
+
+export interface CategoryListParams {
+  limit?: number;
+  offset?: number;
 }
 
 // Review types
@@ -225,6 +237,8 @@ export interface RegisterData {
   gender: string;
   city: string;
   division: string;
+  image?: any | null;
+  referred_by?: string;
 }
 
 export interface AuthResponse {
@@ -247,6 +261,28 @@ export interface NewItem {
   price: number;
   image?: string;
   description?: string;
+}
+
+// User product contribution types
+export interface CreateUserProductPayload {
+  name: string;
+  category?: string;
+  categoryId?: string;
+  marketId?: string;
+  price?: number;
+  unit?: string;
+  image?: string;
+  description?: string;
+  [key: string]: unknown;
+}
+
+export interface UserProduct {
+  id: string | number;
+  name?: string;
+  price?: number;
+  image?: string;
+  description?: string;
+  [key: string]: unknown;
 }
 
 // Zone types
@@ -295,5 +331,5 @@ export interface Banner {
 
 export interface BannerResponse {
   data: Banner[];
-  errors: any[];
+  errors: unknown[];
 }

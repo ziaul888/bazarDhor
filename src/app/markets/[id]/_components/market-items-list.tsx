@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMarketItems } from '@/lib/api/hooks/useMarkets';
 import { Pagination } from '@/components/ui/pagination';
 import type { ItemFilters } from '@/lib/api/types';
-import Image from 'next/image';
+import { ProductCard } from '@/components/product-card';
+import { ProductPriceDialog } from '@/components/product-price-dialog';
 
 interface MarketItemsListProps {
   marketId: string;
@@ -15,6 +16,21 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     page: 1,
     limit: 20,
   });
+  const [items, setItems] = useState<Array<{
+    id: number | string;
+    name: string;
+    marketName: string;
+    marketId?: number | string;
+    currentPrice: number;
+    image: string;
+    category: string;
+    priceChange: 'up' | 'down' | 'stable' | string;
+    lastUpdated: string;
+    unit?: string;
+  }>>([]);
+  const [selectedItem, setSelectedItem] = useState<(typeof items)[number] | null>(null);
+  const [newPrice, setNewPrice] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { 
     data: itemsData, 
@@ -55,8 +71,52 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     );
   }
 
-  const items = itemsData?.data || [];
+  const rawItems = itemsData?.data || [];
   const pagination = itemsData?.pagination;
+
+  useEffect(() => {
+    const mapped = rawItems.map((item: any) => ({
+      id: item.id ?? item.item_id ?? item.product_id,
+      name: item.name ?? item.title ?? 'Item',
+      marketName: item.market?.name ?? item.market_name ?? 'Local Market',
+      marketId: item.market?.id ?? item.market_id,
+      currentPrice: item.price ?? item.currentPrice ?? item.current_price ?? 0,
+      image: item.image ?? item.image_url ?? item.image_path ?? '',
+      category: item.category?.name ?? item.category ?? 'Fresh Items',
+      priceChange: item.price_change ?? item.priceChange ?? 'down',
+      lastUpdated: item.last_updated ?? item.lastUpdated ?? item.updated_at ?? 'Recently',
+      unit: item.unit?.symbol ?? item.unit?.name ?? item.unit ?? 'unit',
+    }));
+    setItems(mapped);
+  }, [rawItems]);
+
+  const handleUpdatePrice = (item: (typeof items)[number]) => {
+    setSelectedItem(item);
+    setNewPrice(item.currentPrice.toString());
+    setIsModalOpen(true);
+  };
+
+  const handleSavePrice = () => {
+    if (!selectedItem) return;
+    const parsed = parseFloat(newPrice);
+    if (Number.isNaN(parsed)) return;
+    setItems(prev =>
+      prev.map(item =>
+        item.id === selectedItem.id
+          ? { ...item, currentPrice: parsed, lastUpdated: 'Just now' }
+          : item
+      )
+    );
+    setIsModalOpen(false);
+  };
+
+  const handlePredefinedAmount = (amount: number) => {
+    if (selectedItem) {
+      const currentPrice = parseFloat(newPrice) || selectedItem.currentPrice;
+      const newPriceValue = Math.max(0, currentPrice + amount);
+      setNewPrice(newPriceValue.toFixed(2));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -79,25 +139,11 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {items.map((item) => (
-              <div key={item.id} className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <div className="relative aspect-square">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                  />
-                  {!item.inStock && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">Out of Stock</span>
-                    </div>
-                  )}
-                </div>
-                <div className="p-3">
-                  <h3 className="font-medium text-sm line-clamp-2 mb-1">{item.name}</h3>
-                  <p className="text-primary font-semibold">${item.price}</p>
-                </div>
-              </div>
+              <ProductCard
+                key={item.id}
+                item={item}
+                onUpdatePrice={handleUpdatePrice}
+              />
             ))}
           </div>
 
@@ -110,6 +156,17 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
           )}
         </>
       )}
+
+      <ProductPriceDialog
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        item={selectedItem}
+        newPrice={newPrice}
+        onNewPriceChange={setNewPrice}
+        onSave={handleSavePrice}
+        onQuickAdjust={handlePredefinedAmount}
+        disableSave={!newPrice || parseFloat(newPrice) <= 0}
+      />
     </div>
   );
 }

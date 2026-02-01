@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userApi } from '../services/user';
-import type { User } from '../types';
+import type { User, CreateUserProductPayload, UserProduct, ApiResponse } from '../types';
 
 // Query keys
 export const userKeys = {
@@ -63,5 +63,12 @@ export const useRemoveFavorite = () => {
       // Invalidate favorites list
       queryClient.invalidateQueries({ queryKey: userKeys.favorites() });
     },
+  });
+};
+
+// Create product (add item) for current user
+export const useCreateUserProduct = () => {
+  return useMutation<ApiResponse<UserProduct>, Error, CreateUserProductPayload | FormData>({
+    mutationFn: (payload) => userApi.createProduct(payload),
   });
 };

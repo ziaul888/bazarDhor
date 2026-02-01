@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -17,8 +16,6 @@ import {
   Heart,
   Share2,
   Navigation,
-  TrendingUp,
-  TrendingDown,
   Tag,
   Search,
   Filter,
@@ -26,6 +23,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Pagination, usePagination } from '@/components/ui/pagination';
+import { ProductCard } from '@/components/product-card';
+import { ProductPriceDialog } from '@/components/product-price-dialog';
 
 // Mock market data - in real app, this would come from API based on [id]
 const marketData = {
@@ -135,6 +134,7 @@ const marketItems = [
     name: "Organic Tomatoes",
     marketName: "Green Valley Farm",
     currentPrice: 4.99,
+    unit: "kg",
     category: "Vegetables",
     image: "https://images.unsplash.com/photo-1546470427-e5ac89cd0b31?w=300&h=300&fit=crop",
     priceChange: "down",
@@ -145,6 +145,7 @@ const marketItems = [
     name: "Fresh Chicken Breast",
     marketName: "Farm Fresh Poultry",
     currentPrice: 12.99,
+    unit: "kg",
     category: "Meat & Poultry",
     image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=300&h=300&fit=crop",
     priceChange: "up",
@@ -155,6 +156,7 @@ const marketItems = [
     name: "Local Honey",
     marketName: "Bee Happy Honey",
     currentPrice: 12.99,
+    unit: "jar",
     category: "Pantry",
     image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=300&h=300&fit=crop",
     priceChange: "down",
@@ -165,6 +167,7 @@ const marketItems = [
     name: "Artisan Sourdough",
     marketName: "Baker's Corner",
     currentPrice: 5.50,
+    unit: "loaf",
     category: "Bakery",
     image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=300&fit=crop",
     priceChange: "up",
@@ -175,6 +178,7 @@ const marketItems = [
     name: "Fresh Apples",
     marketName: "Orchard Fresh",
     currentPrice: 3.99,
+    unit: "kg",
     category: "Fruits",
     image: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=300&h=300&fit=crop",
     priceChange: "down",
@@ -185,6 +189,7 @@ const marketItems = [
     name: "Farm Fresh Milk",
     marketName: "Dairy Delight",
     currentPrice: 2.99,
+    unit: "L",
     category: "Dairy",
     image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop",
     priceChange: "up",
@@ -195,6 +200,7 @@ const marketItems = [
     name: "Fresh Salmon",
     marketName: "Ocean Fresh",
     currentPrice: 18.99,
+    unit: "kg",
     category: "Seafood",
     image: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=300&h=300&fit=crop",
     priceChange: "down",
@@ -205,6 +211,7 @@ const marketItems = [
     name: "Organic Basil",
     marketName: "Herb Garden",
     currentPrice: 2.50,
+    unit: "bunch",
     category: "Herbs & Spices",
     image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=300&h=300&fit=crop",
     priceChange: "up",
@@ -217,8 +224,12 @@ export default function MarketDetailsPage({ params }: { params: { id: string } }
   const [isFavorite, setIsFavorite] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [items, setItems] = useState(marketItems);
+  const [selectedItem, setSelectedItem] = useState<(typeof marketItems)[number] | null>(null);
+  const [newPrice, setNewPrice] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredItems = marketItems.filter(item => {
+  const filteredItems = items.filter(item => {
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.marketName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -241,7 +252,31 @@ export default function MarketDetailsPage({ params }: { params: { id: string } }
     setCurrentPage(1);
   };
 
+  const handleUpdatePrice = (item: (typeof marketItems)[number]) => {
+    setSelectedItem(item);
+    setNewPrice(item.currentPrice.toString());
+    setIsModalOpen(true);
+  };
 
+  const handleSavePrice = () => {
+    if (!selectedItem) return;
+    const parsed = parseFloat(newPrice);
+    if (Number.isNaN(parsed)) return;
+    setItems(prev =>
+      prev.map(item =>
+        item.id === selectedItem.id
+          ? { ...item, currentPrice: parsed, lastUpdated: 'Just now' }
+          : item
+      )
+    );
+    setIsModalOpen(false);
+  };
+
+
+
+  function handlePredefinedAmount(delta: number): void {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -464,71 +499,11 @@ export default function MarketDetailsPage({ params }: { params: { id: string } }
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {paginatedItems.map((item) => (
-              <div key={item.id} className="bg-card rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300">
-                {/* Product Image */}
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                  />
-
-                  {/* Price Trend Badge */}
-                  <div className="absolute top-2 right-2">
-                    <span className={`px-2 py-1 text-white text-xs font-bold rounded-full flex items-center space-x-1 ${item.priceChange === 'up' ? 'bg-red-500' : 'bg-green-500'}`}>
-                      {item.priceChange === 'up' ? (
-                        <TrendingUp className="h-3 w-3" />
-                      ) : (
-                        <TrendingDown className="h-3 w-3" />
-                      )}
-                      <span>{item.priceChange === 'up' ? 'Up' : 'Down'}</span>
-                    </span>
-                  </div>
-
-                  {/* Stock Status Badge */}
-                  {/* {!item?.inStock && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">Out of Stock</span>
-                    </div>
-                  )} */}
-
-                  {/* Category Badge */}
-                  <div className="absolute bottom-2 left-2">
-                    <span className="px-2 py-1 bg-black/70 text-white text-xs rounded-full backdrop-blur-sm">
-                      {item.category}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Product Info */}
-                <div className="p-4">
-                  {/* Item Name */}
-                  <h3 className="text-sm sm:text-base font-semibold mb-1 line-clamp-1">
-                    {item.name}
-                  </h3>
-
-                  {/* Market Name */}
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {item.marketName}
-                  </p>
-
-                  {/* Current Price */}
-                  <div className="mb-2">
-                    <span className="text-lg font-bold text-foreground">${item.currentPrice}</span>
-                  </div>
-
-                  {/* Last Updated */}
-                  <div className="mb-3">
-                    <span className="text-xs text-muted-foreground">Updated {item.lastUpdated}</span>
-                  </div>
-
-                  {/* Update Price Button */}
-                  <button className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
-                    Update Price
-                  </button>
-                </div>
-              </div>
+              <ProductCard
+                key={item.id}
+                item={{ ...item, marketId: marketData.id }}
+                onUpdatePrice={handleUpdatePrice}
+              />
             ))}
           </div>
 
@@ -557,6 +532,17 @@ export default function MarketDetailsPage({ params }: { params: { id: string } }
         </div>
       </div>
 
+
+      <ProductPriceDialog
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        item={selectedItem}
+        newPrice={newPrice}
+        onNewPriceChange={setNewPrice}
+        onSave={handleSavePrice}
+        onQuickAdjust={handlePredefinedAmount}
+        disableSave={!newPrice || parseFloat(newPrice) <= 0}
+      />
 
     </div>
   );

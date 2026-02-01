@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useMemo } from 'react';
-import Image from 'next/image';
+import { useEffect, useMemo, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
-import { Heart, Star, ShoppingCart, ChevronLeft, ChevronRight, Loader2, Package } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useRandomProducts } from '@/lib/api/hooks/useMarkets';
+import { ProductCard } from '@/components/product-card';
+import { ProductPriceDialog } from '@/components/product-price-dialog';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -81,34 +81,88 @@ const products = [
 const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
 
 export function ProductCarousel() {
-  const { data: apiProducts, isLoading, error } = useRandomProducts();
-  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const { data: apiProducts, isLoading } = useRandomProducts();
+  const [items, setItems] = useState<Array<{
+    id: number | string;
+    name: string;
+    marketName: string;
+    marketId?: number | string;
+    currentPrice: number;
+    image: string;
+    category: string;
+    priceChange: 'up' | 'down' | 'stable' | string;
+    lastUpdated: string;
+    unit?: string;
+  }>>([]);
+  const [selectedItem, setSelectedItem] = useState<(typeof items)[number] | null>(null);
+  const [newPrice, setNewPrice] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const mappedProducts = useMemo(() => {
     if (apiProducts && apiProducts.length > 0) {
       return apiProducts.map((p) => {
         const lowestPrice = p.market_prices[0];
         const hasDiscount = lowestPrice?.discount_price && lowestPrice.discount_price > 0;
+        const currentPrice = hasDiscount ? (lowestPrice.discount_price || 0) : (lowestPrice?.price || 0);
+        const originalPrice = hasDiscount ? lowestPrice.price : null;
 
         return {
           id: p.id,
           name: p.name,
-          price: hasDiscount ? lowestPrice.discount_price : (lowestPrice?.price || 0),
-          originalPrice: hasDiscount ? lowestPrice.price : null,
-          rating: 4.5,
-          reviews: 0,
+          marketName: lowestPrice?.market?.name || 'Local Market',
+          marketId: lowestPrice?.market?.id,
+          currentPrice,
           image: p.image_path ? (p.image_path.startsWith('http') ? p.image_path : `${IMAGE_BASE_URL}${p.image_path}`) : '',
-          badge: p.is_featured ? 'Featured' : null,
-          isLiked: false,
-          unit: p.unit?.symbol || p.unit?.name || ''
+          category: p.category?.name || 'Featured',
+          priceChange: (originalPrice && currentPrice !== null && currentPrice < originalPrice) ? 'down' : 'up',
+          lastUpdated: lowestPrice?.last_update || 'Recently',
+          unit: p.unit?.symbol || p.unit?.name || 'unit'
         };
       });
     }
-    return products;
+    return products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      marketName: 'Local Market',
+      currentPrice: product.price,
+      image: product.image,
+      category: product.badge || 'Featured',
+      priceChange: product.originalPrice && product.price < product.originalPrice ? 'down' : 'up',
+      lastUpdated: 'Recently',
+      unit: 'unit'
+    }));
   }, [apiProducts]);
 
-  const handleImageError = (id: string) => {
-    setImageErrors(prev => ({ ...prev, [id]: true }));
+  useEffect(() => {
+    setItems(mappedProducts);
+  }, [mappedProducts]);
+
+  const handleUpdatePrice = (item: (typeof items)[number]) => {
+    setSelectedItem(item);
+    setNewPrice(item.currentPrice.toString());
+    setIsModalOpen(true);
+  };
+
+  const handleSavePrice = () => {
+    if (!selectedItem) return;
+    const parsed = parseFloat(newPrice);
+    if (Number.isNaN(parsed)) return;
+    setItems(prev =>
+      prev.map(item =>
+        item.id === selectedItem.id
+          ? { ...item, currentPrice: parsed, lastUpdated: 'Just now' }
+          : item
+      )
+    );
+    setIsModalOpen(false);
+  };
+
+  const handlePredefinedAmount = (amount: number) => {
+    if (selectedItem) {
+      const currentPrice = parseFloat(newPrice) || selectedItem.currentPrice;
+      const newPriceValue = Math.max(0, currentPrice + amount);
+      setNewPrice(newPriceValue.toFixed(2));
+    }
   };
 
   if (isLoading) {
@@ -173,96 +227,27 @@ export function ProductCarousel() {
           }}
           className="pb-12"
         >
-          {mappedProducts.map((product) => (
+          {items.map((product) => (
             <SwiperSlide key={product.id}>
-              <div className="bg-card rounded-xl border hover:shadow-lg transition-all duration-300 group overflow-hidden">
-                {/* Product Image */}
-                <div className="relative aspect-square overflow-hidden bg-muted flex items-center justify-center">
-                  {!imageErrors[product.id] ? (
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={() => handleImageError(product.id.toString())}
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center p-4">
-                      <Package className="h-10 w-10 text-primary/20 mb-2" />
-                    </div>
-                  )}
-
-                  {/* Badge */}
-                  {product.badge && (
-                    <div className="absolute top-3 left-3">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${product.badge === 'Sale' ? 'bg-destructive text-destructive-foreground' :
-                        product.badge === 'New' ? 'bg-success text-success-foreground' :
-                          'bg-primary text-primary-foreground'
-                        }`}>
-                        {product.badge}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Wishlist Button */}
-                  <button className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm hover:bg-white rounded-full flex items-center justify-center transition-colors group/heart">
-                    <Heart className={`h-4 w-4 transition-colors ${product.isLiked
-                      ? 'text-red-500 fill-red-500'
-                      : 'text-gray-600 group-hover/heart:text-red-500'
-                      }`} />
-                  </button>
-
-                  {/* Quick Add Button */}
-                  <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Quick Add
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Product Info */}
-                <div className="p-4 flex-1 flex flex-col">
-                  <h3 className="font-semibold text-lg mb-1 line-clamp-1">{product.name}</h3>
-                  <div className="text-xs text-muted-foreground mb-3 font-medium">Per {(product as any).unit || 'unit'}</div>
-
-                  {/* Rating */}
-                  <div className="flex items-center space-x-1 mb-3">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${i < Math.floor(product.rating)
-                              ? 'text-yellow-400 fill-yellow-400'
-                              : 'text-gray-300'
-                            }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-muted-foreground ml-1">
-                      {product.rating}
-                    </span>
-                  </div>
-
-                  {/* Price */}
-                  <div className="mt-auto">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xl font-bold text-primary">
-                        ৳{product.price}
-                      </span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-muted-foreground line-through">
-                          ৳{product.originalPrice}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ProductCard
+                item={product}
+                onUpdatePrice={handleUpdatePrice}
+              />
             </SwiperSlide>
           ))}
         </Swiper>
       </div>
+
+      <ProductPriceDialog
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        item={selectedItem}
+        newPrice={newPrice}
+        onNewPriceChange={setNewPrice}
+        onSave={handleSavePrice}
+        onQuickAdjust={handlePredefinedAmount}
+        disableSave={!newPrice || parseFloat(newPrice) <= 0}
+      />
 
       {/* Custom Pagination Styles */}
       <style jsx global>{`

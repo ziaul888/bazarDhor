@@ -1,14 +1,10 @@
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { TrendingUp, TrendingDown, Tag, Clock, Loader2, Package } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { Tag, Loader2 } from 'lucide-react';
 import { useRandomProducts } from '@/lib/api/hooks/useMarkets';
+import { ProductCard } from '@/components/product-card';
+import { ProductPriceDialog } from '@/components/product-price-dialog';
 
 const bestPriceItems = [
     {
@@ -138,7 +134,6 @@ const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
 export function BestPriceSection() {
     const { data: apiProducts, isLoading } = useRandomProducts();
     const [items, setItems] = useState<any[]>([]);
-    const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
     const [newPrice, setNewPrice] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -173,11 +168,8 @@ export function BestPriceSection() {
         }
     }, [apiProducts, isLoading]);
 
-    const handleImageError = (id: string) => {
-        setImageErrors(prev => ({ ...prev, [id]: true }));
-    };
 
-    const handleUpdatePrice = (item: typeof bestPriceItems[0]) => {
+    const handleUpdatePrice = (item: any) => {
         setSelectedItem(item);
         setNewPrice(item.currentPrice.toString());
         setIsModalOpen(true);
@@ -226,85 +218,11 @@ export function BestPriceSection() {
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4">
                         {items.map((item) => (
-                            <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 py-0 gap-0 group h-full flex flex-col">
-                                {/* Product Image */}
-                                <div className="relative aspect-[4/3] overflow-hidden bg-muted flex items-center justify-center">
-                                    {!imageErrors[item.id] ? (
-                                        <Image
-                                            src={item.image}
-                                            alt={item.name}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            onError={() => handleImageError(item.id.toString())}
-                                        />
-                                    ) : (
-                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center p-4">
-                                            <Package className="h-10 w-10 text-primary/20" />
-                                        </div>
-                                    )}
-                                    {/* Price Trend Badge */}
-                                    <div className="absolute top-1 right-1">
-                                        <span className={`px-1.5 py-0.5 text-white text-xs font-bold rounded-full flex items-center space-x-1 ${item.priceChange === 'up' ? 'bg-red-500' : 'bg-green-500'
-                                            }`}>
-                                            {item.priceChange === 'up' ? (
-                                                <TrendingUp className="h-2.5 w-2.5" />
-                                            ) : (
-                                                <TrendingDown className="h-2.5 w-2.5" />
-                                            )}
-                                        </span>
-                                    </div>
-                                    {/* Category Badge */}
-                                    <div className="absolute bottom-1 left-1">
-                                        <span className="px-1.5 py-0.5 bg-black/70 text-white text-xs rounded-full backdrop-blur-sm">
-                                            {item.category}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Product Info */}
-                                <CardContent className="p-2 sm:p-3 flex-1 flex flex-col">
-                                    {/* Item Name */}
-                                    <h3 className="text-xs sm:text-sm font-semibold mb-1 line-clamp-2 min-h-[2.5rem]">
-                                        {item.name}
-                                    </h3>
-
-                                    {/* Market Name */}
-                                    {item.marketId ? (
-                                        <Link
-                                            href={`/markets/${item?.marketId}`}
-                                            className="text-[10px] sm:text-xs text-muted-foreground mb-2 line-clamp-1 italic hover:text-primary hover:not-italic font-medium transition-all"
-                                        >
-                                            @{item.marketName}
-                                        </Link>
-                                    ) : (
-                                        <p className="text-[10px] sm:text-xs text-muted-foreground mb-2 line-clamp-1 italic">
-                                            @{item.marketName}
-                                        </p>
-                                    )}
-
-                                    {/* Current Price */}
-                                    <div className="mb-1">
-                                        <span className="text-sm sm:text-base font-bold text-primary">৳{item.currentPrice}</span>
-                                        <span className="text-[10px] text-muted-foreground ml-1">/ {item.unit}</span>
-                                    </div>
-
-                                    {/* Last Updated */}
-                                    <div className="mb-3 mt-auto">
-                                        <div className="flex items-center text-[10px] text-muted-foreground/80">
-                                            <Clock className="h-3 w-3 mr-1" />
-                                            {item.lastUpdated}
-                                        </div>
-                                    </div>
-
-                                    {/* Update Price Button */}
-                                    <button
-                                        onClick={() => handleUpdatePrice(item)}
-                                        className="w-full py-1.5 text-[10px] sm:text-xs bg-primary/10 text-primary rounded-md font-bold hover:bg-primary hover:text-white transition-all duration-300"
-                                    >
-                                        Update Price
-                                    </button>
-                                </CardContent>
-                            </Card>
+                            <ProductCard
+                                key={item.id}
+                                item={item}
+                                onUpdatePrice={handleUpdatePrice}
+                            />
                         ))}
                     </div>
                 )}
@@ -316,105 +234,16 @@ export function BestPriceSection() {
                     </button>
                 </div>
 
-                {/* Price Update Modal */}
-                <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                    <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                            <DialogTitle>Update Price</DialogTitle>
-                        </DialogHeader>
-
-                        {selectedItem && (
-                            <div className="space-y-4">
-                                {/* Product Info */}
-                                <div className="flex items-center space-x-3">
-                                    <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-muted">
-                                        {!imageErrors[selectedItem.id] ? (
-                                            <Image
-                                                src={selectedItem.image}
-                                                alt={selectedItem.name}
-                                                fill
-                                                className="object-cover"
-                                                onError={() => handleImageError(selectedItem.id.toString())}
-                                            />
-                                        ) : (
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <Package className="h-6 w-6 text-primary/20" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-sm">{selectedItem.name}</h3>
-                                        {selectedItem.marketId ? (
-                                            <Link
-                                                href={`/markets/${selectedItem.marketId}`}
-                                                className="text-xs text-muted-foreground hover:text-primary transition-colors block"
-                                            >
-                                                @{selectedItem.marketName}
-                                            </Link>
-                                        ) : (
-                                            <p className="text-xs text-muted-foreground">@{selectedItem.marketName}</p>
-                                        )}
-                                        <p className="text-xs font-bold text-primary">Current: ৳{selectedItem.currentPrice}</p>
-                                    </div>
-                                </div>
-
-                                {/* Quick Adjustment Buttons */}
-                                <div className="space-y-3">
-                                    <label className="text-sm font-medium">Quick Adjustments</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handlePredefinedAmount(-5)}
-                                            className="text-xs"
-                                        >
-                                            -৳5
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handlePredefinedAmount(5)}
-                                            className="text-xs"
-                                        >
-                                            +৳5
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                {/* Price Input */}
-                                <div className="space-y-2">
-                                    <label htmlFor="price" className="text-sm font-medium">
-                                        New Price (৳)
-                                    </label>
-                                    <Input
-                                        id="price"
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        value={newPrice}
-                                        onChange={(e) => setNewPrice(e.target.value)}
-                                        placeholder="Enter new price"
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        <DialogFooter>
-                            <Button
-                                variant="outline"
-                                onClick={() => setIsModalOpen(false)}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                onClick={handleSavePrice}
-                                disabled={!newPrice || parseFloat(newPrice) <= 0}
-                            >
-                                Update Price
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                <ProductPriceDialog
+                    open={isModalOpen}
+                    onOpenChange={setIsModalOpen}
+                    item={selectedItem}
+                    newPrice={newPrice}
+                    onNewPriceChange={setNewPrice}
+                    onSave={handleSavePrice}
+                    onQuickAdjust={handlePredefinedAmount}
+                    disableSave={!newPrice || parseFloat(newPrice) <= 0}
+                />
             </div>
         </section>
     );
