@@ -1,14 +1,19 @@
 import { apiClient } from '../client';
 import { ApiResponse, AuthResponse, LoginCredentials, RegisterData, User } from '../types';
 
+const getAuthToken = (data: AuthResponse): string | undefined => {
+  return data.access_token ?? data.token;
+};
+
 export const authApi = {
   // Login
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/login', credentials);
     
     // Store token
-    if (typeof window !== 'undefined' && response.data.data.token) {
-      localStorage.setItem('auth_token', response.data.data.token);
+    const token = getAuthToken(response.data.data);
+    if (typeof window !== 'undefined' && token) {
+      localStorage.setItem('auth_token', token);
     }
     
     return response.data.data;
@@ -19,8 +24,9 @@ export const authApi = {
     const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/register', data);
     
     // Store token
-    if (typeof window !== 'undefined' && response.data.data.token) {
-      localStorage.setItem('auth_token', response.data.data.token);
+    const token = getAuthToken(response.data.data);
+    if (typeof window !== 'undefined' && token) {
+      localStorage.setItem('auth_token', token);
     }
     
     return response.data.data;
@@ -43,12 +49,13 @@ export const authApi = {
   },
 
   // Refresh token
-  refreshToken: async (): Promise<{ token: string }> => {
-    const response = await apiClient.post<ApiResponse<{ token: string }>>('/auth/refresh');
+  refreshToken: async (): Promise<{ token: string } | { access_token: string }> => {
+    const response = await apiClient.post<ApiResponse<{ token: string } | { access_token: string }>>('/auth/refresh');
     
     // Update token
-    if (typeof window !== 'undefined' && response.data.data.token) {
-      localStorage.setItem('auth_token', response.data.data.token);
+    const nextToken = ('token' in response.data.data ? response.data.data.token : response.data.data.access_token);
+    if (typeof window !== 'undefined' && nextToken) {
+      localStorage.setItem('auth_token', nextToken);
     }
     
     return response.data.data;

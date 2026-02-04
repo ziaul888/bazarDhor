@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { 
   User, 
   Mail, 
@@ -18,42 +17,30 @@ import {
   Star,
   Clock,
   Award,
-  Target
+  Target,
+  LogIn
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProfileSettings } from './_components/profile-settings';
 import { ActivityHistory } from './_components/activity-history';
 import { FavoriteMarkets } from './_components/favorite-markets';
+import { useAuth } from '@/components/auth/auth-context';
 
-// Mock user data
-const userData = {
-  id: 1,
-  name: "Sarah Johnson",
-  email: "sarah.johnson@email.com",
-  phone: "+1 (555) 123-4567",
-  avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-  location: "Downtown, City Center",
-  joinDate: "March 2023",
-  membershipLevel: "Gold Member",
-  stats: {
-    marketsVisited: 12,
-    priceUpdates: 47,
-    reviewsWritten: 23,
-    pointsEarned: 1250
-  },
-  preferences: {
-    notifications: {
-      priceAlerts: true,
-      newMarkets: true,
-      weeklyDigest: false,
-      promotions: true
-    },
-    privacy: {
-      profileVisible: true,
-      showActivity: false,
-      shareLocation: true
-    }
-  }
+const getUserInitial = (name?: string | null, email?: string | null): string => {
+  const safeName = (name || "").trim();
+  if (safeName) return safeName[0]?.toUpperCase() ?? "U";
+
+  const safeEmail = (email || "").trim();
+  if (safeEmail) return safeEmail[0]?.toUpperCase() ?? "U";
+
+  return "U";
+};
+
+const formatJoinDate = (createdAt?: string | null): string => {
+  if (!createdAt) return "—";
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString(undefined, { year: "numeric", month: "long" });
 };
 
 const tabs = [
@@ -64,8 +51,82 @@ const tabs = [
 ];
 
 export default function ProfilePage() {
+  const { hasHydrated, isAuthenticated, user, openAuthModal } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
+
+  const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('auth_token');
+  const isLoadingUser = hasHydrated && hasToken && !user;
+
+  if (!hasHydrated || isLoadingUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-sm text-muted-foreground">Loading profile…</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="w-full max-w-md bg-card border rounded-xl p-6 text-center">
+          <h1 className="text-lg font-semibold mb-2">Sign in required</h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            Please sign in to view your profile.
+          </p>
+          <Button onClick={() => openAuthModal('signin')} className="w-full">
+            <LogIn className="h-4 w-4 mr-2" />
+            Sign In
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const name =
+    user.name?.trim() ||
+    [user.first_name, user.last_name].filter(Boolean).join(' ').trim() ||
+    user.username?.trim() ||
+    'User';
+
+  const location =
+    user.address?.trim() ||
+    [user.city, user.division].filter(Boolean).join(', ') ||
+    '—';
+
+  const joinDate = formatJoinDate(user.created_at);
+
+  const avatarUrl = typeof user.avatar === 'string' && user.avatar.trim() ? user.avatar : undefined;
+  const userInitial = getUserInitial(name, user.email);
+
+  const userData: UserData = {
+    id: user.id,
+    name,
+    email: user.email || '',
+    phone: user.phone || '—',
+    location,
+    joinDate,
+    membershipLevel: 'Member',
+    stats: {
+      marketsVisited: 0,
+      priceUpdates: 0,
+      reviewsWritten: 0,
+      pointsEarned: 0,
+    },
+    preferences: {
+      notifications: {
+        priceAlerts: true,
+        newMarkets: true,
+        weeklyDigest: false,
+        promotions: true,
+      },
+      privacy: {
+        profileVisible: true,
+        showActivity: false,
+        shareLocation: true,
+      },
+    },
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -92,13 +153,17 @@ export default function ProfilePage() {
             <div className="flex items-center space-x-4 mb-4">
               {/* Avatar */}
               <div className="relative flex-shrink-0">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-3 border-white/20">
-                  <Image
-                    src={userData.avatar}
-                    alt={userData.name}
-                    fill
-                    className="object-cover"
-                  />
+                <div className="w-20 h-20 rounded-full overflow-hidden border-3 border-white/20 bg-white/10 flex items-center justify-center">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={userData.name}
+                      className="h-full w-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <span className="text-2xl font-bold text-white">{userInitial}</span>
+                  )}
                 </div>
                 <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-white text-primary rounded-full flex items-center justify-center shadow-lg hover:bg-white/90 transition-colors">
                   <Camera className="h-3.5 w-3.5" />
@@ -152,13 +217,17 @@ export default function ProfilePage() {
           <div className="hidden md:flex items-center space-y-0 space-x-6">
             {/* Avatar */}
             <div className="relative">
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20">
-                <Image
-                  src={userData.avatar}
-                  alt={userData.name}
-                  fill
-                  className="object-cover"
-                />
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 bg-white/10 flex items-center justify-center">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={userData.name}
+                    className="h-full w-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span className="text-4xl font-bold text-white">{userInitial}</span>
+                )}
               </div>
               <button className="absolute bottom-0 right-0 w-8 h-8 bg-white text-primary rounded-full flex items-center justify-center shadow-lg hover:bg-white/90 transition-colors">
                 <Camera className="h-4 w-4" />
@@ -285,11 +354,10 @@ export default function ProfilePage() {
 
 // User data type
 interface UserData {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone: string;
-  avatar: string;
   location: string;
   joinDate: string;
   membershipLevel: string;

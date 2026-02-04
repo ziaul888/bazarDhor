@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registrationSchema, type RegistrationFormData } from '@/lib/validations/registration';
+import { useAppStore } from '@/store/app-store';
 
 export function AuthModal() {
   const { isAuthModalOpen, authModalMode, closeAuthModal } = useAuth();
@@ -35,7 +36,7 @@ export function AuthModal() {
   const {
     register,
     handleSubmit: handleRegistrationSubmit,
-    formState: { errors: registrationErrors, isSubmitting },
+    formState: { errors: registrationErrors },
     reset: resetRegistrationForm,
   } = useForm<RegistrationFormData>({
     resolver: zodResolver(registrationSchema),
@@ -113,7 +114,7 @@ export function AuthModal() {
   // Handle registration submission
   const onRegistrationSubmit = async (data: RegistrationFormData) => {
     try {
-      await registerMutation.mutateAsync({
+      const response = await registerMutation.mutateAsync({
         first_name: data.first_name,
         last_name: data.last_name,
         email: data.email,
@@ -129,14 +130,19 @@ export function AuthModal() {
       });
 
       toast.success('Account created!', {
-        description: 'Please sign in with your new credentials.',
+        description: 'You are now signed in.',
         icon: <CheckCircle className="h-5 w-5" />,
       });
 
-      // Switch to sign-in mode instead of closing modal
-      setMode('signin');
+      useAppStore.getState().login(response.user);
+      closeAuthModal();
 
-      // Reset registration form
+      // Reset forms
+      setLoginFormData({
+        email: '',
+        password: ''
+      });
+      setLoginErrors({});
       resetRegistrationForm();
     } catch (error: unknown) {
       const errorMessage = (error as Error)?.message || 'An error occurred';

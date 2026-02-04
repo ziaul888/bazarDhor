@@ -17,6 +17,7 @@ import {
   Bell,
   Heart,
   Plus,
+  User,
   LogIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,8 +36,11 @@ export function MobileNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const { toggleSearch } = useSearch();
-  const { openAuthModal } = useAuth();
+  const { openAuthModal, hasHydrated, isAuthenticated, user } = useAuth();
   const { openAddDrawer } = useAddItem();
+
+  const avatarUrl = typeof user?.avatar === "string" && user.avatar.trim() ? user.avatar : undefined;
+  const userDisplayName = user?.name?.trim() || "Account";
 
   // Handle scroll effect
   useEffect(() => {
@@ -112,16 +116,65 @@ export function MobileNavbar() {
                 <Search className="h-4 w-4" />
               </Button>
 
-              {/* Sign In - Desktop only */}
-              <Button
-                variant="ghost"
-                className="hidden lg:flex h-9 px-3 text-sm font-medium"
-                aria-label="Sign In"
-                onClick={() => openAuthModal('signin')}
-              >
-                <LogIn className="h-4 w-4 mr-2" />
-                Sign In
-              </Button>
+              {/* Sign In/Profile - Desktop only */}
+              {hasHydrated && (
+                isAuthenticated ? (
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="hidden lg:flex h-9 px-3 text-sm font-medium"
+                  >
+                    <Link href="/profile" aria-label={userDisplayName} title={userDisplayName}>
+                      <span className="flex items-center">
+                        {avatarUrl ? (
+                          <img
+                            src={avatarUrl}
+                            alt={userDisplayName}
+                            className="h-6 w-6 rounded-full object-cover mr-2"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <User className="h-4 w-4 mr-2" />
+                        )}
+                        Profile
+                      </span>
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    className="hidden lg:flex h-9 px-3 text-sm font-medium"
+                    aria-label="Sign In"
+                    onClick={() => openAuthModal('signin')}
+                  >
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
+                )
+              )}
+
+              {/* User Avatar - Mobile */}
+              {hasHydrated && isAuthenticated && (
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 overflow-hidden rounded-full lg:hidden"
+                >
+                  <Link href="/profile" aria-label={userDisplayName} title={userDisplayName}>
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={userDisplayName}
+                        className="h-full w-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <User className="h-4 w-4" />
+                    )}
+                  </Link>
+                </Button>
+              )}
 
 
 
@@ -166,12 +219,29 @@ export function MobileNavbar() {
                     {/* Header */}
                     <SheetHeader className="p-6 border-b">
                       <div className="flex items-center space-x-3">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary via-primary to-primary/90 flex items-center justify-center shadow-lg ring-1 ring-primary/20">
-                          <span className="text-primary-foreground font-bold">M</span>
-                        </div>
+	                        {isAuthenticated ? (
+	                          <div className="h-10 w-10 rounded-full overflow-hidden bg-muted flex items-center justify-center shadow-lg ring-1 ring-primary/20">
+	                            {avatarUrl ? (
+	                              <img
+	                                src={avatarUrl}
+	                                alt={userDisplayName}
+	                                className="h-full w-full object-cover"
+	                                referrerPolicy="no-referrer"
+	                              />
+	                            ) : (
+	                              <User className="h-5 w-5" />
+	                            )}
+	                          </div>
+	                        ) : (
+                          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary via-primary to-primary/90 flex items-center justify-center shadow-lg ring-1 ring-primary/20">
+                            <span className="text-primary-foreground font-bold">M</span>
+                          </div>
+                        )}
                         <div>
                           <SheetTitle className="text-left text-lg">MyApp</SheetTitle>
-                          <p className="text-sm text-muted-foreground">Welcome back!</p>
+                          <p className="text-sm text-muted-foreground">
+                            {isAuthenticated ? `Hi, ${userDisplayName}` : "Welcome back!"}
+                          </p>
                         </div>
                       </div>
                     </SheetHeader>
@@ -208,19 +278,34 @@ export function MobileNavbar() {
                         </Button>
                       </div>
 
-                      {/* Sign In on mobile */}
-                      <div className="mb-6">
-                        <Button
-                          className="w-full justify-start h-11 bg-primary text-primary-foreground hover:bg-primary/90"
-                          onClick={() => {
-                            openAuthModal('signin');
-                            setIsOpen(false);
-                          }}
-                        >
-                          <LogIn className="h-4 w-4 mr-3" />
-                          Sign In
-                        </Button>
-                      </div>
+                      {/* Sign In / Profile on mobile */}
+                      {hasHydrated && (
+                        <div className="mb-6">
+                          {isAuthenticated ? (
+                            <Button
+                              asChild
+                              variant="outline"
+                              className="w-full justify-start h-11"
+                            >
+                              <Link href="/profile" onClick={() => setIsOpen(false)}>
+                                <User className="h-4 w-4 mr-3" />
+                                Profile
+                              </Link>
+                            </Button>
+                          ) : (
+                            <Button
+                              className="w-full justify-start h-11 bg-primary text-primary-foreground hover:bg-primary/90"
+                              onClick={() => {
+                                openAuthModal('signin');
+                                setIsOpen(false);
+                              }}
+                            >
+                              <LogIn className="h-4 w-4 mr-3" />
+                              Sign In
+                            </Button>
+                          )}
+                        </div>
+                      )}
 
                       {/* Navigation */}
                       <div className="space-y-2">

@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { User } from '../app-store';
+import { User, UserPreferences } from '../app-store';
 
 export interface AuthSlice {
   user: User | null;
@@ -12,7 +12,7 @@ export interface AuthSlice {
   logout: () => void;
   openAuthModal: () => void;
   closeAuthModal: () => void;
-  updateUserPreferences: (preferences: Partial<User['preferences']>) => void;
+  updateUserPreferences: (preferences: Partial<UserPreferences>) => void;
 }
 
 export const createAuthSlice: StateCreator<AuthSlice> = (set) => ({

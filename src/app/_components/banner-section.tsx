@@ -29,7 +29,7 @@ import 'swiper/css/autoplay';
 const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
 
 export function BannerSection() {
-    const { data: apiBanners, isLoading } = useBanners(10, 1);
+    const { data: apiBanners, isLoading } = useBanners(10, 1, 'feature');
 
     const bannerSlides = useMemo<BannerSlide[]>(() => {
         if (apiBanners && apiBanners.length > 0) {
@@ -68,6 +68,7 @@ export function BannerSection() {
             </div>
         );
     }
+console.log({apiBanners});
 
     if (bannerSlides.length === 0) return null;
     return (

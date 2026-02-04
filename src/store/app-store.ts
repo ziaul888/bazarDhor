@@ -3,22 +3,38 @@ import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
 // Types
+export interface UserPreferences {
+  currency?: string;
+  language?: string;
+  notifications?: boolean;
+  location?: {
+    lat?: number;
+    lng?: number;
+    address?: string;
+  };
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  avatar?: string;
-  favoriteMarkets: string[];
-  preferences: {
-    currency: string;
-    language: string;
-    notifications: boolean;
-    location: {
-      lat?: number;
-      lng?: number;
-      address?: string;
-    };
-  };
+  avatar?: string | null;
+
+  // Common profile fields (API may include more)
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  phone?: string | null;
+  dob?: string | null;
+  gender?: string | null;
+  city?: string | null;
+  division?: string | null;
+  address?: string | null;
+  created_at?: string;
+  updated_at?: string;
+
+  favoriteMarkets?: string[];
+  preferences?: UserPreferences;
 }
 
 export interface Market {
@@ -46,6 +62,10 @@ export interface AppState {
   // User state
   user: User | null;
   isAuthenticated: boolean;
+
+  // App config (from /config/* endpoints)
+  appConfig: Record<string, unknown> | null;
+  settings: Record<string, unknown> | null;
   
   // Favorites
   favoriteMarkets: string[];
@@ -58,6 +78,7 @@ export interface AppState {
   sortBy: 'distance' | 'rating' | 'price' | 'name';
   
   // UI state
+  hasHydrated: boolean;
   isSearchVisible: boolean;
   isAuthModalOpen: boolean;
   isAddItemModalOpen: boolean;
@@ -86,7 +107,11 @@ export interface AppActions {
   setUser: (user: User | null) => void;
   login: (user: User) => void;
   logout: () => void;
-  updateUserPreferences: (preferences: Partial<User['preferences']>) => void;
+  updateUserPreferences: (preferences: Partial<UserPreferences>) => void;
+
+  // Config actions
+  setAppConfig: (appConfig: Record<string, unknown> | null) => void;
+  setSettings: (settings: Record<string, unknown> | null) => void;
   
   // Favorites actions
   toggleFavoriteMarket: (marketId: string) => void;
@@ -101,6 +126,7 @@ export interface AppActions {
   clearRecentSearches: () => void;
   
   // UI actions
+  setHasHydrated: (hasHydrated: boolean) => void;
   toggleSearch: () => void;
   showSearch: () => void;
   hideSearch: () => void;
@@ -124,12 +150,15 @@ type AppStore = AppState & AppActions;
 const initialState: AppState = {
   user: null,
   isAuthenticated: false,
+  appConfig: null,
+  settings: null,
   favoriteMarkets: [],
   favoriteItems: [],
   searchQuery: '',
   selectedCategory: null,
   priceRange: [0, 100],
   sortBy: 'distance',
+  hasHydrated: false,
   isSearchVisible: false,
   isAuthModalOpen: false,
   isAddItemModalOpen: false,
@@ -166,10 +195,33 @@ export const useAppStore = create<AppStore>()(
           state.favoriteMarkets = [];
           state.favoriteItems = [];
         }),
+
+        // Config actions
+        setAppConfig: (appConfig) => set((state) => {
+          state.appConfig = appConfig;
+        }),
+
+        setSettings: (settings) => set((state) => {
+          state.settings = settings;
+        }),
         
         updateUserPreferences: (preferences) => set((state) => {
           if (state.user) {
-            state.user.preferences = { ...state.user.preferences, ...preferences };
+            const current = state.user.preferences ?? {
+              currency: 'BDT',
+              language: 'en',
+              notifications: true,
+              location: {},
+            };
+
+            state.user.preferences = {
+              ...current,
+              ...preferences,
+              location: {
+                ...(current.location ?? {}),
+                ...(preferences.location ?? {}),
+              },
+            };
           }
         }),
         
@@ -227,6 +279,10 @@ export const useAppStore = create<AppStore>()(
         }),
         
         // UI actions
+        setHasHydrated: (hasHydrated) => set((state) => {
+          state.hasHydrated = hasHydrated;
+        }),
+        
         toggleSearch: () => set((state) => {
           state.isSearchVisible = !state.isSearchVisible;
         }),
@@ -259,7 +315,20 @@ export const useAppStore = create<AppStore>()(
         setUserLocation: (location) => set((state) => {
           state.userLocation = location;
           if (state.user) {
-            state.user.preferences.location = location;
+            const current = state.user.preferences ?? {
+              currency: 'BDT',
+              language: 'en',
+              notifications: true,
+              location: {},
+            };
+
+            state.user.preferences = {
+              ...current,
+              location: {
+                ...(current.location ?? {}),
+                ...location,
+              },
+            };
           }
         }),
         
@@ -294,6 +363,8 @@ export const useAppStore = create<AppStore>()(
         partialize: (state) => ({
           user: state.user,
           isAuthenticated: state.isAuthenticated,
+          appConfig: state.appConfig,
+          settings: state.settings,
           favoriteMarkets: state.favoriteMarkets,
           favoriteItems: state.favoriteItems,
           userLocation: state.userLocation,
@@ -303,6 +374,9 @@ export const useAppStore = create<AppStore>()(
           priceRange: state.priceRange,
           sortBy: state.sortBy,
         }),
+        onRehydrateStorage: () => (state) => {
+          state?.setHasHydrated(true);
+        },
       }
     ),
     {

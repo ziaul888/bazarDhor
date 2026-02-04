@@ -5,98 +5,28 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import { ArrowRight, Beef, Leaf, ShoppingCart, Star, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useBanners } from '@/lib/api/hooks/useBanners';
+import { useMemo } from 'react';
 
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
 
-const sliderData = [
-  {
-    id: 'fresh',
-    title: 'Fresh Produce',
-    icon: Leaf,
-    slides: [
-      {
-        id: 1,
-        title: "Organic Vegetables",
-        price: "From $3.99/kg",
-        image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=250&fit=crop",
-        badge: "Fresh Today"
-      },
-      {
-        id: 2,
-        title: "Seasonal Fruits",
-        price: "From $2.50/kg",
-        image: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&h=250&fit=crop",
-        badge: "Sweet & Juicy"
-      },
-      {
-        id: 3,
-        title: "Herbs & Leafy Greens",
-        price: "From $1.99/bunch",
-        image: "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=400&h=250&fit=crop",
-        badge: "Organic"
-      }
-    ]
-  },
-  {
-    id: 'meat',
-    title: 'Meat & Poultry',
-    icon: Beef,
-    slides: [
-      {
-        id: 1,
-        title: "Fresh Chicken",
-        price: "From $7.99/kg",
-        image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&h=250&fit=crop",
-        badge: "Farm Fresh"
-      },
-      {
-        id: 2,
-        title: "Premium Beef",
-        price: "From $18.50/kg",
-        image: "https://images.unsplash.com/photo-1588347818481-c7c1b6b8b4b4?w=400&h=250&fit=crop",
-        badge: "Grade A"
-      },
-      {
-        id: 3,
-        title: "Fresh Seafood",
-        price: "From $15.99/kg",
-        image: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=400&h=250&fit=crop",
-        badge: "Daily Catch"
-      }
-    ]
-  },
-  {
-    id: 'groceries',
-    title: 'Daily Groceries',
-    icon: ShoppingCart,
-    slides: [
-      {
-        id: 1,
-        title: "Fresh Dairy Products",
-        price: "From $2.99/L",
-        image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=250&fit=crop",
-        badge: "Farm Fresh"
-      },
-      {
-        id: 2,
-        title: "Grains & Pulses",
-        price: "From $4.99/kg",
-        image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=250&fit=crop",
-        badge: "Premium Quality"
-      },
-      {
-        id: 3,
-        title: "Spices & Condiments",
-        price: "From $1.50/pack",
-        image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=250&fit=crop",
-        badge: "Authentic"
-      }
-    ]
-  }
-];
+const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+
+
+type PromoCard = {
+  id: string | number;
+  title: string;
+  subtitle?: string;
+  description: string;
+  image: string;
+  badge: string;
+  ctaText: string;
+  highlight: string;
+  label: string;
+};
 
 const adsData = [
   {
@@ -137,6 +67,35 @@ const systemInfo = {
 };
 
 export function TripleSlider() {
+  const { data: apiBanners, isLoading } = useBanners(10, 1, 'feature');
+
+  const promoCards = useMemo<PromoCard[]>(() => {
+    const mappedApi = (apiBanners ?? []).map((banner, index) => {
+      const fallback = adsData[index % adsData.length];
+      const image = banner.image_path
+        ? (banner.image_path.startsWith('http') ? banner.image_path : `${IMAGE_BASE_URL}${banner.image_path}`)
+        : fallback.image;
+
+      return {
+        id: banner.id,
+        title: banner.title || fallback.title,
+        subtitle: fallback.subtitle,
+        description: banner.description ?? fallback.description,
+        image,
+        badge: banner.type ? banner.type.toUpperCase() : 'FEATURE',
+        ctaText: banner.button_text ?? fallback.ctaText,
+        highlight: banner.badge_text ?? fallback.highlight,
+        label: 'AD',
+      };
+    });
+
+    if (mappedApi.length >= 2) return mappedApi.slice(0, 2);
+    if (mappedApi.length === 1) return [mappedApi[0], { ...adsData[1], label: 'AD' }];
+    return adsData.map((ad) => ({ ...ad, label: 'AD' }));
+  }, [apiBanners]);
+
+  const showLoadingPulse = isLoading && (apiBanners ?? []).length === 0;
+
   return (
     <section className="pb-3 sm:pb-4 md:pb-8">
       <div className="container mx-auto px-4">
@@ -180,8 +139,8 @@ export function TripleSlider() {
             </div>
 
             {/* Second and third sections: Ads as images */}
-            {adsData.map((ad) => (
-              <div key={ad.id} className="group bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-primary/40">
+            {promoCards.map((ad) => (
+              <div key={ad.id} className={`group bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-primary/40 ${showLoadingPulse ? 'animate-pulse' : ''}`}>
                 <div className="relative h-62 overflow-hidden">
                   <Image
                     src={ad.image}
@@ -193,7 +152,7 @@ export function TripleSlider() {
 
                   {/* Ads Badge */}
                   <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                    AD
+                    {ad.label}
                   </div>
 
                   {/* Highlight Badge */}
@@ -256,8 +215,8 @@ export function TripleSlider() {
               </div>
 
               {/* Second and third sections: Ads as images */}
-              {adsData.map((ad) => (
-                <div key={ad.id} className="flex-shrink-0 w-80 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 overflow-hidden">
+              {promoCards.map((ad) => (
+                <div key={ad.id} className={`flex-shrink-0 w-80 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 overflow-hidden ${showLoadingPulse ? 'animate-pulse' : ''}`}>
                   <div className="relative h-32 overflow-hidden">
                     <Image
                       src={ad.image}
@@ -269,7 +228,7 @@ export function TripleSlider() {
 
                     {/* Ads Badge */}
                     <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                      AD
+                      {ad.label}
                     </div>
 
                     {/* Highlight Badge */}

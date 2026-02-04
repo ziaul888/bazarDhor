@@ -1,32 +1,73 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useAppStore, type User } from '@/store/app-store';
+import { authApi } from '@/lib/api/services/auth';
 
 interface AuthContextType {
   isAuthModalOpen: boolean;
   authModalMode: 'signin' | 'signup';
   openAuthModal: (mode?: 'signin' | 'signup') => void;
   closeAuthModal: () => void;
+  hasHydrated: boolean;
   isAuthenticated: boolean;
-  user: { id: string; name: string; email: string } | null;
+  user: User | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin');
-  const [isAuthenticated] = useState(false);
-  const [user] = useState<{ id: string; name: string; email: string } | null>(null);
+  const hasHydrated = useAppStore((state) => state.hasHydrated);
+  const isAuthModalOpen = useAppStore((state) => state.isAuthModalOpen);
+  const openAuthModalStore = useAppStore((state) => state.openAuthModal);
+  const closeAuthModalStore = useAppStore((state) => state.closeAuthModal);
+  const isAuthenticated = useAppStore((state) => state.isAuthenticated);
+  const user = useAppStore((state) => state.user);
+  const login = useAppStore((state) => state.login);
+  const logout = useAppStore((state) => state.logout);
 
   const openAuthModal = (mode: 'signin' | 'signup' = 'signin') => {
     setAuthModalMode(mode);
-    setIsAuthModalOpen(true);
+    openAuthModalStore();
   };
 
   const closeAuthModal = () => {
-    setIsAuthModalOpen(false);
+    closeAuthModalStore();
   };
+
+  useEffect(() => {
+    if (!hasHydrated || typeof window === 'undefined') return;
+
+    const token = localStorage.getItem('auth_token');
+
+    // If there's no token, ensure the store is logged out (prevents stale persisted UI state)
+    if (!token) {
+      if (isAuthenticated || user) {
+        logout();
+      }
+      return;
+    }
+
+    // If there's a token but no user in state (e.g. fresh session), fetch current user
+    if (!user) {
+      void (async () => {
+        try {
+          const currentUser = await authApi.getCurrentUser();
+          login(currentUser);
+        } catch {
+          localStorage.removeItem('auth_token');
+          logout();
+        }
+      })();
+      return;
+    }
+
+    // If we have a user but auth flag is false, normalize it
+    if (!isAuthenticated) {
+      login(user);
+    }
+  }, [hasHydrated, isAuthenticated, user, login, logout]);
 
   return (
     <AuthContext.Provider
@@ -35,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         authModalMode,
         openAuthModal,
         closeAuthModal,
+        hasHydrated,
         isAuthenticated,
         user,
       }}

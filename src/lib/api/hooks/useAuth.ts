@@ -38,13 +38,10 @@ export const useLogin = (): UseMutationResult<AuthResponse, Error, LoginCredenti
 // Register mutation
 export const useRegister = (): UseMutationResult<AuthResponse, Error, RegisterData> => {
   const queryClient = useQueryClient();
-  const { login: zustandLogin } = useAppStore();
 
   return useMutation({
     mutationFn: authApi.register,
     onSuccess: (data) => {
-      // Update Zustand store
-      zustandLogin(data.user);
       // Update React Query cache
       queryClient.setQueryData(authKeys.user(), data.user);
     },

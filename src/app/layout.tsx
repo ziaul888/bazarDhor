@@ -16,6 +16,9 @@ import { PWAStatus } from "@/components/pwa-status";
 import { Notifications } from "@/components/notifications";
 import { Toaster } from "sonner";
 import { ZoneProvider } from "@/providers/zone-provider";
+import { cookies } from "next/headers";
+import { configServerApi } from "@/lib/api/services/server/config-server";
+import { ConfigBootstrap } from "@/providers/config-bootstrap";
 
 
 // Primary fonts - Modern and friendly
@@ -74,11 +77,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const zoneId = cookieStore.get('zoneId')?.value;
+
+  // NOTE: Server-side config fetch (cached via Next.js fetch revalidate).
+  // This allows us to seed Zustand with config on the client.
+  // (Auth token is stored in localStorage, so no Authorization header here.)
+  const [appConfig, settings] = await Promise.all([
+    configServerApi.getAppConfig(zoneId ? { zoneId } : undefined),
+    configServerApi.getSettings(zoneId ? { zoneId } : undefined),
+  ]);
+
   return (
     <html lang="en">
       <head>
@@ -96,6 +110,7 @@ export default function RootLayout({
         className={`${poppins.variable} ${sourceCodePro.variable} ${playfairDisplay.variable} ${openSans.variable} font-poppins antialiased`}
       >
         <QueryProvider>
+          <ConfigBootstrap appConfig={appConfig} settings={settings} />
           <ZoneProvider>
             <SearchProvider>
               <AuthProvider>
