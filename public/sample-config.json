@@ -1,0 +1,26 @@
+{
+  "platformName": "BazarDhor Marketplace",
+  "platformFeatures": [
+    "Real-time market comparison",
+    "Smart price tracking", 
+    "Local vendor network",
+    "Secure payment system",
+    "24/7 customer support"
+  ],
+  "stats": {
+    "markets": "750+",
+    "users": "25K+",
+    "cities": "35+",
+    "vendors": "2500+"
+  },
+  "seo": {
+    "title": "BazarDhor - Bangladesh's Leading Marketplace",
+    "description": "Discover the best prices across local markets in Bangladesh. Compare, save, and shop smart with our real-time marketplace platform.",
+    "keywords": ["marketplace", "price comparison", "bangladesh markets", "local vendors", "smart shopping"]
+  },
+  "appName": "BazarDhor",
+  "version": "2.1.0",
+  "maintenanceMode": false,
+  "supportedLanguages": ["en", "bn"],
+  "defaultCurrency": "BDT"
+}

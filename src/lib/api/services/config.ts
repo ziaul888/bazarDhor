@@ -41,4 +41,14 @@ export const configApi = {
         );
         return response.data.data;
     },
+
+    /**
+     * Get general configuration (entire /config endpoint)
+     */
+    getGeneralConfig: async (): Promise<any> => {
+        const response = await apiClient.get<ApiResponse<any>>(
+            API_ENDPOINTS.CONFIG.GENERAL
+        );
+        return response.data.data;
+    },
 };

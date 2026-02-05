@@ -3,6 +3,7 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { MarketCard } from '@/components/market-card';
 import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 import { useMemo } from 'react';
@@ -186,9 +187,12 @@ export function NearestMarketSection() {
 
                 {/* View All Button */}
                 <div className="text-center mt-6">
-                    <button className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
+                    <Link 
+                        href="/markets" 
+                        className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium inline-block"
+                    >
                         View All Markets
-                    </button>
+                    </Link>
                 </div>
             </div>
         </section>

@@ -30,5 +30,20 @@ export const configServerApi = {
       return null;
     }
   },
+
+  getGeneralConfig: async (headers?: Record<string, string>): Promise<Record<string, unknown> | null> => {
+    try {
+      const generalConfig = await fetchClient<Record<string, unknown>>('/config', {
+        headers,
+        throwOnError: false,
+        next: { revalidate: 1800 },
+      });
+
+      return generalConfig ?? null;
+    } catch (error) {
+      console.error('SERVER API Error [configServerApi.getGeneralConfig]:', error);
+      return null;
+    }
+  },
 };
 

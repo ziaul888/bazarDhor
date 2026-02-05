@@ -88,9 +88,10 @@ export default async function RootLayout({
   // NOTE: Server-side config fetch (cached via Next.js fetch revalidate).
   // This allows us to seed Zustand with config on the client.
   // (Auth token is stored in localStorage, so no Authorization header here.)
-  const [appConfig, settings] = await Promise.all([
+  const [appConfig, settings, generalConfig] = await Promise.all([
     configServerApi.getAppConfig(zoneId ? { zoneId } : undefined),
     configServerApi.getSettings(zoneId ? { zoneId } : undefined),
+    configServerApi.getGeneralConfig(zoneId ? { zoneId } : undefined),
   ]);
 
   return (
@@ -110,7 +111,7 @@ export default async function RootLayout({
         className={`${poppins.variable} ${sourceCodePro.variable} ${playfairDisplay.variable} ${openSans.variable} font-poppins antialiased`}
       >
         <QueryProvider>
-          <ConfigBootstrap appConfig={appConfig} settings={settings} />
+          <ConfigBootstrap appConfig={appConfig} settings={settings} generalConfig={generalConfig} />
           <ZoneProvider>
             <SearchProvider>
               <AuthProvider>

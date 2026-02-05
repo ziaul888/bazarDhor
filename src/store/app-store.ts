@@ -66,6 +66,7 @@ export interface AppState {
   // App config (from /config/* endpoints)
   appConfig: Record<string, unknown> | null;
   settings: Record<string, unknown> | null;
+  generalConfig: Record<string, unknown> | null;
   
   // Favorites
   favoriteMarkets: string[];
@@ -112,6 +113,7 @@ export interface AppActions {
   // Config actions
   setAppConfig: (appConfig: Record<string, unknown> | null) => void;
   setSettings: (settings: Record<string, unknown> | null) => void;
+  setGeneralConfig: (generalConfig: Record<string, unknown> | null) => void;
   
   // Favorites actions
   toggleFavoriteMarket: (marketId: string) => void;
@@ -152,6 +154,7 @@ const initialState: AppState = {
   isAuthenticated: false,
   appConfig: null,
   settings: null,
+  generalConfig: null,
   favoriteMarkets: [],
   favoriteItems: [],
   searchQuery: '',
@@ -203,6 +206,10 @@ export const useAppStore = create<AppStore>()(
 
         setSettings: (settings) => set((state) => {
           state.settings = settings;
+        }),
+
+        setGeneralConfig: (generalConfig) => set((state) => {
+          state.generalConfig = generalConfig;
         }),
         
         updateUserPreferences: (preferences) => set((state) => {
@@ -365,6 +372,7 @@ export const useAppStore = create<AppStore>()(
           isAuthenticated: state.isAuthenticated,
           appConfig: state.appConfig,
           settings: state.settings,
+          generalConfig: state.generalConfig,
           favoriteMarkets: state.favoriteMarkets,
           favoriteItems: state.favoriteItems,
           userLocation: state.userLocation,

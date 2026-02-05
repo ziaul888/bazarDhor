@@ -8,6 +8,7 @@ export const configKeys = {
     zone: (lat: number, lng: number) => [...configKeys.all, 'zone', lat, lng] as const,
     settings: () => [...configKeys.all, 'settings'] as const,
     appConfig: () => [...configKeys.all, 'app-config'] as const,
+    general: () => [...configKeys.all, 'general'] as const,
 };
 
 /**
@@ -72,5 +73,16 @@ export const useAppConfig = () => {
         queryKey: configKeys.appConfig(),
         queryFn: () => configApi.getAppConfig(),
         staleTime: 60 * 60 * 1000, // 1 hour
+    });
+};
+
+/**
+ * Hook to get general configuration
+ */
+export const useGeneralConfig = () => {
+    return useQuery({
+        queryKey: configKeys.general(),
+        queryFn: () => configApi.getGeneralConfig(),
+        staleTime: 30 * 60 * 1000, // 30 minutes
     });
 };

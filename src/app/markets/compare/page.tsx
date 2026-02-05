@@ -1,130 +1,105 @@
 "use client";
 
-import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { MarketSelector } from './_components/market-selector';
 import { ComparisonTable } from './_components/comparison-table';
+import { useCompareMarkets, useMarket, useRandomMarkets } from '@/lib/api/hooks/useMarkets';
+import type { Market } from '@/lib/api/types';
 
-const allMarkets = [
-  {
-    id: 1,
-    name: "Downtown Farmers Market",
-    address: "123 Main Street, Downtown",
-    distance: "0.5 km",
-    openTime: "8:00 AM - 6:00 PM",
-    rating: 4.8,
-    reviews: 245,
-    vendors: 32,
-    image: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop",
-    isOpen: true,
-    specialties: ["Fresh Produce", "Organic Food"],
-    featured: true,
-    type: "Farmers Market",
-    priceRange: "$$",
-    hasParking: true,
-    acceptsCards: true,
-    hasDelivery: false,
-    avgPrices: {
-      vegetables: 4.50,
-      fruits: 3.20,
-      meat: 12.99,
-      dairy: 3.50
-    },
-    openDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    established: "2015",
-    marketSize: "Large"
-  },
-  {
-    id: 2,
-    name: "Riverside Organic Market",
-    address: "456 River Road, Riverside",
-    distance: "1.2 km",
-    openTime: "9:00 AM - 5:00 PM",
-    rating: 4.7,
-    reviews: 189,
-    vendors: 28,
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-    isOpen: true,
-    specialties: ["Organic Food", "Local Produce"],
-    featured: false,
-    type: "Organic Market",
-    priceRange: "$$$",
-    hasParking: true,
-    acceptsCards: true,
-    hasDelivery: true,
-    avgPrices: {
-      vegetables: 5.20,
-      fruits: 4.10,
-      meat: 15.99,
-      dairy: 4.25
-    },
-    openDays: ["Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    established: "2018",
-    marketSize: "Medium"
-  },
-  {
-    id: 3,
-    name: "Central Plaza Market",
-    address: "789 Plaza Avenue, Central",
-    distance: "2.1 km",
-    openTime: "7:00 AM - 7:00 PM",
-    rating: 4.6,
-    reviews: 156,
-    vendors: 45,
-    image: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400&h=300&fit=crop",
-    isOpen: false,
-    specialties: ["Groceries", "Meat & Poultry"],
-    featured: false,
-    type: "Grocery Market",
-    priceRange: "$",
-    hasParking: false,
-    acceptsCards: true,
-    hasDelivery: false,
-    avgPrices: {
-      vegetables: 3.99,
-      fruits: 2.80,
-      meat: 10.50,
-      dairy: 2.99
-    },
-    openDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    established: "2012",
-    marketSize: "Large"
-  },
-  {
-    id: 4,
-    name: "Sunset Weekend Market",
-    address: "321 Sunset Boulevard, West",
-    distance: "3.5 km",
-    openTime: "10:00 AM - 4:00 PM",
-    rating: 4.9,
-    reviews: 298,
-    vendors: 38,
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
-    isOpen: true,
-    specialties: ["Street Food", "Artisan Goods"],
-    featured: true,
-    type: "Weekend Market",
-    priceRange: "$$",
-    hasParking: true,
-    acceptsCards: false,
-    hasDelivery: false,
-    avgPrices: {
-      vegetables: 4.75,
-      fruits: 3.60,
-      meat: 14.25,
-      dairy: 3.80
-    },
-    openDays: ["Sat", "Sun"],
-    established: "2020",
-    marketSize: "Medium"
-  }
-];
+const DEFAULT_LOCATION = { lat: 23.8103, lng: 90.4125 };
 
 export default function CompareMarketsPage() {
-  const [selectedMarket1, setSelectedMarket1] = useState(allMarkets[0]);
-  const [selectedMarket2, setSelectedMarket2] = useState(allMarkets[1]);
+  const searchParams = useSearchParams();
+  const urlMarketId1 = searchParams.get('market_id_1') ?? searchParams.get('m1') ?? '';
+  const urlMarketId2 = searchParams.get('market_id_2') ?? searchParams.get('m2') ?? '';
+
+  const { data: randomMarkets, isLoading: isLoadingRandomMarkets } = useRandomMarkets();
+  const { data: urlMarket1Response } = useMarket(urlMarketId1);
+  const { data: urlMarket2Response } = useMarket(urlMarketId2);
+
+  const urlMarket1 = urlMarket1Response?.data;
+  const urlMarket2 = urlMarket2Response?.data;
+
+  const markets = useMemo(() => {
+    const merged = new Map<string, Market>();
+    for (const market of [urlMarket1, urlMarket2, ...(randomMarkets ?? [])]) {
+      if (!market) continue;
+      merged.set(market.id, market);
+    }
+    return Array.from(merged.values());
+  }, [randomMarkets, urlMarket1, urlMarket2]);
+
+  const [userLoc, setUserLoc] = useState(DEFAULT_LOCATION);
+  const [selectedMarket1, setSelectedMarket1] = useState<Market | null>(null);
+  const [selectedMarket2, setSelectedMarket2] = useState<Market | null>(null);
+
+  const appliedUrlKeyRef = useRef<string>('');
+
+  useEffect(() => {
+    const storedLat = localStorage.getItem('user_lat');
+    const storedLng = localStorage.getItem('user_lng');
+    if (!storedLat || !storedLng) return;
+
+    const lat = Number.parseFloat(storedLat);
+    const lng = Number.parseFloat(storedLng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+    setUserLoc({ lat, lng });
+  }, []);
+
+  useEffect(() => {
+    if (markets.length === 0) return;
+
+    // Always ensure we have initial selections.
+    setSelectedMarket1((current) => current ?? markets[0] ?? null);
+    setSelectedMarket2((current) => {
+      if (current) return current;
+      const firstId = markets[0]?.id;
+      return markets.find((market) => market.id !== firstId) ?? null;
+    });
+
+    const hasUrlParams = Boolean(urlMarketId1 || urlMarketId2);
+    if (!hasUrlParams) return;
+
+    const urlKey = `${urlMarketId1}|${urlMarketId2}`;
+    if (appliedUrlKeyRef.current === urlKey) return;
+
+    const nextMarket1 = urlMarketId1 ? markets.find((market) => market.id === urlMarketId1) : undefined;
+    const nextMarket2 = urlMarketId2 ? markets.find((market) => market.id === urlMarketId2) : undefined;
+
+    // Wait until url params can be resolved into market objects.
+    if ((urlMarketId1 && !nextMarket1) || (urlMarketId2 && !nextMarket2)) return;
+
+    const resolvedMarket1 = nextMarket1 ?? markets[0] ?? null;
+    let resolvedMarket2 =
+      nextMarket2 ??
+      markets.find((market) => market.id !== resolvedMarket1?.id) ??
+      null;
+
+    if (resolvedMarket1 && resolvedMarket2 && resolvedMarket1.id === resolvedMarket2.id) {
+      resolvedMarket2 = markets.find((market) => market.id !== resolvedMarket1.id) ?? null;
+    }
+
+    setSelectedMarket1(resolvedMarket1);
+    setSelectedMarket2(resolvedMarket2);
+    appliedUrlKeyRef.current = urlKey;
+  }, [markets, urlMarketId1, urlMarketId2]);
+
+  const compareQuery = useCompareMarkets(
+    {
+      market_id_1: selectedMarket1?.id ?? '',
+      market_id_2: selectedMarket2?.id ?? '',
+      user_lat: userLoc.lat,
+      user_lng: userLoc.lng,
+    },
+    Boolean(selectedMarket1 && selectedMarket2)
+  );
+
+  const comparison = compareQuery.data?.data;
 
   return (
     <div className="min-h-screen bg-background">
@@ -139,12 +114,10 @@ export default function CompareMarketsPage() {
               </Button>
             </Link>
           </div>
-          
+
           <div>
             <h1 className="text-3xl font-bold mb-2">Compare Markets</h1>
-            <p className="text-muted-foreground">
-              Compare prices, features, and details between two local markets
-            </p>
+            <p className="text-muted-foreground">Compare details and features between two markets</p>
           </div>
         </div>
       </div>
@@ -155,42 +128,65 @@ export default function CompareMarketsPage() {
           <div>
             <h2 className="text-lg font-semibold mb-4">Select First Market</h2>
             <MarketSelector
-              markets={allMarkets}
+              markets={markets}
               selectedMarket={selectedMarket1}
               onMarketSelect={setSelectedMarket1}
-              excludeMarketId={selectedMarket2.id}
+              excludeMarketId={selectedMarket2?.id}
+              disabled={isLoadingRandomMarkets}
             />
           </div>
-          
+
           <div>
             <h2 className="text-lg font-semibold mb-4">Select Second Market</h2>
             <MarketSelector
-              markets={allMarkets}
+              markets={markets}
               selectedMarket={selectedMarket2}
               onMarketSelect={setSelectedMarket2}
-              excludeMarketId={selectedMarket1.id}
+              excludeMarketId={selectedMarket1?.id}
+              disabled={isLoadingRandomMarkets}
             />
           </div>
         </div>
 
-        {/* Comparison Table */}
-        <ComparisonTable 
-          market1={selectedMarket1}
-          market2={selectedMarket2}
-        />
+        {/* Comparison Results */}
+        {compareQuery.isLoading ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+            <p className="text-muted-foreground">Loading comparison…</p>
+          </div>
+        ) : compareQuery.isError ? (
+          <div className="text-center py-10 border rounded-xl bg-muted/10">
+            <p className="text-warning font-medium">Comparison failed. Please try again.</p>
+          </div>
+        ) : comparison?.market_1 && comparison?.market_2 ? (
+          <ComparisonTable market1={comparison.market_1} market2={comparison.market_2} />
+        ) : (
+          <div className="text-center py-10 border rounded-xl bg-muted/10">
+            <p className="text-muted-foreground">
+              Select two markets to view comparison.
+            </p>
+          </div>
+        )}
 
-        {/* Action Buttons */}
+        {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-          <Button asChild>
-            <Link href={`/markets/${selectedMarket1.id}`}>
-              View {selectedMarket1.name}
-            </Link>
+          <Button
+            variant="outline"
+            onClick={() => compareQuery.refetch()}
+            disabled={!selectedMarket1 || !selectedMarket2 || compareQuery.isFetching}
+          >
+            Refresh Comparison
           </Button>
-          <Button variant="outline" asChild>
-            <Link href={`/markets/${selectedMarket2.id}`}>
-              View {selectedMarket2.name}
-            </Link>
-          </Button>
+          {selectedMarket1 && (
+            <Button asChild>
+              <Link href={`/markets/${selectedMarket1.id}`}>View {selectedMarket1.name}</Link>
+            </Button>
+          )}
+          {selectedMarket2 && (
+            <Button variant="outline" asChild>
+              <Link href={`/markets/${selectedMarket2.id}`}>View {selectedMarket2.name}</Link>
+            </Button>
+          )}
         </div>
       </div>
     </div>

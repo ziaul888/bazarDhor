@@ -3,49 +3,24 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { ChevronDown, MapPin, Star, Users } from 'lucide-react';
+import type { Market } from '@/lib/api/types';
 
-
-interface Market {
-  id: number;
-  name: string;
-  address: string;
-  distance: string;
-  openTime: string;
-  rating: number;
-  reviews: number;
-  vendors: number;
-  image: string;
-  isOpen: boolean;
-  specialties: string[];
-  featured: boolean;
-  type: string;
-  priceRange: string;
-  hasParking: boolean;
-  acceptsCards: boolean;
-  hasDelivery: boolean;
-  avgPrices: {
-    vegetables: number;
-    fruits: number;
-    meat: number;
-    dairy: number;
-  };
-  openDays: string[];
-  established: string;
-  marketSize: string;
-}
+const DEFAULT_MARKET_IMAGE = "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop";
 
 interface MarketSelectorProps {
   markets: Market[];
-  selectedMarket: Market;
+  selectedMarket: Market | null;
   onMarketSelect: (market: Market) => void;
-  excludeMarketId?: number;
+  excludeMarketId?: string;
+  disabled?: boolean;
 }
 
 export function MarketSelector({ 
   markets, 
   selectedMarket, 
   onMarketSelect, 
-  excludeMarketId 
+  excludeMarketId,
+  disabled = false,
 }: MarketSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -56,30 +31,35 @@ export function MarketSelector({
       {/* Selected Market Display */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-4 bg-card border rounded-xl hover:bg-accent transition-colors text-left"
+        disabled={disabled || markets.length === 0}
+        className="w-full p-4 bg-card border rounded-xl hover:bg-accent transition-colors text-left disabled:opacity-50"
       >
         <div className="flex items-center space-x-4">
-          <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-            <Image
-              src={selectedMarket.image}
-              alt={selectedMarket.name}
-              fill
-              className="object-cover"
-            />
-          </div>
+          {selectedMarket ? (
+            <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+              <Image
+                src={selectedMarket.image || DEFAULT_MARKET_IMAGE}
+                alt={selectedMarket.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-16 h-16 rounded-lg bg-muted flex-shrink-0" />
+          )}
           
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-lg truncate">{selectedMarket.name}</h3>
-            <p className="text-sm text-muted-foreground truncate">{selectedMarket.type}</p>
+            <h3 className="font-semibold text-lg truncate">{selectedMarket?.name ?? 'Select a market'}</h3>
+            <p className="text-sm text-muted-foreground truncate">{selectedMarket?.type ?? 'Choose from the list'}</p>
             
             <div className="flex items-center space-x-4 mt-1">
               <div className="flex items-center space-x-1">
                 <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                <span className="text-xs">{selectedMarket.rating}</span>
+                <span className="text-xs">{selectedMarket?.rating ?? 'N/A'}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <MapPin className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">{selectedMarket.distance}</span>
+                <span className="text-xs text-muted-foreground">{selectedMarket?.distance ?? 'N/A'}</span>
               </div>
             </div>
           </div>
@@ -91,7 +71,7 @@ export function MarketSelector({
       </button>
 
       {/* Dropdown Menu */}
-      {isOpen && (
+      {isOpen && !disabled && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-card border rounded-xl shadow-lg z-10 max-h-80 overflow-y-auto">
           {availableMarkets.map((market) => (
             <button
@@ -105,7 +85,7 @@ export function MarketSelector({
               <div className="flex items-center space-x-4">
                 <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                   <Image
-                    src={market.image}
+                    src={market.image || DEFAULT_MARKET_IMAGE}
                     alt={market.name}
                     fill
                     className="object-cover"
@@ -146,7 +126,7 @@ export function MarketSelector({
       )}
 
       {/* Backdrop */}
-      {isOpen && (
+      {isOpen && !disabled && (
         <div 
           className="fixed inset-0 z-0" 
           onClick={() => setIsOpen(false)}

@@ -63,6 +63,7 @@ export const API_ENDPOINTS = {
         GET_ZONE: '/config/get-zone',
         SETTINGS: '/config/settings',
         APP_CONFIG: '/config/app',
+        GENERAL: '/config',
     },
 } as const;
 

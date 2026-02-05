@@ -170,14 +170,6 @@ export function CategorySection() {
             <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">Bazar by Category</h2>
             <p className="text-xs sm:text-sm text-muted-foreground">Fresh groceries from local markets</p>
           </div>
-
-          {/* View All Link */}
-          <Link
-            href="/category"
-            className="text-xs sm:text-sm text-primary hover:text-primary/80 font-medium transition-colors whitespace-nowrap"
-          >
-            View All
-          </Link>
         </div>
 
         {/* Categories Grid */}
