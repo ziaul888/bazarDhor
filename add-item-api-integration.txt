@@ -1,0 +1,55 @@
+// This file shows the key changes needed for AddItemModal integration
+
+// 1. Add these imports to the top of add-item-modal.tsx:
+import { useCreateUserProduct } from '@/lib/api/hooks/useUser';
+import { toast } from 'sonner';
+import { CheckCircle, AlertCircle } from 'lucide-react';
+
+// 2. Add this inside the component function:
+const createProductMutation = useCreateUserProduct();
+
+// 3. Replace the handleSubmit function with this:
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  try {
+    // Prepare the payload according to your specification
+    const payload = {
+      name: formData.name,
+      category_id: "CATEGORY_UUID_HERE", // Would come from form selection
+      unit_id: "UNIT_UUID_HERE", // Would come from form selection  
+      description: formData.description,
+      brand: "Golden Harvest",
+      country_of_origin: "Bangladesh",
+      base_price: parseFloat(formData.price),
+      status: "draft"
+    };
+
+    // Call the API endpoint /api/users/products/create
+    const response = await createProductMutation.mutateAsync(payload);
+    
+    toast.success('Item added successfully!', {
+      description: `Your item "${formData.name}" has been submitted.`,
+    });
+    
+    console.log('API Response:', response);
+    onClose();
+  } catch (error) {
+    const errorMessage = (error as Error)?.message || 'Failed to add item';
+    
+    toast.error('Failed to add item', {
+      description: errorMessage,
+    });
+    
+    console.error('API Error:', error);
+  }
+};
+
+// 4. Update the submit button to show loading state:
+<button
+  type="submit"
+  disabled={createProductMutation.isPending}
+  className="flex-1 px-4 sm:px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base"
+>
+  {createProductMutation.isPending ? 'Adding Item...' : 'Add Item ✨'}
+</button>

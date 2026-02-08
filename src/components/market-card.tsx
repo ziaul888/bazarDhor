@@ -155,9 +155,9 @@ export function MarketCard({
               View Market
             </Link>
           </Button>
-          <Button variant="outline" size={isCompact ? "sm" : "default"}>
+          {/* <Button variant="outline" size={isCompact ? "sm" : "default"}>
             <MapPin className="h-4 w-4" />
-          </Button>
+          </Button> */}
         </CardFooter>
       </CardContent>
     </Card>
@@ -239,9 +239,9 @@ export function MarketListItem({
               View Market
             </Link>
           </Button>
-          <Button variant="outline" size="sm">
+          {/* <Button variant="outline" size="sm">
             <MapPin className="h-4 w-4" />
-          </Button>
+          </Button> */}
         </div>
       </CardContent>
     </Card>
