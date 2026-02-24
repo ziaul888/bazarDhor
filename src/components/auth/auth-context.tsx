@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useAppStore, type User } from '@/store/app-store';
 import { authApi } from '@/lib/api/services/auth';
+import { useZone } from '@/providers/zone-provider';
 
 interface AuthContextType {
   isAuthModalOpen: boolean;
@@ -26,6 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const user = useAppStore((state) => state.user);
   const login = useAppStore((state) => state.login);
   const logout = useAppStore((state) => state.logout);
+  const { zone, isLoading: isZoneLoading } = useZone();
 
   const openAuthModal = (mode: 'signin' | 'signup' = 'signin') => {
     setAuthModalMode(mode);
@@ -49,6 +51,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // Zone must be available before any non-zone API call.
+    if (isZoneLoading || !zone?.id) {
+      return;
+    }
+
     // If there's a token but no user in state (e.g. fresh session), fetch current user
     if (!user) {
       void (async () => {
@@ -67,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!isAuthenticated) {
       login(user);
     }
-  }, [hasHydrated, isAuthenticated, user, login, logout]);
+  }, [hasHydrated, isAuthenticated, user, login, logout, zone?.id, isZoneLoading]);
 
   return (
     <AuthContext.Provider

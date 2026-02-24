@@ -28,22 +28,22 @@ export default function Home() {
       <SearchSection isVisible={isSearchVisible} onClose={hideSearch} />
 
       {/* Triple Slider Section */}
-      <div className={`transition-all duration-500 ease-in-out ${isSearchVisible ? 'transform translate-y-0' : 'transform translate-y-0'
+      {/* <div className={`transition-all duration-500 ease-in-out ${isSearchVisible ? 'transform translate-y-0' : 'transform translate-y-0'
         }`}>
         <TripleSlider />
-      </div>
-
+      </div> */}
+      <NearestMarketSection />
       {/* Category Section */}
       <CategorySection />
 
       {/* Nearest Market Section */}
-      <NearestMarketSection />
+    <BestPriceSection />
 
       {/* Banner Section */}
       <BannerSection />
 
       {/* Best Price Section */}
-      <BestPriceSection />
+      
 
       {/* Compare Markets Section */}
       <CompareMarketsSection />

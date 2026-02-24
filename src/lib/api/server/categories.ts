@@ -25,7 +25,11 @@ interface CategoryResponse {
   message?: string;
 }
 
-export async function getCategories(limit: number = 10, offset: number = 0) {
+export async function getCategories(limit: number = 10, offset: number = 0, zoneId?: string) {
+  if (!zoneId) {
+    return null;
+  }
+
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.chhagolnaiyasportareana.xyz/api';
     const url = `${baseUrl}/categories/list?limit=${limit}&offset=${offset}`;
@@ -35,6 +39,7 @@ export async function getCategories(limit: number = 10, offset: number = 0) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        zoneId,
       },
       // Revalidate every 5 minutes
       next: { revalidate: 300 },
@@ -59,7 +64,11 @@ export async function getCategories(limit: number = 10, offset: number = 0) {
   }
 }
 
-export async function getCategoryBySlug(slug: string) {
+export async function getCategoryBySlug(slug: string, zoneId?: string) {
+  if (!zoneId) {
+    return null;
+  }
+
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.chhagolnaiyasportareana.xyz/api';
     const url = `${baseUrl}/categories/${slug}`;
@@ -69,6 +78,7 @@ export async function getCategoryBySlug(slug: string) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        zoneId,
       },
       next: { revalidate: 300 },
     });

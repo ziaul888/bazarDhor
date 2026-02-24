@@ -53,9 +53,15 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Fresh Market Finder - Find Local Groceries",
+  title: {
+    template: '%s | Fresh Market Finder',
+    default: 'Fresh Market Finder - Find Local Groceries'
+  },
   description: "Discover fresh groceries from local markets and farmers. Compare prices, find the best deals, and support your community.",
   manifest: "/manifest.json",
+  alternates: {
+    canonical: 'https://freshmarketfinder.com',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -69,11 +75,29 @@ export const metadata: Metadata = {
     siteName: "Fresh Market Finder",
     title: "Fresh Market Finder - Find Local Groceries",
     description: "Discover fresh groceries from local markets and farmers. Compare prices, find the best deals, and support your community.",
+    locale: 'en_US',
+    url: 'https://freshmarketfinder.com',
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Fresh Market Finder - Find Local Groceries",
     description: "Discover fresh groceries from local markets and farmers. Compare prices, find the best deals, and support your community.",
+    creator: '@freshmarketfinder',
+  },
+  keywords: ['market finder', 'local markets', 'grocery prices', 'farmers market', 'price comparison', 'fresh produce'],
+  authors: [{ name: 'Fresh Market Finder Team' }],
+  creator: 'Fresh Market Finder',
+  publisher: 'Fresh Market Finder',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
@@ -85,14 +109,13 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const zoneId = cookieStore.get('zoneId')?.value;
 
-  // NOTE: Server-side config fetch (cached via Next.js fetch revalidate).
-  // This allows us to seed Zustand with config on the client.
-  // (Auth token is stored in localStorage, so no Authorization header here.)
-  const [appConfig, settings, generalConfig] = await Promise.all([
-    configServerApi.getAppConfig(zoneId ? { zoneId } : undefined),
-    configServerApi.getSettings(zoneId ? { zoneId } : undefined),
-    configServerApi.getGeneralConfig(zoneId ? { zoneId } : undefined),
-  ]);
+  const [appConfig, settings, generalConfig] = zoneId
+    ? await Promise.all([
+        configServerApi.getAppConfig({ zoneId }),
+        configServerApi.getSettings({ zoneId }),
+        configServerApi.getGeneralConfig({ zoneId }),
+      ])
+    : [null, null, null];
 
   return (
     <html lang="en">

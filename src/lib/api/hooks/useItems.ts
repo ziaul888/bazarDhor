@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { itemsApi } from '../services/items';
 import { MarketItem, ItemFilters, PaginatedResponse, PriceComparison, NewItem } from '../types';
+import { useZone } from '@/providers/zone-provider';
 
 // Query keys
 export const itemKeys = {
@@ -18,19 +19,24 @@ export const itemKeys = {
 
 // Get all items with filters
 export const useItems = (filters?: ItemFilters): UseQueryResult<PaginatedResponse<MarketItem>, Error> => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: itemKeys.list(filters || {}),
     queryFn: () => itemsApi.getAll(filters),
+    enabled: !!zone?.id,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };
 
 // Get item by ID
 export const useItem = (id: string): UseQueryResult<MarketItem, Error> => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: itemKeys.detail(id),
     queryFn: () => itemsApi.getById(id),
-    enabled: !!id,
+    enabled: !!zone?.id && !!id,
     staleTime: 5 * 60 * 1000,
   });
 };
@@ -40,10 +46,12 @@ export const useMarketItems = (
   marketId: string,
   filters?: ItemFilters
 ): UseQueryResult<PaginatedResponse<MarketItem>, Error> => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: [...itemKeys.byMarket(marketId), filters],
     queryFn: () => itemsApi.getByMarket(marketId, filters),
-    enabled: !!marketId,
+    enabled: !!zone?.id && !!marketId,
     staleTime: 2 * 60 * 1000,
   });
 };
@@ -53,10 +61,12 @@ export const useCategoryItems = (
   category: string,
   filters?: ItemFilters
 ): UseQueryResult<PaginatedResponse<MarketItem>, Error> => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: [...itemKeys.byCategory(category), filters],
     queryFn: () => itemsApi.getByCategory(category, filters),
-    enabled: !!category,
+    enabled: !!zone?.id && !!category,
     staleTime: 2 * 60 * 1000,
   });
 };
@@ -66,29 +76,36 @@ export const useSearchItems = (
   query: string,
   filters?: ItemFilters
 ): UseQueryResult<PaginatedResponse<MarketItem>, Error> => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: [...itemKeys.search(query), filters],
     queryFn: () => itemsApi.search(query, filters),
-    enabled: query.length > 0,
+    enabled: !!zone?.id && query.length > 0,
     staleTime: 1 * 60 * 1000, // 1 minute
   });
 };
 
 // Get price comparison
 export const usePriceComparison = (itemName: string): UseQueryResult<PriceComparison, Error> => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: itemKeys.priceComparison(itemName),
     queryFn: () => itemsApi.getPriceComparison(itemName),
-    enabled: !!itemName,
+    enabled: !!zone?.id && !!itemName,
     staleTime: 5 * 60 * 1000,
   });
 };
 
 // Get trending items
 export const useTrendingItems = (limit = 10): UseQueryResult<MarketItem[], Error> => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: [...itemKeys.trending(), limit],
     queryFn: () => itemsApi.getTrending(limit),
+    enabled: !!zone?.id,
     staleTime: 10 * 60 * 1000,
   });
 };

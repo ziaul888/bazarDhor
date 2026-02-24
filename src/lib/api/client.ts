@@ -1,6 +1,27 @@
 import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
 
+const ZONE_OPTIONAL_ENDPOINTS = new Set(['/config/get-zone']);
+
+const getPathname = (url?: string, baseURL?: string): string => {
+  if (!url) return '';
+
+  try {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return new URL(url).pathname;
+    }
+
+    return new URL(url, baseURL).pathname;
+  } catch {
+    return url.startsWith('/') ? url : `/${url}`;
+  }
+};
+
+const isZoneOptionalRequest = (url?: string, baseURL?: string): boolean => {
+  const pathname = getPathname(url, baseURL);
+  return ZONE_OPTIONAL_ENDPOINTS.has(pathname);
+};
+
 // Create axios instance with base configuration
 export const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.chhagolnaiyasportareana.xyz/api',
@@ -37,16 +58,22 @@ apiClient.interceptors.request.use(
               // Restore cookie if it was missing but we found it in localStorage
               Cookies.set('zoneId', zoneId as string, { expires: 7, path: '/' });
             }
-          } catch (e) {
+          } catch {
             // ignore parse error
           }
         }
       }
 
-      console.log('DEBUG: Final zoneId for header:', zoneId);
-
       if (zoneId) {
         config.headers['zoneId'] = zoneId;
+      } else if (!isZoneOptionalRequest(config.url, config.baseURL || apiClient.defaults.baseURL)) {
+        return Promise.reject(
+          new AxiosError(
+            'Zone is required before making this API request.',
+            'ZONE_REQUIRED',
+            config
+          )
+        );
       }
     }
     return config;
@@ -83,6 +110,11 @@ apiClient.interceptors.response.use(
 // Helper function to handle API errors
 export const handleApiError = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
+    // Zone guard error
+    if (error.code === 'ZONE_REQUIRED') {
+      return 'Zone is required. Please enable location and try again.';
+    }
+
     // Timeout error
     if (error.code === 'ECONNABORTED') {
       return 'Request timeout. The server is taking too long to respond. Please try again.';

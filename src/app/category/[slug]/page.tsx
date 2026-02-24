@@ -2,11 +2,9 @@ import { CategoryClientPage } from './_components/category-client-page';
 import { CategoryHero } from './_components/category-hero';
 import { categoryServerApi } from '@/lib/api/services/server/category-server';
 import { marketServerApi } from '@/lib/api/services/server/market-server';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { BackButton } from '@/components/ui/back-button';
 import { cookies } from 'next/headers';
 import {
-  ArrowLeft,
   TrendingUp,
   TrendingDown
 } from 'lucide-react';
@@ -298,15 +296,13 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
 
   // Get zoneId from cookies on the server
   const cookieStore = await cookies();
-  const zoneId = (await cookieStore).get('zoneId')?.value;
-
-  const headers: Record<string, string> = {};
-  if (zoneId) {
-    headers['zoneId'] = zoneId;
-  }
+  const zoneId = cookieStore.get('zoneId')?.value;
+  const headers = zoneId ? { zoneId } : undefined;
 
   // Fetch real category data from organized server service
-  const apiCategory = await categoryServerApi.getCategoryById(slug, headers);
+  const apiCategory = zoneId
+    ? await categoryServerApi.getCategoryById(slug, headers)
+    : null;
 
   // Determine which category data to use
   let category = apiCategory ? {
@@ -342,16 +338,21 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
           <p className="text-muted-foreground mb-8">
             We couldn't find the category you're looking for.
           </p>
-          <Button asChild size="lg" className="rounded-full px-8">
-            <Link href="/category">Browse All Categories</Link>
-          </Button>
+          <BackButton
+            size="lg"
+            className="rounded-full px-8"
+            fallbackHref="/category"
+            label="Browse All Categories"
+          />
         </div>
       </div>
     );
   }
 
   // Fetch real markets for this category from organized server service
-  let markets = await marketServerApi.getMarketsByCategory(category.id.toString(), 50, headers);
+  let markets = zoneId
+    ? await marketServerApi.getMarketsByCategory(category.id.toString(), 50, headers)
+    : [];
 
   // If no real markets, use mock data for demonstration
   if (markets.length === 0) {
@@ -371,12 +372,7 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
 
           {/* Back Button */}
           <div className="absolute top-4 left-4">
-            <Button variant="secondary" size="sm" asChild>
-              <Link href="/category" className="flex items-center">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Link>
-            </Button>
+            <BackButton variant="secondary" size="sm" fallbackHref="/category" />
           </div>
 
           {/* Category Info Overlay */}

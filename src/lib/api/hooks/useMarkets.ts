@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { marketsApi } from '../services/markets';
 import type { MarketFilters, MarketListParams, ItemFilters, MarketComparisonParams } from '../types';
+import { useZone } from '@/providers/zone-provider';
 
 // Query keys for better cache management
 export const marketKeys = {
@@ -22,92 +23,117 @@ export const marketKeys = {
 
 // Get markets with filters
 export const useMarkets = (filters?: MarketFilters) => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: marketKeys.list(filters || {}),
     queryFn: () => marketsApi.getMarkets(filters),
+    enabled: !!zone?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
 // Get markets list by user location (offset/limit)
 export const useMarketList = (params: MarketListParams) => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: marketKeys.listByLocation(params),
     queryFn: () => marketsApi.getMarketList(params),
+    enabled: !!zone?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
 // Get single market
 export const useMarket = (id: string) => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: marketKeys.detail(id),
     queryFn: () => marketsApi.getMarket(id),
-    enabled: !!id,
+    enabled: !!zone?.id && !!id,
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 
 // Get market items
 export const useMarketItems = (marketId: string, filters?: ItemFilters) => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: marketKeys.itemsList(marketId, filters || {}),
     queryFn: () => marketsApi.getMarketItems(marketId, filters),
-    enabled: !!marketId,
+    enabled: !!zone?.id && !!marketId,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };
 
 // Search markets
 export const useSearchMarkets = (query: string) => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: marketKeys.search(query),
     queryFn: () => marketsApi.searchMarkets(query),
-    enabled: query.length > 2,
+    enabled: !!zone?.id && query.length > 2,
     staleTime: 30 * 1000, // 30 seconds
   });
 };
 
 // Get nearby markets
 export const useNearbyMarkets = (lat?: number, lng?: number, radius?: number) => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: marketKeys.nearby(lat || 0, lng || 0),
     queryFn: () => marketsApi.getNearbyMarkets(lat!, lng!, radius),
-    enabled: !!(lat && lng),
+    enabled: !!zone?.id && !!(lat && lng),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
 // Get categories
 export const useCategories = () => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: marketKeys.categories(),
     queryFn: () => marketsApi.getCategories(),
+    enabled: !!zone?.id,
     staleTime: 60 * 60 * 1000, // 1 hour
   });
 };
 
 export const useRandomMarkets = () => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: marketKeys.random(),
     queryFn: () => marketsApi.getRandomMarkets(),
+    enabled: !!zone?.id,
     staleTime: 5 * 60 * 1000,
   });
 };
 
 export const useCompareMarkets = (params: MarketComparisonParams, enabled: boolean = true) => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: marketKeys.compare(params),
     queryFn: () => marketsApi.compareMarkets(params),
-    enabled: enabled && !!(params.market_id_1 && params.market_id_2),
+    enabled: !!zone?.id && enabled && !!(params.market_id_1 && params.market_id_2),
     staleTime: 5 * 60 * 1000,
   });
 };
 
 export const useRandomProducts = () => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: marketKeys.randomProducts(),
     queryFn: () => marketsApi.getRandomProducts(),
+    enabled: !!zone?.id,
     staleTime: 5 * 60 * 1000,
   });
 };

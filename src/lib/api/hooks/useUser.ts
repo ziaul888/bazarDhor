@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userApi } from '../services/user';
 import type { User, CreateUserProductPayload, UserProduct, ApiResponse } from '../types';
+import { useZone } from '@/providers/zone-provider';
 
 // Query keys
 export const userKeys = {
@@ -11,9 +12,12 @@ export const userKeys = {
 
 // Get user profile
 export const useUserProfile = () => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: userKeys.profile(),
     queryFn: () => userApi.getProfile(),
+    enabled: !!zone?.id,
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 };
@@ -33,9 +37,12 @@ export const useUpdateProfile = () => {
 
 // Get favorite markets
 export const useFavoriteMarkets = () => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: userKeys.favorites(),
     queryFn: () => userApi.getFavoriteMarkets(),
+    enabled: !!zone?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

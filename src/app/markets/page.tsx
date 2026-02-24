@@ -537,13 +537,13 @@ export default function MarketsPage() {
                             </Sheet>
 
                             {/* Filter Toggle - Desktop (Hidden) */}
-                            <Button
+                            {/* <Button
                                 variant="outline"
                                 className="px-4 py-3 h-auto hidden"
                             >
                                 <SlidersHorizontal className="h-4 w-4 mr-2" />
                                 Filters
-                            </Button>
+                            </Button> */}
                         </div>
                     </div>
                 </div>
@@ -552,7 +552,7 @@ export default function MarketsPage() {
             <div className="container mx-auto px-4 py-4 sm:py-6">
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Filters Sidebar - Desktop Only */}
-                    <div className="hidden lg:block lg:w-80">
+                    {/* <div className="hidden lg:block lg:w-80">
                         <MarketFilters
                             onFilterChange={(filters: Record<string, unknown> | undefined) => {
                                 setActiveFilters(filters);
@@ -561,7 +561,7 @@ export default function MarketsPage() {
                                 setCurrentPage(1);
                             }}
                         />
-                    </div>
+                    </div> */}
 
                     {/* Main Content */}
                     <div className="flex-1">
@@ -595,7 +595,7 @@ export default function MarketsPage() {
                         </div>
 
                         {/* Markets Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {paginatedMarkets.map((market) => (
                                 <MarketCard
                                     key={market.id}

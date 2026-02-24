@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { getCategories } from '@/lib/api/server/categories';
+import { cookies } from 'next/headers';
 
 // Default fallback categories
 const fallbackCategories = [
@@ -17,8 +18,11 @@ const fallbackCategories = [
 ];
 
 export async function CategorySectionServer() {
+  const cookieStore = await cookies();
+  const zoneId = cookieStore.get('zoneId')?.value;
+
   // Fetch categories from API
-  const apiData = await getCategories(10, 0);
+  const apiData = await getCategories(10, 0, zoneId);
 
   // Use API data if available, otherwise use fallback
   const categoriesData = apiData?.data || fallbackCategories;

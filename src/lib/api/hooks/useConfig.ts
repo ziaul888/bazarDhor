@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { configApi } from '../services/config';
-import type { GetZoneRequest, GetZoneResponse } from '../types';
+import type { GetZoneRequest } from '../types';
+import { useZone } from '@/providers/zone-provider';
 
 // Query keys
 export const configKeys = {
@@ -58,9 +59,12 @@ export const useGetZoneMutation = () => {
  * Hook to get app settings
  */
 export const useSettings = () => {
+    const { zone } = useZone();
+
     return useQuery({
         queryKey: configKeys.settings(),
         queryFn: () => configApi.getSettings(),
+        enabled: !!zone?.id,
         staleTime: 30 * 60 * 1000, // 30 minutes
     });
 };
@@ -69,9 +73,12 @@ export const useSettings = () => {
  * Hook to get app configuration
  */
 export const useAppConfig = () => {
+    const { zone } = useZone();
+
     return useQuery({
         queryKey: configKeys.appConfig(),
         queryFn: () => configApi.getAppConfig(),
+        enabled: !!zone?.id,
         staleTime: 60 * 60 * 1000, // 1 hour
     });
 };
@@ -80,9 +87,12 @@ export const useAppConfig = () => {
  * Hook to get general configuration
  */
 export const useGeneralConfig = () => {
+    const { zone } = useZone();
+
     return useQuery({
         queryKey: configKeys.general(),
         queryFn: () => configApi.getGeneralConfig(),
+        enabled: !!zone?.id,
         staleTime: 30 * 60 * 1000, // 30 minutes
     });
 };

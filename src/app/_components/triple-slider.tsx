@@ -131,26 +131,37 @@ export function TripleSlider() {
 
   return (
     <section className="pb-3 sm:pb-4 md:pb-8">
-      {/* SEO Enhancement - Structured Data */}
+      {/* SEO Enhancement - Comprehensive Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "WebApplication",
+            "@type": "WebSite",
             "name": platformInfo.title,
-            "applicationCategory": "BusinessApplication",
-            "operatingSystem": "All",
-            "offers": {
-              "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "USD"
-            },
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "reviewCount": "1250"
+            "description": "Discover fresh groceries from local markets and farmers. Compare prices, find the best deals, and support your community.",
+            "url": "https://freshmarketfinder.com",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://freshmarketfinder.com/search?q={search_term_string}",
+              "query-input": "required name=search_term_string"
             }
+          })
+        }}
+      />
+      
+      {/* Organization Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": platformInfo.title,
+            "description": "Marketplace platform connecting buyers and sellers",
+            "knowsAbout": platformInfo.features,
+            "numberOfEmployees": platformInfo.stats.vendors,
+            "areaServed": `${platformInfo.stats.cities} cities`
           })
         }}
       />

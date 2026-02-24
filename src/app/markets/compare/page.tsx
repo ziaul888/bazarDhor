@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BackButton } from '@/components/ui/back-button';
 import { MarketSelector } from './_components/market-selector';
 import { ComparisonTable } from './_components/comparison-table';
 import { useCompareMarkets, useMarket, useRandomMarkets } from '@/lib/api/hooks/useMarkets';
@@ -107,12 +108,12 @@ export default function CompareMarketsPage() {
       <div className="bg-muted/30 border-b">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center space-x-4 mb-4">
-            <Link href="/markets">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Markets
-              </Button>
-            </Link>
+            <BackButton
+              variant="ghost"
+              size="sm"
+              fallbackHref="/markets"
+              label="Back to Markets"
+            />
           </div>
 
           <div>

@@ -1,5 +1,5 @@
 import { fetchClient } from '../../fetch-client';
-import type { Market } from '../../types';
+import type { Market, ApiResponse } from '../../types';
 
 export const marketServerApi = {
     getMarketsByCategory: async (categoryId: string, limit: number = 50, headers?: Record<string, string>): Promise<Market[]> => {
@@ -18,6 +18,21 @@ export const marketServerApi = {
         } catch (error) {
             console.error('SERVER API Error [marketServerApi.getMarketsByCategory]:', error);
             return [];
+        }
+    },
+
+    getMarketById: async (id: string, headers?: Record<string, string>): Promise<Market | null> => {
+        try {
+            const response = await fetchClient<ApiResponse<Market>>(`/markets/${id}`, {
+                headers,
+                throwOnError: false,
+                next: { revalidate: 900 } // 15 minutes
+            });
+
+            return response?.data || null;
+        } catch (error) {
+            console.error('SERVER API Error [marketServerApi.getMarketById]:', error);
+            return null;
         }
     },
 };

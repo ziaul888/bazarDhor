@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { reviewsApi } from '../services/reviews';
 import { Review, PaginatedResponse } from '../types';
+import { useZone } from '@/providers/zone-provider';
 
 // Query keys
 export const reviewKeys = {
@@ -17,20 +18,24 @@ export const useMarketReviews = (
   page = 1,
   limit = 10
 ): UseQueryResult<PaginatedResponse<Review>, Error> => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: reviewKeys.list(marketId, page),
     queryFn: () => reviewsApi.getByMarket(marketId, page, limit),
-    enabled: !!marketId,
+    enabled: !!zone?.id && !!marketId,
     staleTime: 5 * 60 * 1000,
   });
 };
 
 // Get review by ID
 export const useReview = (id: string): UseQueryResult<Review, Error> => {
+  const { zone } = useZone();
+
   return useQuery({
     queryKey: reviewKeys.detail(id),
     queryFn: () => reviewsApi.getById(id),
-    enabled: !!id,
+    enabled: !!zone?.id && !!id,
   });
 };
 
