@@ -192,7 +192,7 @@ export function MobileNavbar() {
               </Button>
 
               {/* Notifications */}
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="icon"
                 className="relative h-9 w-9"
@@ -200,7 +200,7 @@ export function MobileNavbar() {
               >
                 <Bell className="h-4 w-4" />
                 <span className="absolute -top-1 -right-1 h-2 w-2 bg-success rounded-full animate-pulse" />
-              </Button>
+              </Button> */}
 
               {/* Mobile Menu */}
               <Sheet open={isOpen} onOpenChange={setIsOpen}>

@@ -12,7 +12,6 @@ import { AppDownloadSection } from "./_components/app-download-section";
 import { NewsletterSection } from "./_components/newsletter-section";
 import { FloatingAddButton } from "@/components/floating-add-button";
 import { useAddItem } from "@/components/add-item-context";
-
 import { useSearch } from "./_components/search-context";
 
 export default function Home() {

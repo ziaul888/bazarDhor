@@ -21,6 +21,61 @@ interface ZoneProviderProps {
     children: ReactNode;
 }
 
+const DEFAULT_LOCATION = { lat: 23.8103, lng: 90.4125 };
+const IP_GEO_TIMEOUT_MS = 5000;
+
+const toCoordinate = (value: unknown) => {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+    }
+    if (typeof value === 'string') {
+        const parsed = Number.parseFloat(value);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+};
+
+const isValidLatLng = (lat: number, lng: number) =>
+    lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+
+const parseCoordinates = (latValue: unknown, lngValue: unknown) => {
+    const lat = toCoordinate(latValue);
+    const lng = toCoordinate(lngValue);
+
+    if (lat === null || lng === null || !isValidLatLng(lat, lng)) {
+        return null;
+    }
+
+    return { lat, lng };
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+    typeof value === 'object' && value !== null;
+
+const fetchJsonWithTimeout = async (url: string) => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), IP_GEO_TIMEOUT_MS);
+
+    try {
+        const response = await fetch(url, {
+            signal: controller.signal,
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        return response.json();
+    } catch {
+        return null;
+    } finally {
+        window.clearTimeout(timeoutId);
+    }
+};
+
 /**
  * Zone Provider - Automatically detects user's zone when app loads
  * Uses IP-based geolocation (no permission required)
@@ -36,23 +91,41 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
      * Get location from IP address (no permission required)
      */
     const getLocationFromIP = async () => {
-        try {
-            // Use ipapi.co for free IP geolocation
-            const response = await fetch('https://ipapi.co/json/');
-            const data = await response.json();
+        // Try multiple providers because ad-blockers/network rules can block one endpoint.
+        const providers = [
+            {
+                url: 'https://ipapi.co/json/',
+                extract: (payload: unknown) => {
+                    if (!isRecord(payload)) {
+                        return null;
+                    }
+                    return parseCoordinates(payload.latitude, payload.longitude);
+                },
+            },
+            {
+                url: 'https://ipwho.is/',
+                extract: (payload: unknown) => {
+                    if (!isRecord(payload) || payload.success === false) {
+                        return null;
+                    }
+                    return parseCoordinates(payload.latitude, payload.longitude);
+                },
+            },
+        ];
 
-            if (data.latitude && data.longitude) {
-                return {
-                    lat: data.latitude,
-                    lng: data.longitude,
-                };
+        for (const provider of providers) {
+            const payload = await fetchJsonWithTimeout(provider.url);
+            const coordinates = provider.extract(payload);
+            if (coordinates) {
+                return coordinates;
             }
-
-            throw new Error('Could not detect location from IP');
-        } catch (error) {
-            console.error('IP geolocation failed:', error);
-            return null;
         }
+
+        if (process.env.NODE_ENV === 'development') {
+            console.warn('IP geolocation unavailable, using default location.');
+        }
+
+        return null;
     };
 
     /**
@@ -66,11 +139,16 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
 
             if (storedLat && storedLng) {
                 // Use stored coordinates
-                const lat = parseFloat(storedLat);
-                const lng = parseFloat(storedLng);
-                setCoordinates({ lat, lng });
-                mutate({ lat, lng });
-                return;
+                const parsedStoredCoordinates = parseCoordinates(storedLat, storedLng);
+                if (parsedStoredCoordinates) {
+                    setCoordinates(parsedStoredCoordinates);
+                    mutate(parsedStoredCoordinates);
+                    return;
+                }
+
+                // Clear corrupted coordinates and continue with IP/default fallback
+                localStorage.removeItem('user_lat');
+                localStorage.removeItem('user_lng');
             }
 
             // Try IP-based geolocation (no permission needed)
@@ -85,16 +163,13 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
                 setCoordinates(ipLocation);
                 mutate(ipLocation);
             } else {
-                // Fallback to default location (Dhaka, Bangladesh)
-                const defaultLat = 23.8103;
-                const defaultLng = 90.4125;
-
-                localStorage.setItem('user_lat', defaultLat.toString());
-                localStorage.setItem('user_lng', defaultLng.toString());
+                // Fallback to default location
+                localStorage.setItem('user_lat', DEFAULT_LOCATION.lat.toString());
+                localStorage.setItem('user_lng', DEFAULT_LOCATION.lng.toString());
                 localStorage.setItem('location_source', 'default');
 
-                setCoordinates({ lat: defaultLat, lng: defaultLng });
-                mutate({ lat: defaultLat, lng: defaultLng });
+                setCoordinates(DEFAULT_LOCATION);
+                mutate(DEFAULT_LOCATION);
             }
         };
 
