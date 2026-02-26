@@ -15,7 +15,7 @@ import type {
 export const marketsApi = {
   // Get all markets with filters
   getMarkets: async (filters?: MarketFilters): Promise<PaginatedResponse<Market>> => {
-    const { data } = await apiClient.get('/markets', { params: filters });
+    const { data } = await apiClient.get('/markets/list', { params: filters });
     return data;
   },
 

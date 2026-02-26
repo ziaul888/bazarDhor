@@ -34,10 +34,11 @@ export default function Home() {
       </div> */}
       <NearestMarketSection />
       {/* Category Section */}
-      <CategorySection />
+     
 
       {/* Nearest Market Section */}
     <BestPriceSection />
+     <CategorySection />
 
       {/* Banner Section */}
       <BannerSection />
@@ -49,10 +50,10 @@ export default function Home() {
       <CompareMarketsSection />
 
       {/* App Download Section */}
-      <AppDownloadSection />
+      {/* <AppDownloadSection /> */}
 
       {/* Newsletter Section */}
-      <NewsletterSection />
+      {/* <NewsletterSection /> */}
 
       {/* Floating Add Button */}
       <FloatingAddButton onClick={openAddDrawer} />

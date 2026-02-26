@@ -155,9 +155,9 @@ export function MarketCard({
               View Market
             </Link>
           </Button>
-          {/* <Button variant="outline" size={isCompact ? "sm" : "default"}>
+          <Button variant="outline" size={isCompact ? "sm" : "default"}>
             <MapPin className="h-4 w-4" />
-          </Button> */}
+          </Button>
         </CardFooter>
       </CardContent>
     </Card>

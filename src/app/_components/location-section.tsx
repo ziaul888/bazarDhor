@@ -70,12 +70,12 @@ export function LocationSection() {
                 <Navigation className="h-4 w-4" />
                 <span>{locationStats.markets} Markets</span>
               </div>
-              <div className="flex items-center space-x-1">
+              {/* <div className="flex items-center space-x-1">
                 <Clock className="h-4 w-4" />
                 <span className={`font-medium ${locationStats.status.includes('Open') ? 'text-success' : 'text-warning'}`}>
                   {locationStats.status}
                 </span>
-              </div>
+              </div> */}
             </div>
           </div>
 

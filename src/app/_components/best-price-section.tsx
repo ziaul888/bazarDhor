@@ -204,7 +204,7 @@ export function BestPriceSection() {
                 <div className="mb-6">
                     <div className="flex items-center space-x-2 mb-2">
                         <Tag className="h-6 w-6 text-destructive" />
-                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">Market Prices</h2>
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">Items Prices</h2>
                     </div>
                     <p className="text-muted-foreground">Real-time prices from local markets</p>
                 </div>

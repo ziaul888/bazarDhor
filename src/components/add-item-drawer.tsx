@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X, Upload, MapPin, Camera, Sparkles, Tag, DollarSign, Package } from 'lucide-react';
 import { useAddItem } from './add-item-context';
-import { useCreateUserProduct } from '@/lib/api/hooks';
+import { useCreateUserProduct, useCategories, useMarkets } from '@/lib/api/hooks';
 
 const addItemSchema = z.object({
   name: z.string().min(1, 'Item name is required'),
@@ -31,6 +31,10 @@ export function AddItemDrawer() {
   console.log('AddItemDrawer render - isOpen:', isOpen);
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { data: categories } = useCategories();
+  const { data: marketsData } = useMarkets();
+  const markets = marketsData?.data || [];
+  console.log('markets', markets);
   const { mutateAsync, isPending, error } = useCreateUserProduct();
   const {
     register,
@@ -44,7 +48,7 @@ export function AddItemDrawer() {
       name: '',
       price: '',
       category: '',
-      market: '',
+      market: "8dda8e08-0c38-43cb-8eb8-dc570cdc4c8b",
       description: '',
     },
   });
@@ -64,10 +68,12 @@ export function AddItemDrawer() {
 
   const onSubmit = async (values: AddItemFormValues) => {
     const price = values.price ? Number.parseFloat(values.price) : undefined;
+    const selectedCategory = categories?.find(c => c.slug === values.category);
 
     const basePayload = {
       name: values.name,
       category: values.category || undefined,
+      categoryId: selectedCategory?.id.toString(),
       marketId: values.market || undefined,
       price: Number.isFinite(price as number) ? (price as number) : undefined,
       description: values.description || undefined,
@@ -78,6 +84,7 @@ export function AddItemDrawer() {
         const payload = new FormData();
         payload.append('name', basePayload.name);
         if (basePayload.category) payload.append('category', basePayload.category);
+        if (basePayload.categoryId) payload.append('categoryId', basePayload.categoryId);
         if (basePayload.marketId) payload.append('marketId', basePayload.marketId);
         if (basePayload.price !== undefined) payload.append('price', String(basePayload.price));
         if (basePayload.description) payload.append('description', basePayload.description);
@@ -239,13 +246,11 @@ export function AddItemDrawer() {
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 appearance-none"
                 >
                   <option value="">Select</option>
-                  <option value="fruits">🍎 Fruits</option>
-                  <option value="vegetables">🥕 Vegetables</option>
-                  <option value="dairy">🥛 Dairy</option>
-                  <option value="meat">🥩 Meat</option>
-                  <option value="bakery">🍞 Bakery</option>
-                  <option value="beverages">🥤 Beverages</option>
-                  <option value="other">📦 Other</option>
+                  {categories?.map((cat) => (
+                    <option key={cat.id} value={cat.slug}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
                 {errors.category ? (
                   <p className="text-xs text-destructive">{errors.category.message}</p>
@@ -265,10 +270,11 @@ export function AddItemDrawer() {
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 appearance-none"
               >
                 <option value="">Choose market</option>
-                <option value="central-market">🏪 Central Market</option>
-                <option value="farmers-market">🌾 Farmer&apos;s Market</option>
-                <option value="downtown-market">🏢 Downtown Market</option>
-                <option value="riverside-market">🌊 Riverside Market</option>
+                {markets?.map((market) => (
+                  <option key={market.id} value={market.id}>
+                    🏪 {market.name}
+                  </option>
+                ))}
               </select>
               {errors.market ? (
                 <p className="text-xs text-destructive">{errors.market.message}</p>
