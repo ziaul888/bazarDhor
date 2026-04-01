@@ -43,6 +43,12 @@ export const API_ENDPOINTS = {
         SEARCH: '/items/search',
     },
 
+    // Products
+    PRODUCTS: {
+        CREATE: '/users/products/create',
+        SUBMIT_PRICE: '/users/products/submit-price',
+    },
+
     // Categories
     CATEGORIES: {
         LIST: '/categories',

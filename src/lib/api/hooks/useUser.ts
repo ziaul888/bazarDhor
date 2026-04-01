@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userApi } from '../services/user';
-import type { User, CreateUserProductPayload, UserProduct, ApiResponse } from '../types';
+import type { User, CreateUserProductPayload, UserProduct, ApiResponse, SubmitProductPricePayload, SubmitProductPriceResponse } from '../types';
 import { useZone } from '@/providers/zone-provider';
 
 // Query keys
@@ -77,5 +77,12 @@ export const useRemoveFavorite = () => {
 export const useCreateUserProduct = () => {
   return useMutation<ApiResponse<UserProduct>, Error, CreateUserProductPayload | FormData>({
     mutationFn: (payload) => userApi.createProduct(payload),
+  });
+};
+
+// Submit product price update
+export const useSubmitProductPrice = () => {
+  return useMutation<ApiResponse<SubmitProductPriceResponse>, Error, SubmitProductPricePayload | FormData>({
+    mutationFn: (payload) => userApi.submitPrice(payload),
   });
 };

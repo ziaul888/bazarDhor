@@ -1,5 +1,5 @@
 import { apiClient } from '../client';
-import type { User, ApiResponse, CreateUserProductPayload, UserProduct } from '../types';
+import type { User, ApiResponse, CreateUserProductPayload, UserProduct, SubmitProductPricePayload, SubmitProductPriceResponse } from '../types';
 
 export const userApi = {
   // Get current user profile
@@ -37,6 +37,14 @@ export const userApi = {
     payload: CreateUserProductPayload | FormData
   ): Promise<ApiResponse<UserProduct>> => {
     const { data } = await apiClient.post('/user/products/create', payload);
+    return data;
+  },
+
+  // Submit a product price update
+  submitPrice: async (
+    payload: SubmitProductPricePayload | FormData
+  ): Promise<ApiResponse<SubmitProductPriceResponse>> => {
+    const { data } = await apiClient.post('/users/products/submit-price', payload);
     return data;
   },
 };

@@ -286,6 +286,25 @@ export interface UserProduct {
   [key: string]: unknown;
 }
 
+// Product Price Submission types
+export interface SubmitProductPricePayload {
+  product_id: string;
+  market_id: string;
+  submitted_price: number;
+  proof_image?: File | string;
+}
+
+export interface SubmitProductPriceResponse {
+  id: string;
+  product_id: string;
+  market_id: string;
+  submitted_price: number;
+  proof_image?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  updated_at: string;
+}
+
 // Zone types
 export interface ZoneCoordinates {
   lat: number;
