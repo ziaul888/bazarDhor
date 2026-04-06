@@ -30,6 +30,20 @@ export function BackButton({
       return;
     }
 
+    if (typeof document !== "undefined" && document.referrer) {
+      try {
+        const referrerUrl = new URL(document.referrer);
+
+        if (referrerUrl.origin === window.location.origin) {
+          const referrerPath = `${referrerUrl.pathname}${referrerUrl.search}${referrerUrl.hash}`;
+          router.push(referrerPath);
+          return;
+        }
+      } catch {
+        // Ignore invalid referrer values and continue to fallback.
+      }
+    }
+
     router.push(fallbackHref);
   }, [fallbackHref, router]);
 

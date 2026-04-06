@@ -9,7 +9,9 @@ import type {
   PaginatedResponse,
   Product,
   MarketComparisonParams,
-  MarketComparisonResponse
+  MarketComparisonResponse,
+  MarketProductComparisonParams,
+  MarketProductComparisonResponse
 } from '../types';
 
 export const marketsApi = {
@@ -72,6 +74,11 @@ export const marketsApi = {
   // Compare two markets
   compareMarkets: async (params: MarketComparisonParams): Promise<ApiResponse<MarketComparisonResponse>> => {
     const { data } = await apiClient.get('/markets/compare', { params });
+    return data;
+  },
+
+  compareProducts: async (params: MarketProductComparisonParams): Promise<ApiResponse<MarketProductComparisonResponse>> => {
+    const { data } = await apiClient.get('/markets/compare-products', { params });
     return data;
   },
 };

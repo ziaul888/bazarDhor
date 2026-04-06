@@ -21,7 +21,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Pagination, usePagination } from '@/components/ui/pagination';
 import { ProductCard } from '@/components/product-card';
-import { ProductPriceDialog } from '@/components/product-price-dialog';
 
 const marketItems = [
   {
@@ -127,7 +126,20 @@ const categories = [
 ];
 
 interface MarketDetailsClientProps {
-  marketData: any;
+  marketData: {
+    id: string | number;
+    name: string;
+    description?: string;
+    address?: string;
+    phone?: string;
+    openTime?: string;
+    coordinates: { lat: number; lng: number };
+    rating: number;
+    reviews: number;
+    priceRange?: string;
+    socialMedia?: { facebook?: string; instagram?: string };
+    type?: string;
+  };
 }
 
 export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
@@ -135,10 +147,7 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [items, setItems] = useState(marketItems);
-  const [selectedItem, setSelectedItem] = useState<(typeof marketItems)[number] | null>(null);
-  const [newPrice, setNewPrice] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const items = marketItems;
 
   const filteredItems = items.filter(item => {
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
@@ -151,41 +160,6 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
   const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredItems, 8);
   const paginatedItems = getPaginatedItems(currentPage);
   const paginationInfo = getPaginationInfo(currentPage);
-
-  // Reset pagination when filters change
-  const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategory(categoryId);
-    setCurrentPage(1);
-  };
-
-  const handleSearchChange = (query: string) => {
-    setSearchQuery(query);
-    setCurrentPage(1);
-  };
-
-  const handleUpdatePrice = (item: any) => {
-    setSelectedItem(item as (typeof marketItems)[number]);
-    setNewPrice(item.currentPrice.toString());
-    setIsModalOpen(true);
-  };
-
-  const handleSavePrice = () => {
-    if (!selectedItem) return;
-    const parsed = parseFloat(newPrice);
-    if (Number.isNaN(parsed)) return;
-    setItems(prev =>
-      prev.map(item =>
-        item.id === selectedItem.id
-          ? { ...item, currentPrice: parsed, lastUpdated: 'Just now' }
-          : item
-      )
-    );
-    setIsModalOpen(false);
-  };
-
-  function handlePredefinedAmount(delta: number): void {
-    throw new Error('Function not implemented.');
-  }
 
   // Generate structured data for SEO
   const businessData = {
@@ -270,9 +244,9 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Button variant="ghost" size="icon" asChild>
-                <a href="/markets">
+                <Link href="/markets">
                   <ArrowLeft className="h-5 w-5" />
-                </a>
+                </Link>
               </Button>
               <div>
                 <h1 className="text-lg sm:text-xl font-bold">{marketData.name}</h1>
@@ -491,7 +465,6 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
                   ...item, 
                   marketId: marketData.id 
                 }}
-                onUpdatePrice={handleUpdatePrice}
               />
             ))}
           </div>
@@ -520,17 +493,6 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
           )}
         </div>
       </div>
-
-      <ProductPriceDialog
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        item={selectedItem}
-        newPrice={newPrice}
-        onNewPriceChange={setNewPrice}
-        onSave={handleSavePrice}
-        onQuickAdjust={handlePredefinedAmount}
-        disableSave={!newPrice || parseFloat(newPrice) <= 0}
-      />
     </div>
   );
 }

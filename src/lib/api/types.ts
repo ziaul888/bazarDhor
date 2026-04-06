@@ -121,6 +121,8 @@ export interface MarketListParams {
   user_lng: number;
   limit?: number;
   offset?: number;
+  categoryId?: string;
+  category_id?: string;
 }
 
 export interface ItemFilters {
@@ -180,6 +182,14 @@ export interface MarketComparisonParams {
   user_lng: number;
 }
 
+export interface MarketProductComparisonParams {
+  market_id_1: string;
+  market_id_2: string;
+  category_id: string;
+  limit?: number;
+  offset?: number;
+}
+
 export interface ComparedMarket {
   id: string;
   name: string;
@@ -206,6 +216,10 @@ export interface ComparedMarket {
 export interface MarketComparisonResponse {
   market_1: ComparedMarket;
   market_2: ComparedMarket;
+}
+
+export interface MarketProductComparisonResponse {
+  [key: string]: unknown;
 }
 
 export interface PriceComparison {
@@ -237,7 +251,7 @@ export interface RegisterData {
   gender: string;
   city: string;
   division: string;
-  image?: any | null;
+  image?: File | string | null;
   referred_by?: string;
 }
 

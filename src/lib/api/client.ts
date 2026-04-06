@@ -100,7 +100,15 @@ apiClient.interceptors.response.use(
     }
 
     if (error.response?.status === 500) {
-      console.error('Server error:', error.response.data);
+      const responseData = error.response.data;
+      const hasUsefulPayload =
+        typeof responseData === 'string'
+          ? responseData.trim().length > 0
+          : !!responseData && (typeof responseData !== 'object' || Object.keys(responseData as Record<string, unknown>).length > 0);
+
+      if (process.env.NODE_ENV === 'development' && hasUsefulPayload) {
+        console.error('Server error:', responseData);
+      }
     }
 
     return Promise.reject(error);

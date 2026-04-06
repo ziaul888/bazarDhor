@@ -5,7 +5,6 @@ import { useMarketItems } from '@/lib/api/hooks/useMarkets';
 import { Pagination } from '@/components/ui/pagination';
 import type { ItemFilters } from '@/lib/api/types';
 import { ProductCard } from '@/components/product-card';
-import { ProductPriceDialog } from '@/components/product-price-dialog';
 
 interface MarketItemsListProps {
   marketId: string;
@@ -28,9 +27,6 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     lastUpdated: string;
     unit?: string;
   }>>([]);
-  const [selectedItem, setSelectedItem] = useState<(typeof items)[number] | null>(null);
-  const [newPrice, setNewPrice] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { 
     data: itemsData, 
@@ -38,6 +34,31 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     isError, 
     error 
   } = useMarketItems(marketId, filters);
+  const pagination = itemsData?.pagination;
+
+  useEffect(() => {
+    const rawItems = itemsData?.data ?? [];
+    const mapped = rawItems.map((item) => {
+      const rawItem = item as Record<string, unknown>;
+      const market = (rawItem.market ?? null) as Record<string, unknown> | null;
+      const category = (rawItem.category ?? null) as Record<string, unknown> | null;
+      const unit = (rawItem.unit ?? null) as Record<string, unknown> | null;
+
+      return {
+        id: rawItem.id ?? rawItem.item_id ?? rawItem.product_id,
+        name: rawItem.name ?? rawItem.title ?? 'Item',
+        marketName: market?.name ?? rawItem.market_name ?? 'Local Market',
+        marketId: market?.id ?? rawItem.market_id,
+        currentPrice: rawItem.price ?? rawItem.currentPrice ?? rawItem.current_price ?? 0,
+        image: rawItem.image ?? rawItem.image_url ?? rawItem.image_path ?? '',
+        category: category?.name ?? rawItem.category ?? 'Fresh Items',
+        priceChange: rawItem.price_change ?? rawItem.priceChange ?? 'down',
+        lastUpdated: rawItem.last_updated ?? rawItem.lastUpdated ?? rawItem.updated_at ?? 'Recently',
+        unit: unit?.symbol ?? unit?.name ?? rawItem.unit ?? 'unit',
+      };
+    });
+    setItems(mapped);
+  }, [itemsData?.data]);
 
   const handleSearch = (search: string) => {
     setFilters(prev => ({ ...prev, search, page: 1 }));
@@ -71,53 +92,6 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     );
   }
 
-  const rawItems = itemsData?.data || [];
-  const pagination = itemsData?.pagination;
-
-  useEffect(() => {
-    const mapped = rawItems.map((item: any) => ({
-      id: item.id ?? item.item_id ?? item.product_id,
-      name: item.name ?? item.title ?? 'Item',
-      marketName: item.market?.name ?? item.market_name ?? 'Local Market',
-      marketId: item.market?.id ?? item.market_id,
-      currentPrice: item.price ?? item.currentPrice ?? item.current_price ?? 0,
-      image: item.image ?? item.image_url ?? item.image_path ?? '',
-      category: item.category?.name ?? item.category ?? 'Fresh Items',
-      priceChange: item.price_change ?? item.priceChange ?? 'down',
-      lastUpdated: item.last_updated ?? item.lastUpdated ?? item.updated_at ?? 'Recently',
-      unit: item.unit?.symbol ?? item.unit?.name ?? item.unit ?? 'unit',
-    }));
-    setItems(mapped);
-  }, [rawItems]);
-
-  const handleUpdatePrice = (item: (typeof items)[number]) => {
-    setSelectedItem(item);
-    setNewPrice(item.currentPrice.toString());
-    setIsModalOpen(true);
-  };
-
-  const handleSavePrice = () => {
-    if (!selectedItem) return;
-    const parsed = parseFloat(newPrice);
-    if (Number.isNaN(parsed)) return;
-    setItems(prev =>
-      prev.map(item =>
-        item.id === selectedItem.id
-          ? { ...item, currentPrice: parsed, lastUpdated: 'Just now' }
-          : item
-      )
-    );
-    setIsModalOpen(false);
-  };
-
-  const handlePredefinedAmount = (amount: number) => {
-    if (selectedItem) {
-      const currentPrice = parseFloat(newPrice) || selectedItem.currentPrice;
-      const newPriceValue = Math.max(0, currentPrice + amount);
-      setNewPrice(newPriceValue.toFixed(2));
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Search */}
@@ -139,11 +113,7 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {items.map((item) => (
-              <ProductCard
-                key={item.id}
-                item={item}
-                onUpdatePrice={handleUpdatePrice}
-              />
+              <ProductCard key={item.id} item={item} />
             ))}
           </div>
 
@@ -156,17 +126,6 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
           )}
         </>
       )}
-
-      <ProductPriceDialog
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        item={selectedItem}
-        newPrice={newPrice}
-        onNewPriceChange={setNewPrice}
-        onSave={handleSavePrice}
-        onQuickAdjust={handlePredefinedAmount}
-        disableSave={!newPrice || parseFloat(newPrice) <= 0}
-      />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { Package } from 'lucide-react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 type ProductPriceDialogItem = {
   id: number | string;
@@ -30,6 +30,10 @@ interface ProductPriceDialogProps {
   title?: string;
   confirmLabel?: string;
   disableSave?: boolean;
+  proofImage?: File | null;
+  onProofImageChange?: (file: File | null) => void;
+  saving?: boolean;
+  helperText?: string;
 }
 
 export function ProductPriceDialog({
@@ -45,8 +49,18 @@ export function ProductPriceDialog({
   title = 'Update Price',
   confirmLabel = 'Update Price',
   disableSave = false,
+  proofImage,
+  onProofImageChange,
+  saving = false,
+  helperText,
 }: ProductPriceDialogProps) {
   const [imageError, setImageError] = useState(false);
+
+  const handleProofImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    onProofImageChange?.(file);
+    event.target.value = '';
+  };
 
   useEffect(() => {
     setImageError(false);
@@ -151,13 +165,36 @@ export function ProductPriceDialog({
               placeholder="Enter new price"
             />
           </div>
+
+          {onProofImageChange ? (
+            <div className="space-y-2">
+              <label htmlFor="proof-image" className="text-sm font-medium">
+                Proof Image
+              </label>
+              <Input
+                id="proof-image"
+                type="file"
+                accept="image/*"
+                onChange={handleProofImageChange}
+              />
+              {proofImage ? (
+                <p className="text-xs text-muted-foreground">
+                  Selected: {proofImage.name}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {helperText ? (
+            <p className="text-xs text-muted-foreground">{helperText}</p>
+          ) : null}
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
             Cancel
           </Button>
-          <Button onClick={onSave} disabled={disableSave}>
+          <Button onClick={onSave} disabled={disableSave || saving}>
             {confirmLabel}
           </Button>
         </DialogFooter>

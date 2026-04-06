@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Tag, Loader2 } from 'lucide-react';
 import { useRandomProducts } from '@/lib/api/hooks/useMarkets';
 import { ProductCard } from '@/components/product-card';
-import { ProductPriceDialog } from '@/components/product-price-dialog';
 
 const bestPriceItems = [
     {
@@ -131,12 +130,22 @@ const bestPriceItems = [
 
 const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
 
+type BestPriceItem = {
+    id: number | string;
+    name: string;
+    marketName: string;
+    marketId?: number | string;
+    currentPrice: number;
+    image: string;
+    category: string;
+    priceChange: 'up' | 'down' | 'stable' | string;
+    lastUpdated: string;
+    unit?: string;
+};
+
 export function BestPriceSection() {
     const { data: apiProducts, isLoading } = useRandomProducts();
-    const [items, setItems] = useState<any[]>([]);
-    const [selectedItem, setSelectedItem] = useState<any | null>(null);
-    const [newPrice, setNewPrice] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [items, setItems] = useState<BestPriceItem[]>([]);
 
     // Update items when API data changes
     useEffect(() => {
@@ -169,34 +178,6 @@ export function BestPriceSection() {
     }, [apiProducts, isLoading]);
 
 
-    const handleUpdatePrice = (item: any) => {
-        setSelectedItem(item);
-        setNewPrice(item.currentPrice.toString());
-        setIsModalOpen(true);
-    };
-
-    const handleSavePrice = () => {
-        if (selectedItem && newPrice) {
-            const updatedItems = items.map(item =>
-                item.id === selectedItem.id
-                    ? { ...item, currentPrice: parseFloat(newPrice), lastUpdated: 'Just now' }
-                    : item
-            );
-            setItems(updatedItems);
-            setIsModalOpen(false);
-            setSelectedItem(null);
-            setNewPrice('');
-        }
-    };
-
-    const handlePredefinedAmount = (amount: number) => {
-        if (selectedItem) {
-            const currentPrice = parseFloat(newPrice) || selectedItem.currentPrice;
-            const newPriceValue = Math.max(0, currentPrice + amount);
-            setNewPrice(newPriceValue.toFixed(2));
-        }
-    };
-
     return (
         <section className="py-4 sm:py-8 bg-gradient-to-b from-background to-muted/20">
             <div className="container mx-auto px-4">
@@ -221,7 +202,6 @@ export function BestPriceSection() {
                             <ProductCard
                                 key={item.id}
                                 item={item}
-                                onUpdatePrice={handleUpdatePrice}
                             />
                         ))}
                     </div>
@@ -233,17 +213,6 @@ export function BestPriceSection() {
                         View All Items
                     </button>
                 </div> */}
-
-                <ProductPriceDialog
-                    open={isModalOpen}
-                    onOpenChange={setIsModalOpen}
-                    item={selectedItem}
-                    newPrice={newPrice}
-                    onNewPriceChange={setNewPrice}
-                    onSave={handleSavePrice}
-                    onQuickAdjust={handlePredefinedAmount}
-                    disableSave={!newPrice || parseFloat(newPrice) <= 0}
-                />
             </div>
         </section>
     );

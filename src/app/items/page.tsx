@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, Grid3X3, List, SlidersHorizontal } from 'lucide-react';
+import { Search, Grid3X3, List, SlidersHorizontal } from 'lucide-react';
 import { ProductCard } from '@/components/product-card';
-import { ProductPriceDialog } from '@/components/product-price-dialog';
 import {
   Select,
   SelectContent,
@@ -352,7 +351,7 @@ const sortOptions = [
 ];
 
 export default function ItemsPage() {
-  const [items, setItems] = useState(allItems);
+  const items = allItems;
   const [filteredItems, setFilteredItems] = useState(allItems);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
@@ -362,9 +361,6 @@ export default function ItemsPage() {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 100 });
   const [showInStockOnly, setShowInStockOnly] = useState(false);
   const [showOrganicOnly, setShowOrganicOnly] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<(typeof allItems)[number] | null>(null);
-  const [newPrice, setNewPrice] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Filter and sort items
   useEffect(() => {
@@ -421,34 +417,6 @@ export default function ItemsPage() {
 
     setFilteredItems(filtered);
   }, [items, searchQuery, selectedCategory, sortBy, priceRange, showInStockOnly, showOrganicOnly]);
-
-  const handleUpdatePrice = (item: (typeof allItems)[number]) => {
-    setSelectedItem(item);
-    setNewPrice(item.currentPrice.toString());
-    setIsModalOpen(true);
-  };
-
-  const handleSavePrice = () => {
-    if (!selectedItem) return;
-    const parsed = parseFloat(newPrice);
-    if (Number.isNaN(parsed)) return;
-    setItems(prev =>
-      prev.map(item =>
-        item.id === selectedItem.id
-          ? { ...item, currentPrice: parsed, lastUpdated: 'Just now' }
-          : item
-      )
-    );
-    setIsModalOpen(false);
-  };
-
-  const handlePredefinedAmount = (amount: number) => {
-    if (selectedItem) {
-      const currentPrice = parseFloat(newPrice) || selectedItem.currentPrice;
-      const newPriceValue = Math.max(0, currentPrice + amount);
-      setNewPrice(newPriceValue.toFixed(2));
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -607,26 +575,11 @@ export default function ItemsPage() {
               : "grid-cols-1 max-w-4xl mx-auto"
           }`}>
             {filteredItems.map((item) => (
-              <ProductCard
-                key={item.id}
-                item={item}
-                onUpdatePrice={handleUpdatePrice}
-              />
+              <ProductCard key={item.id} item={item} />
             ))}
           </div>
         )}
       </div>
-
-      <ProductPriceDialog
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        item={selectedItem}
-        newPrice={newPrice}
-        onNewPriceChange={setNewPrice}
-        onSave={handleSavePrice}
-        onQuickAdjust={handlePredefinedAmount}
-        disableSave={!newPrice || parseFloat(newPrice) <= 0}
-      />
     </div>
   );
 }

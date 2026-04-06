@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button';
 
 interface ItemCardProps {
   item: {
-    id: number;
+    id: number | string;
     name: string;
     marketName: string;
-    marketId?: number;
+    marketId?: number | string;
     currentPrice: number;
     previousPrice?: number;
     image: string;
@@ -32,8 +32,8 @@ interface ItemCardProps {
     organic?: boolean;
     featured?: boolean;
   };
-  onAddToCart?: (itemId: number) => void;
-  onToggleFavorite?: (itemId: number) => void;
+  onAddToCart?: (itemId: number | string) => void;
+  onToggleFavorite?: (itemId: number | string) => void;
   isFavorite?: boolean;
   showDistance?: boolean;
   compact?: boolean;

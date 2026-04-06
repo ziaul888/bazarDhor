@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { marketsApi } from '../services/markets';
-import type { MarketFilters, MarketListParams, ItemFilters, MarketComparisonParams } from '../types';
+import type { MarketFilters, MarketListParams, ItemFilters, MarketComparisonParams, MarketProductComparisonParams, MarketProductComparisonResponse, ApiResponse } from '../types';
 import { useZone } from '@/providers/zone-provider';
 
 // Query keys for better cache management
@@ -19,6 +19,7 @@ export const marketKeys = {
   random: () => [...marketKeys.all, 'random'] as const,
   randomProducts: () => [...marketKeys.all, 'random-products'] as const,
   compare: (params: MarketComparisonParams) => [...marketKeys.all, 'compare', params] as const,
+  compareProducts: (params: MarketProductComparisonParams) => [...marketKeys.all, 'compare-products', params] as const,
 };
 
 // Get markets with filters
@@ -123,6 +124,17 @@ export const useCompareMarkets = (params: MarketComparisonParams, enabled: boole
     queryKey: marketKeys.compare(params),
     queryFn: () => marketsApi.compareMarkets(params),
     enabled: !!zone?.id && enabled && !!(params.market_id_1 && params.market_id_2),
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useCompareMarketProducts = (params: MarketProductComparisonParams, enabled: boolean = true) => {
+  const { zone } = useZone();
+
+  return useQuery<ApiResponse<MarketProductComparisonResponse>, Error>({
+    queryKey: marketKeys.compareProducts(params),
+    queryFn: () => marketsApi.compareProducts(params),
+    enabled: !!zone?.id && enabled && !!(params.market_id_1 && params.market_id_2 && params.category_id),
     staleTime: 5 * 60 * 1000,
   });
 };

@@ -1,22 +1,42 @@
 import { fetchClient } from '../../fetch-client';
-import type { Market, ApiResponse } from '../../types';
+import type { Market, ApiResponse, MarketListParams } from '../../types';
 
 export const marketServerApi = {
-    getMarketsByCategory: async (categoryId: string, limit: number = 50, headers?: Record<string, string>): Promise<Market[]> => {
+    getMarketsByCategory: async (categoryId: string, limit: number = 50, headers?: Record<string, string>): Promise<unknown> => {
         try {
-            const markets = await fetchClient<Market[]>('/markets', {
+            const markets = await fetchClient<unknown>('/markets/list', {
                 params: {
-                    category: categoryId,
-                    limit
+                    user_lat: 23.832619866576376,
+                    user_lng: 90.4348316383023,
+                    limit,
+                    offset: 1,
+                    categoryId: categoryId,
+                    category_id: categoryId,
                 },
                 headers,
                 throwOnError: false,
                 next: { revalidate: 3600 }
             });
 
-            return markets || [];
+            return markets ?? [];
         } catch (error) {
             console.error('SERVER API Error [marketServerApi.getMarketsByCategory]:', error);
+            return [];
+        }
+    },
+
+    getMarketList: async (params: MarketListParams & { categoryId?: string; category_id?: string }, headers?: Record<string, string>): Promise<unknown> => {
+        try {
+            const markets = await fetchClient<unknown>('/markets/list', {
+                params,
+                headers,
+                throwOnError: false,
+                next: { revalidate: 3600 }
+            });
+
+            return markets ?? [];
+        } catch (error) {
+            console.error('SERVER API Error [marketServerApi.getMarketList]:', error);
             return [];
         }
     },

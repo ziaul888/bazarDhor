@@ -1,11 +1,13 @@
 "use client";
 
-import { Loader2, MapPin } from 'lucide-react';
+import { Loader2, MapPin, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
+import { Button } from '@/components/ui/button';
+import { useZone } from '@/providers/zone-provider';
 import 'swiper/css';
 import 'swiper/css/pagination';
 
@@ -406,6 +408,7 @@ const loadLeaflet = async () => {
 
 export function NearestMarketSection() {
     const { data: apiMarkets, isLoading, error } = useRandomMarkets();
+    const { zone, isLoading: isZoneLoading, error: zoneError, refetchZone } = useZone();
     const [selectedMarketId, setSelectedMarketId] = useState<string | number | null>(null);
     const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [isMapReady, setIsMapReady] = useState(false);
@@ -696,27 +699,51 @@ export function NearestMarketSection() {
         };
     }, []);
 
-    if (isLoading) {
-        return (
-            <section className="py-4 sm:py-8 bg-muted/30">
-                <div className="container mx-auto px-4 text-center">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
-                    <p className="text-muted-foreground">Finding nearest markets...</p>
-                </div>
-            </section>
-        );
-    }
     return (
         <section className="py-4 sm:py-8 bg-muted/30">
             <div className="container mx-auto px-4">
-                <div className="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">Nearest Markets</h2>
-                        <p className="text-muted-foreground">Explore nearby shops on OpenStreetMap</p>
-                    </div>
+                <div className="mb-4">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">Nearest Markets</h2>
+                    {/* <p className="text-muted-foreground">Explore nearby shops on OpenStreetMap</p> */}
+                    {isLoading && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                            Finding nearest markets...
+                        </p>
+                    )}
                 </div>
 
                 <div className="relative z-0 rounded-2xl border border-border overflow-hidden bg-card">
+                    <div className="absolute right-3 top-3 z-20 left-3 sm:left-auto sm:right-4 sm:w-[360px] lg:w-[420px]">
+                        <div className="flex items-center gap-3 rounded-xl border border-border/80 bg-background/95 px-3 py-2.5 shadow-lg backdrop-blur-sm">
+                            <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
+                                {isZoneLoading ? (
+                                    <p className="font-medium text-sm text-muted-foreground">Detecting current zone...</p>
+                                ) : zoneError ? (
+                                    <p className="font-medium text-sm text-destructive">Zone detection failed</p>
+                                ) : zone ? (
+                                    <>
+                                        <p className="font-medium text-sm truncate">{zone.name}</p>
+                                        <p className="text-xs text-muted-foreground truncate">
+                                            {zone.description || 'Your current zone'}
+                                        </p>
+                                    </>
+                                ) : (
+                                    <p className="font-medium text-sm text-muted-foreground">No zone detected</p>
+                                )}
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={refetchZone}
+                                disabled={isZoneLoading}
+                                className="h-8 w-8 flex-shrink-0 rounded-full"
+                            >
+                                <RefreshCw className={`h-4 w-4 ${isZoneLoading ? 'animate-spin' : ''}`} />
+                            </Button>
+                        </div>
+                    </div>
+
                     {!isMapReady && !mapError && (
                         <div className="absolute inset-0 z-10 bg-background/80 backdrop-blur-sm flex items-center justify-center">
                             <div className="text-center">

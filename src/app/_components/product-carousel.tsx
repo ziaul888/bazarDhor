@@ -6,7 +6,6 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useRandomProducts } from '@/lib/api/hooks/useMarkets';
 import { ProductCard } from '@/components/product-card';
-import { ProductPriceDialog } from '@/components/product-price-dialog';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -94,9 +93,6 @@ export function ProductCarousel() {
     lastUpdated: string;
     unit?: string;
   }>>([]);
-  const [selectedItem, setSelectedItem] = useState<(typeof items)[number] | null>(null);
-  const [newPrice, setNewPrice] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const mappedProducts = useMemo(() => {
     if (apiProducts && apiProducts.length > 0) {
@@ -136,34 +132,6 @@ export function ProductCarousel() {
   useEffect(() => {
     setItems(mappedProducts);
   }, [mappedProducts]);
-
-  const handleUpdatePrice = (item: (typeof items)[number]) => {
-    setSelectedItem(item);
-    setNewPrice(item.currentPrice.toString());
-    setIsModalOpen(true);
-  };
-
-  const handleSavePrice = () => {
-    if (!selectedItem) return;
-    const parsed = parseFloat(newPrice);
-    if (Number.isNaN(parsed)) return;
-    setItems(prev =>
-      prev.map(item =>
-        item.id === selectedItem.id
-          ? { ...item, currentPrice: parsed, lastUpdated: 'Just now' }
-          : item
-      )
-    );
-    setIsModalOpen(false);
-  };
-
-  const handlePredefinedAmount = (amount: number) => {
-    if (selectedItem) {
-      const currentPrice = parseFloat(newPrice) || selectedItem.currentPrice;
-      const newPriceValue = Math.max(0, currentPrice + amount);
-      setNewPrice(newPriceValue.toFixed(2));
-    }
-  };
 
   if (isLoading) {
     return (
@@ -229,25 +197,11 @@ export function ProductCarousel() {
         >
           {items.map((product) => (
             <SwiperSlide key={product.id}>
-              <ProductCard
-                item={product}
-                onUpdatePrice={handleUpdatePrice}
-              />
+              <ProductCard item={product} />
             </SwiperSlide>
           ))}
         </Swiper>
       </div>
-
-      <ProductPriceDialog
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        item={selectedItem}
-        newPrice={newPrice}
-        onNewPriceChange={setNewPrice}
-        onSave={handleSavePrice}
-        onQuickAdjust={handlePredefinedAmount}
-        disableSave={!newPrice || parseFloat(newPrice) <= 0}
-      />
 
       {/* Custom Pagination Styles */}
       <style jsx global>{`

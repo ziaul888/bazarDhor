@@ -9,8 +9,116 @@ import {
   TrendingDown
 } from 'lucide-react';
 
+const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+const DEFAULT_MARKET_IMAGE = "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop";
+const CATEGORY_MARKET_LIST_PARAMS = {
+  user_lat: 23.832619866576376,
+  user_lng: 90.4348316383023,
+  limit: 10,
+  offset: 1,
+};
+
+const toStringArray = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+  }
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return [value.trim()];
+  }
+  return [];
+};
+
+const toNumber = (value: unknown, fallback: number) => {
+  const numeric = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+};
+
+const toBoolean = (value: unknown, fallback = false) => {
+  if (typeof value === 'boolean') return value;
+  if (value === 1 || value === '1') return true;
+  if (value === 0 || value === '0') return false;
+  return fallback;
+};
+
+const formatDistance = (value: unknown) => {
+  if (typeof value === 'number' && Number.isFinite(value)) return `${value} km`;
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value.includes('km') || value.includes('mi') ? value : `${value} km`;
+  }
+  return 'N/A';
+};
+
+const toImageUrl = (value: unknown) => {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    return DEFAULT_MARKET_IMAGE;
+  }
+  return value.startsWith('http') ? value : `${IMAGE_BASE_URL}${value}`;
+};
+
+const extractMarketArray = (response: unknown): Record<string, unknown>[] => {
+  if (!response) return [];
+  if (Array.isArray(response)) {
+    return response.filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null);
+  }
+  if (typeof response === 'object') {
+    const root = response as Record<string, unknown>;
+    const direct = root.data ?? root.markets ?? root.market_list ?? root.marketList;
+
+    if (Array.isArray(direct)) {
+      return direct.filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null);
+    }
+
+    if (direct && typeof direct === 'object') {
+      const nested = (direct as Record<string, unknown>).data
+        ?? (direct as Record<string, unknown>).markets
+        ?? (direct as Record<string, unknown>).market_list;
+
+      if (Array.isArray(nested)) {
+        return nested.filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null);
+      }
+    }
+  }
+  return [];
+};
+
+const mapMarketFromApi = (item: Record<string, unknown>, index: number) => {
+  const categories = toStringArray(item.categories ?? item.category ?? item.category_name);
+  const specialties = toStringArray(item.specialties ?? item.speciality ?? categories);
+
+  return {
+    id: String(item.id ?? item.market_id ?? item.marketId ?? `market-${index + 1}`),
+    name: String(item.name ?? item.market_name ?? 'Local Market'),
+    address: String(item.address ?? item.location ?? 'Address unavailable'),
+    distance: formatDistance(item.distance ?? item.distance_km ?? item.distanceKm),
+    rating: toNumber(item.rating ?? item.avg_rating, 0),
+    reviews: toNumber(item.reviews ?? item.review_count ?? item.total_reviews, 0),
+    vendors: toNumber(item.vendors ?? item.vendor_count ?? item.total_vendors, 0),
+    image: toImageUrl(item.image ?? item.image_path ?? item.thumbnail),
+    isOpen: toBoolean(item.isOpen ?? item.is_open ?? item.open_now),
+    openTime: String(item.openTime ?? item.open_time ?? item.opening_time ?? 'Hours vary'),
+    specialties: specialties.length > 0 ? specialties : ['Fresh Produce'],
+    priceRange: String(item.priceRange ?? item.price_range ?? '$$'),
+    categoryItems: toNumber(item.categoryItems ?? item.product_count ?? item.item_count, 0),
+    priceChange: (toNumber(item.price_change, 0) ?? 0) > 0 ? 'up' : 'down' as const,
+    featured: toBoolean(item.featured ?? item.is_featured),
+  };
+};
+
+type CategoryFallback = {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+  icon: string;
+  productCount: number;
+  marketCount: number;
+  priceChange: 'up' | 'down';
+  avgPriceChange: number;
+  popularItems: string[];
+};
+
 // Mock data for category details (kept as fallback)
-const categoryData: Record<string, any> = {
+const categoryData: Record<string, CategoryFallback> = {
   "fresh-vegetables": {
     id: 1,
     name: "Fresh Vegetables",
@@ -309,7 +417,7 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
     id: apiCategory.id,
     name: apiCategory.name,
     description: apiCategory.description || "Local market category",
-    image: apiCategory.image_path ? (apiCategory.image_path.startsWith('http') ? apiCategory.image_path : `https://bazardor.chhagolnaiyasportareana.xyz/storage/${apiCategory.image_path}`) : (categoryData[slug]?.image || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=400&fit=crop"),
+    image: apiCategory.image_path ? (apiCategory.image_path.startsWith('http') ? apiCategory.image_path : `${IMAGE_BASE_URL}${apiCategory.image_path}`) : (categoryData[slug]?.image || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=400&fit=crop"),
     icon: apiCategory.icon || categoryData[slug]?.icon || "📦",
     productCount: apiCategory.product_count || 0,
     marketCount: apiCategory.market_count || apiCategory.unique_market_count || categoryData[slug]?.marketCount || 0,
@@ -324,9 +432,6 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
       category = mockMatch;
     }
   }
-  console.log({ category });
-
-
   if (!category) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
@@ -336,7 +441,7 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
           </div>
           <h1 className="text-2xl font-bold mb-4">Category Not Found</h1>
           <p className="text-muted-foreground mb-8">
-            We couldn't find the category you're looking for.
+            We couldn&apos;t find the category you&apos;re looking for.
           </p>
           <BackButton
             size="lg"
@@ -351,12 +456,16 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
 
   // Fetch real markets for this category from organized server service
   let markets = zoneId
-    ? await marketServerApi.getMarketsByCategory(category.id.toString(), 50, headers)
+    ? extractMarketArray(await marketServerApi.getMarketList({
+        ...CATEGORY_MARKET_LIST_PARAMS,
+        categoryId: category.id.toString(),
+        category_id: category.id.toString(),
+      }, headers)).map(mapMarketFromApi)
     : [];
 
   // If no real markets, use mock data for demonstration
   if (markets.length === 0) {
-    markets = categoryMarkets as any;
+    markets = categoryMarkets;
   }
 
   return (

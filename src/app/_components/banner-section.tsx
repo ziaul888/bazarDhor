@@ -3,8 +3,8 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import Image from 'next/image';
-import { ArrowRight, MapPin, DollarSign, Beef, Carrot, TrendingDown, Users, Clock, Loader2, LucideIcon } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import Link from 'next/link';
+import { ArrowRight, MapPin, DollarSign, Beef, Carrot, Loader2, LucideIcon } from 'lucide-react';
 import { useBanners } from '@/lib/api/hooks/useBanners';
 import { useMemo } from 'react';
 
@@ -19,6 +19,7 @@ interface BannerSlide {
     gradient: string;
     primaryBtn: string;
     secondaryBtn: string;
+    url: string | null;
 }
 
 // Import Swiper styles
@@ -53,7 +54,8 @@ export function BannerSection() {
                     emoji: theme.emoji,
                     gradient: banner.badge_background_color || theme.gradient,
                     primaryBtn: banner.button_text || "Explore Now",
-                    secondaryBtn: "Learn More"
+                    secondaryBtn: "Learn More",
+                    url: banner.url
                 };
             });
         }
@@ -68,7 +70,6 @@ export function BannerSection() {
             </div>
         );
     }
-console.log({apiBanners});
 
     if (bannerSlides.length === 0) return null;
     return (
@@ -122,15 +123,23 @@ console.log({apiBanners});
                                                     {slide.description}
                                                 </p>
 
-                                                <div className="flex flex-col xs:flex-row sm:flex-row gap-2 sm:gap-3 justify-center lg:justify-start">
-                                                    <button className="px-4 py-2.5 sm:px-6 sm:py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-white/90 transition-colors flex items-center justify-center text-sm sm:text-base">
-                                                        <span className="truncate">{slide.primaryBtn}</span>
-                                                        <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1.5 sm:ml-2 flex-shrink-0" />
-                                                    </button>
-                                                    <button className="px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-white/30 text-white rounded-lg font-semibold hover:bg-white/10 transition-colors text-sm sm:text-base">
-                                                        <span className="truncate">{slide.secondaryBtn}</span>
-                                                    </button>
-                                                </div>
+                                                {slide.url ? (
+                                                    <div className="flex flex-col xs:flex-row sm:flex-row gap-2 sm:gap-3 justify-center lg:justify-start">
+                                                        <Link
+                                                            href={slide.url}
+                                                            className="px-4 py-2.5 sm:px-6 sm:py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-white/90 transition-colors flex items-center justify-center text-sm sm:text-base"
+                                                        >
+                                                            <span className="truncate">{slide.primaryBtn}</span>
+                                                            <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1.5 sm:ml-2 flex-shrink-0" />
+                                                        </Link>
+                                                        <Link
+                                                            href={slide.url}
+                                                            className="px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-white/30 text-white rounded-lg font-semibold hover:bg-white/10 transition-colors text-sm sm:text-base text-center"
+                                                        >
+                                                            <span className="truncate">{slide.secondaryBtn}</span>
+                                                        </Link>
+                                                    </div>
+                                                ) : null}
                                             </div>
 
                                             {/* Right Image/Illustration */}
