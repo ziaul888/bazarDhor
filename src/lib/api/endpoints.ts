@@ -45,8 +45,8 @@ export const API_ENDPOINTS = {
 
     // Products
     PRODUCTS: {
-        CREATE: '/users/products/create',
-        SUBMIT_PRICE: '/users/products/submit-price',
+        CREATE: '/products/create',
+        SUBMIT_PRICE: '/products/submit-price',
     },
 
     // Categories

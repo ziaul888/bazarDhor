@@ -27,7 +27,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
 
-const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
 
 export function BannerSection() {
     const { data: apiBanners, isLoading } = useBanners(10, 1, 'feature');

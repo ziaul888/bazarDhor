@@ -31,7 +31,7 @@ export async function getCategories(limit: number = 10, offset: number = 0, zone
   }
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.chhagolnaiyasportareana.xyz/api';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.mainul.tech/api';
     const url = `${baseUrl}/categories/list?limit=${limit}&offset=${offset}`;
     
     const response = await fetch(url, {
@@ -70,7 +70,7 @@ export async function getCategoryBySlug(slug: string, zoneId?: string) {
   }
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.chhagolnaiyasportareana.xyz/api';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.mainul.tech/api';
     const url = `${baseUrl}/categories/${slug}`;
     
     const response = await fetch(url, {

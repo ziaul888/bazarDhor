@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * POST /api/users/products/submit-price
+ * POST /api/products/submit-price
  * 
  * Submit a product price update with proof image
  * 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const product_id = formData.get('product_id') as string;
     const market_id = formData.get('market_id') as string;
     const submitted_price = formData.get('submitted_price') as string;
-    const proof_image = formData.get('proof_image') as File | null;
+    const proof_image = formData.get('proof_image');
 
     // Validate required fields
     if (!product_id || !market_id || !submitted_price) {
@@ -70,8 +70,15 @@ export async function POST(request: NextRequest) {
     // }
 
     // TODO: Process image upload if provided
-    let proof_image_url: string | undefined;
-    if (proof_image) {
+    let proof_image_url: string | null = null;
+    const hasProofImage =
+      proof_image instanceof File
+        ? proof_image.size > 0
+        : typeof proof_image === 'string'
+          ? proof_image !== 'null' && proof_image.trim().length > 0
+          : false;
+
+    if (hasProofImage && proof_image instanceof File) {
       // Convert file to buffer and upload to storage service
       // For now, we'll create a placeholder
       proof_image_url = `/uploads/${proof_image.name}`;

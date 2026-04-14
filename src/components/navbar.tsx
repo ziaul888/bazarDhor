@@ -1,10 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, Home, Store, Grid3X3, Info, Bell, Heart, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useConfig } from "@/hooks/use-config";
+import { getBrandInitial, resolveBrandImage } from "@/lib/branding";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -16,6 +19,10 @@ const navigation = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { getConfigValue } = useConfig();
+  const companyName = getConfigValue<string>('business_name', 'MyApp') || 'MyApp';
+  const brandLogo = resolveBrandImage(getConfigValue<string | null>('logo', null));
+  const brandInitial = getBrandInitial(companyName);
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -24,10 +31,22 @@ export function Navbar() {
           {/* Logo/Brand - Left side */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">A</span>
+              <div className="relative h-8 w-8 overflow-hidden rounded-lg bg-primary">
+                {brandLogo ? (
+                  <Image
+                    src={brandLogo}
+                    alt={companyName}
+                    fill
+                    className="object-cover"
+                    sizes="32px"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <span className="text-primary-foreground font-bold text-sm">{brandInitial}</span>
+                  </div>
+                )}
               </div>
-              <span className="text-lg sm:text-xl font-bold hidden sm:block">MyApp</span>
+              <span className="text-lg sm:text-xl font-bold hidden sm:block">{companyName}</span>
             </Link>
           </div>
 
@@ -101,7 +120,7 @@ export function Navbar() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                 <SheetHeader>
-                  <SheetTitle className="text-left">Navigation</SheetTitle>
+                  <SheetTitle className="text-left">{companyName}</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 space-y-1">
                   {/* Sign In on mobile */}

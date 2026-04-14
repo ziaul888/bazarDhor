@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'bazardor.chhagolnaiyasportareana.xyz',
+        hostname: 'bazardor.mainul.tech',
         port: '',
         pathname: '/**',
       },

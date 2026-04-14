@@ -42,6 +42,7 @@ export function ProductCard({
   const [isPriceDialogOpen, setIsPriceDialogOpen] = useState(false);
   const [newPrice, setNewPrice] = useState(item.currentPrice.toString());
   const submitProductPrice = useSubmitProductPrice();
+  const hasImage = item.image.trim().length > 0;
 
   const handleOpenPriceDialog = () => {
     setNewPrice(item.currentPrice.toString());
@@ -68,10 +69,7 @@ export function ProductCard({
     payload.append('product_id', String(item.id));
     payload.append('market_id', String(item.marketId));
     payload.append('submitted_price', parsedPrice.toFixed(2));
-
-    if (item.image) {
-      payload.append('proof_image', item.image);
-    }
+    payload.append('proof_image', 'null');
 
     try {
       await submitProductPrice.mutateAsync(payload);
@@ -92,7 +90,7 @@ export function ProductCard({
       <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 py-0 gap-0 group h-full flex flex-col">
         {/* Product Image */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted flex items-center justify-center">
-          {!imageError ? (
+          {hasImage && !imageError ? (
             <Image
               src={item.image}
               alt={item.name}

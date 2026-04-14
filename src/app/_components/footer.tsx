@@ -1,10 +1,22 @@
 "use client";
 
+import Image from 'next/image';
 import { MapPin, Phone, Mail, Facebook, Twitter, Instagram, Youtube, Heart } from 'lucide-react';
 import { useAuth } from '@/components/auth/auth-context';
+import { useConfig } from '@/hooks/use-config';
+import { getBrandInitial, resolveBrandImage } from '@/lib/branding';
 
 export function Footer() {
     const { openAuthModal } = useAuth();
+    const { getConfigValue } = useConfig();
+    const companyName = getConfigValue<string>('business_name', 'MyMarket') || 'MyMarket';
+    const companyLogo = resolveBrandImage(getConfigValue<string | null>('logo', null));
+    const companyInitial = getBrandInitial(companyName);
+    const companyPhone = getConfigValue<string | null>('phone', null) || '+1 (555) 123-4567';
+    const companyEmail = getConfigValue<string | null>('email', null) || 'hello@mymarket.com';
+    const companyAddress = getConfigValue<string | null>('address', null);
+    const socialMedia = getConfigValue<Record<string, string | null>>('social_media', {}) || {};
+
     return (
         <footer className="bg-muted/50 border-t">
             <div className="container mx-auto px-4">
@@ -14,22 +26,40 @@ export function Footer() {
                         {/* Company Info */}
                         <div className="space-y-3">
                             <div className="flex items-center space-x-2">
-                                <div className="h-6 w-6 rounded-lg bg-primary flex items-center justify-center">
-                                    <span className="text-primary-foreground font-bold text-xs">M</span>
+                                <div className="relative h-6 w-6 overflow-hidden rounded-lg bg-primary">
+                                    {companyLogo ? (
+                                        <Image
+                                            src={companyLogo}
+                                            alt={companyName}
+                                            fill
+                                            className="object-cover"
+                                            sizes="24px"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center">
+                                            <span className="text-primary-foreground font-bold text-xs">{companyInitial}</span>
+                                        </div>
+                                    )}
                                 </div>
-                                <span className="text-base font-bold">MyMarket</span>
+                                <span className="text-base font-bold">{companyName}</span>
                             </div>
                             <p className="text-muted-foreground text-xs leading-relaxed">
                                 Your local market companion for fresh groceries and best deals.
                             </p>
                             <div className="space-y-1">
+                                {companyAddress ? (
+                                    <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                                        <MapPin className="h-3 w-3" />
+                                        <span>{companyAddress}</span>
+                                    </div>
+                                ) : null}
                                 <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                                     <Phone className="h-3 w-3" />
-                                    <span>+1 (555) 123-4567</span>
+                                    <span>{companyPhone}</span>
                                 </div>
                                 <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                                     <Mail className="h-3 w-3" />
-                                    <span>hello@mymarket.com</span>
+                                    <span>{companyEmail}</span>
                                 </div>
                             </div>
                         </div>
@@ -56,13 +86,13 @@ export function Footer() {
                         <div className="space-y-3">
                             <h3 className="text-sm font-semibold text-foreground">Connect</h3>
                             <div className="flex items-center space-x-2">
-                                <a href="#" className="w-6 h-6 bg-muted hover:bg-primary rounded-full flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
+                                <a href={socialMedia.facebook || '#'} className="w-6 h-6 bg-muted hover:bg-primary rounded-full flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
                                     <Facebook className="h-3 w-3" />
                                 </a>
-                                <a href="#" className="w-6 h-6 bg-muted hover:bg-primary rounded-full flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
+                                <a href={socialMedia.twitter || '#'} className="w-6 h-6 bg-muted hover:bg-primary rounded-full flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
                                     <Twitter className="h-3 w-3" />
                                 </a>
-                                <a href="#" className="w-6 h-6 bg-muted hover:bg-primary rounded-full flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
+                                <a href={socialMedia.instagram || '#'} className="w-6 h-6 bg-muted hover:bg-primary rounded-full flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
                                     <Instagram className="h-3 w-3" />
                                 </a>
                             </div>
@@ -82,7 +112,7 @@ export function Footer() {
                 <div className="py-3 border-t border-border">
                     <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
                         <div className="text-xs text-muted-foreground">
-                            © 2024 MyMarket. All rights reserved.
+                            © 2024 {companyName}. All rights reserved.
                         </div>
                         <div className="flex items-center space-x-1 text-xs text-muted-foreground">
                             <span>Made with</span>

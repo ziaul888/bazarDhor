@@ -22,9 +22,47 @@ const isZoneOptionalRequest = (url?: string, baseURL?: string): boolean => {
   return ZONE_OPTIONAL_ENDPOINTS.has(pathname);
 };
 
+const getServerErrorDetails = (payload: unknown): unknown => {
+  if (typeof payload === 'string') {
+    const trimmed = payload.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  if (!payload || typeof payload !== 'object') {
+    return payload ?? null;
+  }
+
+  if (Array.isArray(payload)) {
+    return payload.length > 0 ? payload : null;
+  }
+
+  const record = payload as Record<string, unknown>;
+  const candidate =
+    record.message ??
+    record.error ??
+    record.errors ??
+    record.detail ??
+    record.data;
+
+  if (typeof candidate === 'string') {
+    const trimmed = candidate.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  if (Array.isArray(candidate)) {
+    return candidate.length > 0 ? candidate : null;
+  }
+
+  if (candidate && typeof candidate === 'object') {
+    return Object.keys(candidate as Record<string, unknown>).length > 0 ? candidate : null;
+  }
+
+  return Object.keys(record).length > 0 ? record : null;
+};
+
 // Create axios instance with base configuration
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.chhagolnaiyasportareana.xyz/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.mainul.tech/api',
   timeout: 30000, // Increased to 30 seconds
   headers: {
     'Content-Type': 'application/json',
@@ -36,6 +74,10 @@ export const apiClient = axios.create({
 // Request interceptor for adding auth tokens and zone ID
 apiClient.interceptors.request.use(
   (config) => {
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     // Client-side only logic
     if (typeof window !== 'undefined') {
       // 1. Add auth token if available
@@ -100,13 +142,9 @@ apiClient.interceptors.response.use(
     }
 
     if (error.response?.status === 500) {
-      const responseData = error.response.data;
-      const hasUsefulPayload =
-        typeof responseData === 'string'
-          ? responseData.trim().length > 0
-          : !!responseData && (typeof responseData !== 'object' || Object.keys(responseData as Record<string, unknown>).length > 0);
+      const responseData = getServerErrorDetails(error.response.data);
 
-      if (process.env.NODE_ENV === 'development' && hasUsefulPayload) {
+      if (process.env.NODE_ENV === 'development' && responseData) {
         console.error('Server error:', responseData);
       }
     }

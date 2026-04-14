@@ -10,10 +10,56 @@ interface MarketItemsListProps {
   marketId: string;
 }
 
+const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
+
+const toImageUrl = (value: unknown): string => {
+  if (typeof value !== 'string') {
+    return '';
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+    return trimmed;
+  }
+
+  return `${IMAGE_BASE_URL}${trimmed}`;
+};
+
+const toNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+
+  return fallback;
+};
+
+const toString = (value: unknown, fallback = ''): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (typeof value === 'number') {
+    return String(value);
+  }
+
+  return fallback;
+};
+
 export function MarketItemsList({ marketId }: MarketItemsListProps) {
   const [filters, setFilters] = useState<ItemFilters>({
     page: 1,
-    limit: 20,
+    limit: 15,
   });
   const [items, setItems] = useState<Array<{
     id: number | string;
@@ -43,18 +89,37 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
       const market = (rawItem.market ?? null) as Record<string, unknown> | null;
       const category = (rawItem.category ?? null) as Record<string, unknown> | null;
       const unit = (rawItem.unit ?? null) as Record<string, unknown> | null;
+      const marketPrices = Array.isArray(rawItem.market_prices)
+        ? rawItem.market_prices
+        : Array.isArray(rawItem.marketPrices)
+          ? rawItem.marketPrices
+          : [];
+      const latestPrice = (marketPrices[0] ?? null) as Record<string, unknown> | null;
 
       return {
         id: rawItem.id ?? rawItem.item_id ?? rawItem.product_id,
         name: rawItem.name ?? rawItem.title ?? 'Item',
         marketName: market?.name ?? rawItem.market_name ?? 'Local Market',
         marketId: market?.id ?? rawItem.market_id,
-        currentPrice: rawItem.price ?? rawItem.currentPrice ?? rawItem.current_price ?? 0,
-        image: rawItem.image ?? rawItem.image_url ?? rawItem.image_path ?? '',
+        currentPrice: toNumber(
+          latestPrice?.discount_price ??
+          latestPrice?.price ??
+          rawItem.price ??
+          rawItem.currentPrice ??
+          rawItem.current_price,
+          0
+        ),
+        image: toImageUrl(rawItem.image ?? rawItem.image_url ?? rawItem.image_path),
         category: category?.name ?? rawItem.category ?? 'Fresh Items',
         priceChange: rawItem.price_change ?? rawItem.priceChange ?? 'down',
-        lastUpdated: rawItem.last_updated ?? rawItem.lastUpdated ?? rawItem.updated_at ?? 'Recently',
-        unit: unit?.symbol ?? unit?.name ?? rawItem.unit ?? 'unit',
+        lastUpdated: toString(
+          latestPrice?.last_update ??
+          rawItem.last_updated ??
+          rawItem.lastUpdated ??
+          rawItem.updated_at,
+          'Recently'
+        ),
+        unit: toString(unit?.symbol ?? unit?.name ?? rawItem.unit, 'unit'),
       };
     });
     setItems(mapped);

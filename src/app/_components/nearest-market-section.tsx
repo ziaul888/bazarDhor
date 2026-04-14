@@ -144,7 +144,7 @@ const nearestMarkets = [
     }
 ];
 
-const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
 const DEFAULT_MARKET_IMAGE = "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop";
 const DEFAULT_CENTER = { lat: 23.8103, lng: 90.4125 };
 const LEAFLET_SCRIPT_ID = 'leaflet-js-cdn';
@@ -306,25 +306,29 @@ const createMarketMarkerIcon = (L: LeafletGlobal): LeafletIcon =>
     L.divIcon({
         className: '',
         html: `
-            <div style="display:flex;flex-direction:column;align-items:center;transform:translateY(-8px);">
-                <div style="width:18px;height:18px;border-radius:9999px;background:#ef4444;border:3px solid #ffffff;box-shadow:0 2px 8px rgba(0,0,0,0.35);"></div>
-                <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:10px solid #ef4444;margin-top:-2px;"></div>
+            <div style="display:flex;flex-direction:column;align-items:center;transform:translateY(-10px);">
+                <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:9999px;background:linear-gradient(135deg,#ef4444,#dc2626);border:3px solid #ffffff;box-shadow:0 6px 16px rgba(220,38,38,0.35);color:#ffffff;font-size:11px;font-weight:700;font-family:system-ui,sans-serif;">
+                    M
+                </div>
+                <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:12px solid #dc2626;margin-top:-3px;"></div>
             </div>
         `,
-        iconSize: [24, 34],
-        iconAnchor: [12, 30],
-        popupAnchor: [0, -26],
+        iconSize: [32, 40],
+        iconAnchor: [16, 35],
+        popupAnchor: [0, -30],
     });
 
 const createUserMarkerIcon = (L: LeafletGlobal): LeafletIcon =>
     L.divIcon({
         className: '',
         html: `
-            <div style="width:18px;height:18px;border-radius:9999px;background:#2563eb;border:3px solid #ffffff;box-shadow:0 0 0 4px rgba(37,99,235,0.25),0 2px 8px rgba(0,0,0,0.3);"></div>
+            <div style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9999px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:3px solid #ffffff;box-shadow:0 0 0 6px rgba(59,130,246,0.18),0 6px 16px rgba(29,78,216,0.3);color:#ffffff;font-size:11px;font-weight:700;font-family:system-ui,sans-serif;">
+                You
+            </div>
         `,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
-        popupAnchor: [0, -12],
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+        popupAnchor: [0, -18],
     });
 
 const escapeHtml = (text: string) =>
@@ -702,18 +706,10 @@ export function NearestMarketSection() {
     return (
         <section className="py-4 sm:py-8 bg-muted/30">
             <div className="container mx-auto px-4">
-                <div className="mb-4">
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">Nearest Markets</h2>
-                    {/* <p className="text-muted-foreground">Explore nearby shops on OpenStreetMap</p> */}
-                    {isLoading && (
-                        <p className="mt-2 text-xs text-muted-foreground">
-                            Finding nearest markets...
-                        </p>
-                    )}
-                </div>
+                
 
                 <div className="relative z-0 rounded-2xl border border-border overflow-hidden bg-card">
-                    <div className="absolute right-3 top-3 z-20 left-3 sm:left-auto sm:right-4 sm:w-[360px] lg:w-[420px]">
+                    <div className="absolute right-3 top-3 z-20 w-[200px] max-w-[calc(100%-1.5rem)] sm:right-4 sm:w-full sm:max-w-[400px]">
                         <div className="flex items-center gap-3 rounded-xl border border-border/80 bg-background/95 px-3 py-2.5 shadow-lg backdrop-blur-sm">
                             <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                             <div className="min-w-0 flex-1">
@@ -757,10 +753,10 @@ export function NearestMarketSection() {
                             <p className="text-sm text-destructive">{mapError}</p>
                         </div>
                     )}
-                    <div ref={mapContainerRef} className="relative z-0 h-[300px] sm:h-[380px] lg:h-[430px] w-full" />
+                    <div ref={mapContainerRef} className="relative z-0 h-[600px] sm:h-[380px] lg:h-[430px] w-full" />
                 </div>
 
-                <div className="relative z-20 -mt-[30px] sm:-mt-[38px] lg:-mt-[43px]">
+                <div className="relative z-20 -mt-[-20px] sm:-mt-[38px] lg:-mt-[43px]">
                     <Swiper
                         modules={[Pagination]}
                         spaceBetween={12}

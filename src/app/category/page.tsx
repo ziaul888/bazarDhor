@@ -126,7 +126,7 @@ const CATEGORY_LIST_PARAMS = {
   offset: 1
 };
 
-const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
 
 const toNumber = (value: unknown, fallback: number) => {
   const numeric = typeof value === 'number' ? value : Number(value);

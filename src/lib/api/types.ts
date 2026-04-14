@@ -5,6 +5,16 @@ export interface ApiResponse<T> {
   success: boolean;
 }
 
+export interface BackendApiResponse<T> {
+  response_code: string;
+  message: string;
+  total_size: number | null;
+  limit: number | null;
+  offset: number | null;
+  data: T;
+  errors: unknown[];
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
@@ -102,6 +112,46 @@ export interface User {
       address?: string;
     };
   };
+}
+
+export interface SocialLoginProvider {
+  login_medium: string;
+  status: boolean;
+}
+
+export interface SocialMediaLinks {
+  facebook: string | null;
+  twitter: string | null;
+  instagram: string | null;
+  linkedin: string | null;
+  youtube: string | null;
+}
+
+export interface MobileAppPlatformConfig {
+  min_version: string | null;
+  download_url: string | null;
+}
+
+export interface GeneralConfig {
+  business_name: string;
+  logo: string | null;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  markets_comparison: boolean;
+  enable_market_rating: boolean;
+  maintenance: boolean;
+  social_login: SocialLoginProvider[];
+  social_media: SocialMediaLinks;
+  app_settings: {
+    android: MobileAppPlatformConfig;
+    ios: MobileAppPlatformConfig;
+  };
+  timezone: string | null;
+  time_format: string | null;
+  decimal_places: number | null;
+  copyright_text: string | null;
+  cookies_text: string | null;
 }
 
 // Query parameters
@@ -282,12 +332,17 @@ export interface NewItem {
 export interface CreateUserProductPayload {
   name: string;
   category?: string;
+  category_id?: string;
   categoryId?: string;
+  market_id?: string;
   marketId?: string;
   price?: number;
+  base_price?: number;
   unit?: string;
+  unit_id?: string;
   image?: string;
   description?: string;
+  status?: string;
   [key: string]: unknown;
 }
 

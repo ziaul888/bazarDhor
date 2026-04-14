@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSearch } from "@/app/_components/search-context";
 import { useAuth } from "@/components/auth/auth-context";
 import { useAddItem } from "@/components/add-item-context";
+import { useConfig } from "@/hooks/use-config";
 
 import {
   Menu,
@@ -22,6 +24,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { getBrandInitial, resolveBrandImage } from "@/lib/branding";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -38,9 +41,13 @@ export function MobileNavbar() {
   const { toggleSearch } = useSearch();
   const { openAuthModal, hasHydrated, isAuthenticated, user } = useAuth();
   const { openAddDrawer } = useAddItem();
+  const { getConfigValue } = useConfig();
 
   const avatarUrl = typeof user?.avatar === "string" && user.avatar.trim() ? user.avatar : undefined;
   const userDisplayName = user?.name?.trim() || "Account";
+  const companyName = getConfigValue<string>('business_name', 'MyApp') || 'MyApp';
+  const brandLogo = resolveBrandImage(getConfigValue<string | null>('logo', null));
+  const brandInitial = getBrandInitial(companyName);
 
   // Handle scroll effect
   useEffect(() => {
@@ -64,11 +71,23 @@ export function MobileNavbar() {
           <div className="flex h-14 sm:h-16 items-center justify-between">
             {/* Logo/Brand */}
             <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
-              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary via-primary to-primary/90 flex items-center justify-center shadow-lg ring-1 ring-primary/20">
-                <span className="text-primary-foreground font-bold text-sm">M</span>
+              <div className="relative h-8 w-8 overflow-hidden rounded-xl bg-gradient-to-br from-primary via-primary to-primary/90 shadow-lg ring-1 ring-primary/20">
+                {brandLogo ? (
+                  <Image
+                    src={brandLogo}
+                    alt={companyName}
+                    fill
+                    className="object-cover"
+                    sizes="32px"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <span className="text-primary-foreground font-bold text-sm">{brandInitial}</span>
+                  </div>
+                )}
               </div>
               <span className="font-bold text-lg sm:text-xl hidden xs:block bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                MyApp
+                {companyName}
               </span>
             </Link>
 
@@ -233,12 +252,24 @@ export function MobileNavbar() {
 	                            )}
 	                          </div>
 	                        ) : (
-                          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary via-primary to-primary/90 flex items-center justify-center shadow-lg ring-1 ring-primary/20">
-                            <span className="text-primary-foreground font-bold">M</span>
+                          <div className="relative h-10 w-10 overflow-hidden rounded-xl bg-gradient-to-br from-primary via-primary to-primary/90 shadow-lg ring-1 ring-primary/20">
+                            {brandLogo ? (
+                              <Image
+                                src={brandLogo}
+                                alt={companyName}
+                                fill
+                                className="object-cover"
+                                sizes="40px"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <span className="text-primary-foreground font-bold">{brandInitial}</span>
+                              </div>
+                            )}
                           </div>
                         )}
                         <div>
-                          <SheetTitle className="text-left text-lg">MyApp</SheetTitle>
+                          <SheetTitle className="text-left text-lg">{companyName}</SheetTitle>
                           <p className="text-sm text-muted-foreground">
                             {isAuthenticated ? `Hi, ${userDisplayName}` : "Welcome back!"}
                           </p>

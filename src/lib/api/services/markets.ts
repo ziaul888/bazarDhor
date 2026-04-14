@@ -23,14 +23,50 @@ export const marketsApi = {
 
   // Get single market by ID
   getMarket: async (id: string): Promise<ApiResponse<Market>> => {
-    const { data } = await apiClient.get(`/markets/${id}`);
+    const { data } = await apiClient.get(`/market/details/${id}`);
     return data;
   },
 
   // Get market items
   getMarketItems: async (marketId: string, filters?: ItemFilters): Promise<PaginatedResponse<MarketItem>> => {
-    const { data } = await apiClient.get(`/markets/${marketId}/items`, { params: filters });
-    return data;
+    const limit = filters?.limit ?? 15;
+    const page = filters?.page ?? 1;
+    const offset = page;
+
+    const { data } = await apiClient.get(`/market/products/${marketId}`, {
+      params: {
+        limit,
+        offset,
+      },
+    });
+
+    const payload = data as Record<string, unknown>;
+    const items = (
+      payload.data ??
+      payload.products ??
+      payload.items ??
+      []
+    ) as MarketItem[];
+
+    const rawPagination = (payload.pagination ?? payload.meta ?? {}) as Record<string, unknown>;
+    const total =
+      Number(rawPagination.total ?? rawPagination.total_count ?? items.length) || items.length;
+    const currentPage =
+      Number(rawPagination.page ?? rawPagination.offset ?? offset) || offset;
+    const pageLimit = Number(rawPagination.limit ?? limit) || limit;
+    const totalPages =
+      Number(rawPagination.totalPages ?? rawPagination.total_pages) ||
+      Math.max(1, Math.ceil(total / pageLimit));
+
+    return {
+      data: items,
+      pagination: {
+        page: currentPage,
+        limit: pageLimit,
+        total,
+        totalPages,
+      },
+    };
   },
 
   // Search markets

@@ -8,7 +8,6 @@ import {
   Share2, 
   Navigation, 
   Phone, 
-  Search,
   Star,
   Users,
   MapPin,
@@ -19,111 +18,7 @@ import {
   Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Pagination, usePagination } from '@/components/ui/pagination';
-import { ProductCard } from '@/components/product-card';
-
-const marketItems = [
-  {
-    id: 1,
-    name: "Organic Tomatoes",
-    marketName: "Green Valley Farm",
-    currentPrice: 4.99,
-    unit: "kg",
-    category: "Vegetables",
-    image: "https://images.unsplash.com/photo-1546470427-e5ac89cd0b31?w=300&h=300&fit=crop",
-    priceChange: "down",
-    lastUpdated: "2 hours ago"
-  },
-  {
-    id: 2,
-    name: "Fresh Chicken Breast",
-    marketName: "Farm Fresh Poultry",
-    currentPrice: 12.99,
-    unit: "kg",
-    category: "Meat & Poultry",
-    image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=300&h=300&fit=crop",
-    priceChange: "up",
-    lastUpdated: "1 hour ago"
-  },
-  {
-    id: 3,
-    name: "Local Honey",
-    marketName: "Bee Happy Honey",
-    currentPrice: 12.99,
-    unit: "jar",
-    category: "Pantry",
-    image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=300&h=300&fit=crop",
-    priceChange: "down",
-    lastUpdated: "3 hours ago"
-  },
-  {
-    id: 4,
-    name: "Artisan Sourdough",
-    marketName: "Baker's Corner",
-    currentPrice: 5.50,
-    unit: "loaf",
-    category: "Bakery",
-    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=300&fit=crop",
-    priceChange: "up",
-    lastUpdated: "30 min ago"
-  },
-  {
-    id: 5,
-    name: "Fresh Apples",
-    marketName: "Orchard Fresh",
-    currentPrice: 3.99,
-    unit: "kg",
-    category: "Fruits",
-    image: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=300&h=300&fit=crop",
-    priceChange: "down",
-    lastUpdated: "4 hours ago"
-  },
-  {
-    id: 6,
-    name: "Farm Fresh Milk",
-    marketName: "Dairy Delight",
-    currentPrice: 2.99,
-    unit: "L",
-    category: "Dairy",
-    image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop",
-    priceChange: "up",
-    lastUpdated: "1 hour ago"
-  },
-  {
-    id: 7,
-    name: "Fresh Salmon",
-    marketName: "Ocean Fresh",
-    currentPrice: 18.99,
-    unit: "kg",
-    category: "Seafood",
-    image: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=300&h=300&fit=crop",
-    priceChange: "down",
-    lastUpdated: "2 hours ago"
-  },
-  {
-    id: 8,
-    name: "Organic Basil",
-    marketName: "Herb Garden",
-    currentPrice: 2.50,
-    unit: "bunch",
-    category: "Herbs & Spices",
-    image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=300&h=300&fit=crop",
-    priceChange: "up",
-    lastUpdated: "5 hours ago"
-  }
-];
-
-const categories = [
-  { id: 'all', name: 'All Items', count: 8 },
-  { id: 'Vegetables', name: 'Vegetables', count: 1 },
-  { id: 'Fruits', name: 'Fruits', count: 1 },
-  { id: 'Meat & Poultry', name: 'Meat & Poultry', count: 1 },
-  { id: 'Dairy', name: 'Dairy', count: 1 },
-  { id: 'Bakery', name: 'Bakery', count: 1 },
-  { id: 'Seafood', name: 'Seafood', count: 1 },
-  { id: 'Herbs & Spices', name: 'Herbs & Spices', count: 1 },
-  { id: 'Pantry', name: 'Pantry', count: 1 }
-];
+import { MarketItemsList } from './market-items-list';
 
 interface MarketDetailsClientProps {
   marketData: {
@@ -131,35 +26,31 @@ interface MarketDetailsClientProps {
     name: string;
     description?: string;
     address?: string;
+    distance?: string;
     phone?: string;
+    website?: string;
     openTime?: string;
     coordinates: { lat: number; lng: number };
-    rating: number;
-    reviews: number;
+    rating?: number;
+    reviews?: number;
+    vendors?: number;
     priceRange?: string;
     socialMedia?: { facebook?: string; instagram?: string };
     type?: string;
+    isOpen?: boolean;
+    acceptsCards?: boolean;
+    hasDelivery?: boolean;
+    features?: {
+      freeParking?: boolean;
+      organicCertified?: boolean;
+    };
   };
 }
 
 export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [isFavorite, setIsFavorite] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const items = marketItems;
-
-  const filteredItems = items.filter(item => {
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.marketName.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-  // Pagination logic
-  const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredItems, 8);
-  const paginatedItems = getPaginatedItems(currentPage);
-  const paginationInfo = getPaginationInfo(currentPage);
+  const rating = typeof marketData.rating === 'number' ? marketData.rating : 0;
+  const reviews = typeof marketData.reviews === 'number' ? marketData.reviews : 0;
 
   // Generate structured data for SEO
   const businessData = {
@@ -184,8 +75,8 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
     },
     "aggregateRating": {
       "@type": "AggregateRating",
-      "ratingValue": marketData.rating.toString(),
-      "reviewCount": marketData.reviews.toString()
+      "ratingValue": rating.toString(),
+      "reviewCount": reviews.toString()
     },
     "priceRange": marketData.priceRange,
     "sameAs": [
@@ -292,8 +183,8 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
                   <div className="flex items-center space-x-4 mb-3">
                     <div className="flex items-center space-x-1">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="font-semibold">{marketData.rating}</span>
-                      <span className="text-sm text-muted-foreground">({marketData.reviews} reviews)</span>
+                      <span className="font-semibold">{rating}</span>
+                      <span className="text-sm text-muted-foreground">({reviews} reviews)</span>
                     </div>
                     <div className="flex items-center space-x-1 text-muted-foreground">
                       <Users className="h-4 w-4" />
@@ -390,107 +281,12 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
       </div>
 
       <div className="container mx-auto px-4 py-4 sm:py-6">
-        {/* Search & Controls */}
-        <div className="flex flex-col lg:flex-row gap-4 mb-6">
-          <div className="relative w-full lg:w-1/2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search items..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background"
-            />
-          </div>
-
-          <div className="flex flex-wrap gap-2 sm:gap-3 lg:flex-nowrap lg:gap-4">
-            {/* Verification Tag */}
-            <div className="flex items-center space-x-2 px-3 py-2 bg-success/10 text-success rounded-full border border-success/20 whitespace-nowrap">
-              <svg className="h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="text-sm font-medium">Verified Market</span>
-            </div>
-
-            {/* Contributors Info */}
-            <div className="flex items-center space-x-2 px-3 py-2 bg-info/10 text-info rounded-full border border-info/20 whitespace-nowrap">
-              <Users className="h-4 w-4 flex-shrink-0" />
-              <span className="text-sm font-medium">127 Contributors</span>
-            </div>
-
-            {/* Last Update Info */}
-            <div className="flex items-center space-x-2 px-3 py-2 bg-muted/50 text-muted-foreground rounded-full border border-border whitespace-nowrap">
-              <Clock className="h-4 w-4 flex-shrink-0" />
-              <span className="text-sm font-medium">Updated 2h ago</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Category Bar */}
-        <div className="mb-6">
-          <div className="flex items-center space-x-2 overflow-x-auto pb-2">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
-                  selectedCategory === category.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted hover:bg-muted/80'
-                }`}
-              >
-                <span className="text-sm font-medium">{category.name}</span>
-                <span className="text-xs opacity-75">({category.count})</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Items List */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base sm:text-lg font-semibold">
-              {selectedCategory === 'all' ? 'All Items' : categories.find(c => c.id === selectedCategory)?.name}
-            </h3>
-            <span className="text-sm text-muted-foreground">
-              Showing {paginationInfo.startIndex}-{paginationInfo.endIndex} of {paginationInfo.totalItems} items
-            </span>
+            <h3 className="text-base sm:text-lg font-semibold">All Items</h3>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {paginatedItems.map((item) => (
-              <ProductCard
-                key={item.id}
-                item={{ 
-                  ...item, 
-                  marketId: marketData.id 
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-8">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            </div>
-          )}
-
-          {filteredItems.length === 0 && (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-base sm:text-lg font-semibold mb-2">No items found</h3>
-              <p className="text-muted-foreground">
-                Try adjusting your search or selecting a different category.
-              </p>
-            </div>
-          )}
+          <MarketItemsList marketId={String(marketData.id)} />
         </div>
       </div>
     </div>

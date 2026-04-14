@@ -25,7 +25,7 @@ type ComparedProductRow = {
   market2Price: number | null;
 };
 
-const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;

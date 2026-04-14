@@ -128,7 +128,7 @@ const bestPriceItems = [
     }
 ];
 
-const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
 
 type BestPriceItem = {
     id: number | string;

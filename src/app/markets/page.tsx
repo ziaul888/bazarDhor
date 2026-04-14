@@ -214,7 +214,7 @@ const fallbackMarkets: Market[] = [
     }
 ];
 
-const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
 const DEFAULT_MARKET_IMAGE = "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop";
 const MARKET_LIST_PARAMS = {
     user_lat: 23.832619866576376,

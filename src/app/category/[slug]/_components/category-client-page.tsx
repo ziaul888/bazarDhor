@@ -100,7 +100,7 @@ export function CategoryClientPage({ markets }: CategoryClientPageProps) {
                     </div>
 
                     {/* Sort */}
-                    <select
+                    {/* <select
                         value={sortBy}
                         onChange={(e) => handleSort(e.target.value)}
                         className="px-3 py-2 border border-border rounded-lg bg-background text-sm"
@@ -109,7 +109,7 @@ export function CategoryClientPage({ markets }: CategoryClientPageProps) {
                         <option value="rating">Sort by Rating</option>
                         <option value="price">Sort by Price</option>
                         <option value="items">Sort by Items</option>
-                    </select>
+                    </select> */}
 
                     {/* Mobile Filter */}
                     <Sheet open={filterOpen} onOpenChange={setFilterOpen}>

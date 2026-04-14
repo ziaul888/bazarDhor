@@ -77,7 +77,7 @@ const products = [
   }
 ];
 
-const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
 
 export function ProductCarousel() {
   const { data: apiProducts, isLoading } = useRandomProducts();

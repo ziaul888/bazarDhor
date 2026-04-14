@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X, Upload, MapPin, Camera, Sparkles, Tag, DollarSign, Package } from 'lucide-react';
 import { useAddItem } from './add-item-context';
 import { useCreateUserProduct } from '@/lib/api/hooks';
+import { useCategories } from '@/lib/api/hooks/useCategories';
+import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 
 const addItemSchema = z.object({
   name: z.string().min(1, 'Item name is required'),
@@ -18,6 +20,7 @@ const addItemSchema = z.object({
       return Number.isFinite(parsed) && parsed >= 0;
     }, 'Price must be a valid number'),
   category: z.string().min(1, 'Category is required'),
+  unit: z.string().min(1, 'Unit is required'),
   market: z.string().min(1, 'Market is required'),
   description: z.string().optional(),
   image: z.any().optional(),
@@ -32,6 +35,8 @@ export function AddItemDrawer() {
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { mutateAsync, isPending, error } = useCreateUserProduct();
+  const { data: categories = [], isLoading: isLoadingCategories, isError: hasCategoryError } = useCategories();
+  const { data: markets = [], isLoading: isLoadingMarkets, isError: hasMarketError } = useRandomMarkets();
   const {
     register,
     control,
@@ -44,13 +49,30 @@ export function AddItemDrawer() {
       name: '',
       price: '',
       category: '',
+      unit: '',
       market: '',
       description: '',
     },
   });
   const isSubmitting = isPending || isFormSubmitting;
+  const categoryOptions = useMemo(
+    () =>
+      categories.map((category) => ({
+        id: String(category.id),
+        label: category.name,
+      })),
+    [categories]
+  );
+  const marketOptions = useMemo(
+    () =>
+      markets.map((market) => ({
+        id: String(market.id),
+        label: market.name,
+      })),
+    [markets]
+  );
 
-  const handleImageChange = (file?: any) => {
+  const handleImageChange = (file?: File | null) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -63,24 +85,28 @@ export function AddItemDrawer() {
   };
 
   const onSubmit = async (values: AddItemFormValues) => {
-    const price = values.price ? Number.parseFloat(values.price) : undefined;
+    const basePrice = values.price ? Number.parseFloat(values.price) : undefined;
 
     const basePayload = {
       name: values.name,
-      category: values.category || undefined,
-      marketId: values.market || undefined,
-      price: Number.isFinite(price as number) ? (price as number) : undefined,
+      category_id: values.category || undefined,
+      market_id: values.market || undefined,
+      base_price: Number.isFinite(basePrice as number) ? (basePrice as number) : undefined,
+      unit_id: "4823e3d0-1534-4fd6-9947-ea2a44cad339",
       description: values.description || undefined,
+      status: "draft",
     };
 
     try {
       if (values.image) {
         const payload = new FormData();
         payload.append('name', basePayload.name);
-        if (basePayload.category) payload.append('category', basePayload.category);
-        if (basePayload.marketId) payload.append('marketId', basePayload.marketId);
-        if (basePayload.price !== undefined) payload.append('price', String(basePayload.price));
+        if (basePayload.category_id) payload.append('category_id', basePayload.category_id);
+        if (basePayload.market_id) payload.append('market_id', basePayload.market_id);
+        if (basePayload.base_price !== undefined) payload.append('base_price', String(basePayload.base_price));
+        if (basePayload.unit_id) payload.append('unit_id', basePayload.unit_id);
         if (basePayload.description) payload.append('description', basePayload.description);
+        if (basePayload.status) payload.append('status', basePayload.status);
         payload.append('image', values.image);
         await mutateAsync(payload);
       } else {
@@ -202,8 +228,8 @@ export function AddItemDrawer() {
               ) : null}
             </div>
 
-            {/* Price and Category Row */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Price, Category, and Unit */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Price */}
               <div className="space-y-3">
                 <label className="flex items-center space-x-2 text-sm font-semibold text-gray-800">
@@ -236,19 +262,44 @@ export function AddItemDrawer() {
                 <select
                   {...register('category')}
                   required
+                  disabled={isLoadingCategories || categoryOptions.length === 0}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 appearance-none"
                 >
-                  <option value="">Select</option>
-                  <option value="fruits">🍎 Fruits</option>
-                  <option value="vegetables">🥕 Vegetables</option>
-                  <option value="dairy">🥛 Dairy</option>
-                  <option value="meat">🥩 Meat</option>
-                  <option value="bakery">🍞 Bakery</option>
-                  <option value="beverages">🥤 Beverages</option>
-                  <option value="other">📦 Other</option>
+                  <option value="">
+                    {isLoadingCategories
+                      ? 'Loading categories...'
+                      : categoryOptions.length > 0
+                        ? 'Select'
+                        : 'No categories available'}
+                  </option>
+                  {categoryOptions.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.label}
+                    </option>
+                  ))}
                 </select>
                 {errors.category ? (
                   <p className="text-xs text-destructive">{errors.category.message}</p>
+                ) : hasCategoryError ? (
+                  <p className="text-xs text-destructive">Could not load categories right now.</p>
+                ) : null}
+              </div>
+
+              {/* Unit */}
+              <div className="space-y-3 sm:col-span-2">
+                <label className="flex items-center space-x-2 text-sm font-semibold text-gray-800">
+                  <Package className="h-4 w-4 text-primary" />
+                  <span>Unit *</span>
+                </label>
+                <input
+                  type="text"
+                  {...register('unit')}
+                  required
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                  placeholder="e.g., kg, liter, piece, dozen"
+                />
+                {errors.unit ? (
+                  <p className="text-xs text-destructive">{errors.unit.message}</p>
                 ) : null}
               </div>
             </div>
@@ -262,16 +313,26 @@ export function AddItemDrawer() {
               <select
                 {...register('market')}
                 required
+                disabled={isLoadingMarkets || marketOptions.length === 0}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 appearance-none"
               >
-                <option value="">Choose market</option>
-                <option value="central-market">🏪 Central Market</option>
-                <option value="farmers-market">🌾 Farmer&apos;s Market</option>
-                <option value="downtown-market">🏢 Downtown Market</option>
-                <option value="riverside-market">🌊 Riverside Market</option>
+                <option value="">
+                  {isLoadingMarkets
+                    ? 'Loading markets...'
+                    : marketOptions.length > 0
+                      ? 'Choose market'
+                      : 'No markets available'}
+                </option>
+                {marketOptions.map((market) => (
+                  <option key={market.id} value={market.id}>
+                    {market.label}
+                  </option>
+                ))}
               </select>
               {errors.market ? (
                 <p className="text-xs text-destructive">{errors.market.message}</p>
+              ) : hasMarketError ? (
+                <p className="text-xs text-destructive">Could not load markets right now.</p>
               ) : null}
             </div>
 

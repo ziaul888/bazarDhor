@@ -9,7 +9,7 @@ import {
   TrendingDown
 } from 'lucide-react';
 
-const IMAGE_BASE_URL = 'https://bazardor.chhagolnaiyasportareana.xyz/storage/';
+const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
 const DEFAULT_MARKET_IMAGE = "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop";
 const CATEGORY_MARKET_LIST_PARAMS = {
   user_lat: 23.832619866576376,
@@ -455,7 +455,7 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
   }
 
   // Fetch real markets for this category from organized server service
-  let markets = zoneId
+  let markets: Array<Record<string, unknown>> = zoneId
     ? extractMarketArray(await marketServerApi.getMarketList({
         ...CATEGORY_MARKET_LIST_PARAMS,
         categoryId: category.id.toString(),
@@ -465,7 +465,7 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
 
   // If no real markets, use mock data for demonstration
   if (markets.length === 0) {
-    markets = categoryMarkets;
+    markets = categoryMarkets as Array<Record<string, unknown>>;
   }
 
   return (

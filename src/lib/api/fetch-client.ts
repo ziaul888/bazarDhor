@@ -3,7 +3,7 @@ export interface FetchOptions extends RequestInit {
     throwOnError?: boolean;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.chhagolnaiyasportareana.xyz/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.mainul.tech/api';
 const ZONE_OPTIONAL_ENDPOINTS = new Set(['/config/get-zone']);
 
 function normalizeEndpoint(endpoint: string): string {

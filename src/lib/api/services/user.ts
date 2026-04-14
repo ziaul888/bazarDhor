@@ -36,7 +36,7 @@ export const userApi = {
   createProduct: async (
     payload: CreateUserProductPayload | FormData
   ): Promise<ApiResponse<UserProduct>> => {
-    const { data } = await apiClient.post('/user/products/create', payload);
+    const { data } = await apiClient.post('/products/create', payload);
     return data;
   },
 
@@ -44,7 +44,7 @@ export const userApi = {
   submitPrice: async (
     payload: SubmitProductPricePayload | FormData
   ): Promise<ApiResponse<SubmitProductPriceResponse>> => {
-    const { data } = await apiClient.post('/users/products/submit-price', payload);
+    const { data } = await apiClient.post('/products/submit-price', payload);
     return data;
   },
 };

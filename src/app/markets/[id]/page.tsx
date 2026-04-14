@@ -5,10 +5,9 @@ import { cookies } from 'next/headers';
 import { MarketDetailsClient } from './_components/market-details-client';
 
 interface MarketDetailsProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-// Fetch market data server-side
 async function getMarketData(id: string) {
   const cookieStore = await cookies();
   const zoneId = cookieStore.get('zoneId')?.value;
@@ -72,11 +71,10 @@ async function getMarketData(id: string) {
   }
 }
 
-
-
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: MarketDetailsProps): Promise<Metadata> {
-  const marketData = await getMarketData(params.id);
+  const { id } = await params;
+  const marketData = await getMarketData(id);
   
   if (!marketData) {
     return {
@@ -106,13 +104,12 @@ export async function generateMetadata({ params }: MarketDetailsProps): Promise<
 }
 
 export default async function MarketDetailsPage({ params }: MarketDetailsProps) {
-  const marketData = await getMarketData(params.id);
+  const { id } = await params;
+  const marketData = await getMarketData(id);
   
   if (!marketData) {
     notFound();
   }
-  
+
   return <MarketDetailsClient marketData={marketData} />;
-
-
 }

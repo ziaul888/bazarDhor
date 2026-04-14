@@ -1,6 +1,12 @@
 import { apiClient } from '../client';
 import { API_ENDPOINTS } from '../endpoints';
-import type { ApiResponse, GetZoneRequest, GetZoneResponse } from '../types';
+import type {
+    ApiResponse,
+    BackendApiResponse,
+    GeneralConfig,
+    GetZoneRequest,
+    GetZoneResponse
+} from '../types';
 
 /**
  * Zone/Config API Service
@@ -25,8 +31,8 @@ export const configApi = {
     /**
      * Get app configuration settings
      */
-    getSettings: async (): Promise<any> => {
-        const response = await apiClient.get<ApiResponse<any>>(
+    getSettings: async (): Promise<unknown> => {
+        const response = await apiClient.get<ApiResponse<unknown>>(
             API_ENDPOINTS.CONFIG.SETTINGS
         );
         return response.data.data;
@@ -35,8 +41,8 @@ export const configApi = {
     /**
      * Get app configuration
      */
-    getAppConfig: async (): Promise<any> => {
-        const response = await apiClient.get<ApiResponse<any>>(
+    getAppConfig: async (): Promise<unknown> => {
+        const response = await apiClient.get<ApiResponse<unknown>>(
             API_ENDPOINTS.CONFIG.APP_CONFIG
         );
         return response.data.data;
@@ -45,8 +51,8 @@ export const configApi = {
     /**
      * Get general configuration (entire /config endpoint)
      */
-    getGeneralConfig: async (): Promise<any> => {
-        const response = await apiClient.get<ApiResponse<any>>(
+    getGeneralConfig: async (): Promise<GeneralConfig> => {
+        const response = await apiClient.get<BackendApiResponse<GeneralConfig>>(
             API_ENDPOINTS.CONFIG.GENERAL
         );
         return response.data.data;
