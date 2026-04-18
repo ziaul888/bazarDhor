@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Search, MapPin, SlidersHorizontal, GitCompare } from 'lucide-react';
+import { Search, MapPin, SlidersHorizontal, GitCompare, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { MarketCard } from '@/components/market-card';
 import { Pagination, usePagination } from '@/components/ui/pagination';
 import { MarketFilters } from './_components/market-filters';
-import { useMarketList } from '@/lib/api/hooks/useMarkets';
+import { useMarketList, useSearchMarkets } from '@/lib/api/hooks/useMarkets';
 import type { Market } from '@/lib/api/types';
 
 const fallbackMarkets: Market[] = [
@@ -332,14 +332,19 @@ const mapMarketFromApi = (item: Record<string, unknown>, index: number): Market 
 
 export default function MarketsPage() {
     const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedQuery, setDebouncedQuery] = useState("");
     const [marketSource, setMarketSource] = useState<Market[]>(fallbackMarkets);
     const [filteredMarkets, setFilteredMarkets] = useState<Market[]>(fallbackMarkets);
     const [activeFilters, setActiveFilters] = useState<Record<string, unknown> | undefined>(undefined);
     const [currentPage, setCurrentPage] = useState(1);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
     const [sortBy, setSortBy] = useState('distance');
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const { data: marketListData } = useMarketList(MARKET_LIST_PARAMS);
+    const { data: searchData, isFetching: isSearchFetching } = useSearchMarkets(debouncedQuery);
+
+    const isSearchActive = debouncedQuery.length > 2;
 
     const computeFilteredMarkets = (
         markets: Market[],
@@ -429,9 +434,13 @@ export default function MarketsPage() {
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
-        const filtered = computeFilteredMarkets(marketSource, query, activeFilters);
-        setFilteredMarkets(filtered);
-        setCurrentPage(1);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => setDebouncedQuery(query), 400);
+        if (query.length <= 2) {
+            const filtered = computeFilteredMarkets(marketSource, query, activeFilters);
+            setFilteredMarkets(filtered);
+            setCurrentPage(1);
+        }
     };
 
     const handleSort = (sortOption: string) => {
@@ -457,17 +466,26 @@ export default function MarketsPage() {
         setCurrentPage(1); // Reset to first page when sorting
     };
 
+    // Populate marketSource from list API
     useEffect(() => {
         const markets = extractMarketArray(marketListData);
-        if (markets.length === 0) {
-            return;
-        }
-
+        if (markets.length === 0) return;
         const mapped = markets.map(mapMarketFromApi);
         setMarketSource(mapped);
-        setFilteredMarkets(computeFilteredMarkets(mapped, searchQuery, activeFilters));
+        if (!isSearchActive) {
+            setFilteredMarkets(computeFilteredMarkets(mapped, searchQuery, activeFilters));
+            setCurrentPage(1);
+        }
+    }, [marketListData]);
+
+    // Apply search API results
+    useEffect(() => {
+        if (!isSearchActive) return;
+        const markets = extractMarketArray(searchData);
+        const mapped = markets.map(mapMarketFromApi);
+        setFilteredMarkets(computeFilteredMarkets(mapped, '', activeFilters));
         setCurrentPage(1);
-    }, [marketListData, searchQuery, activeFilters]);
+    }, [searchData, isSearchActive, activeFilters]);
 
     return (
         <div className="min-h-screen bg-background">
@@ -492,8 +510,11 @@ export default function MarketsPage() {
                                     placeholder="Search markets, products, or locations..."
                                     value={searchQuery}
                                     onChange={(e) => handleSearch(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background"
+                                    className="w-full pl-10 pr-10 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background"
                                 />
+                                {isSearchFetching && (
+                                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
+                                )}
                             </div>
 
                             {/* Filter Toggle - Mobile */}
