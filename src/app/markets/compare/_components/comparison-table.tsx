@@ -136,7 +136,7 @@ export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
   ] as const;
 
   return (
-    <div className="bg-card rounded-xl border overflow-hidden">
+    <div className="bg-card  border overflow-hidden">
       {/* Market Headers */}
       <div className="grid grid-cols-1 lg:grid-cols-3 border-b">
         <div className="p-6 border-b lg:border-b-0 lg:border-r">

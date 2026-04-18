@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ArrowRight, MapPin, DollarSign, Beef, Carrot, Loader2, LucideIcon } from 'lucide-react';
 import { useBanners } from '@/lib/api/hooks/useBanners';
 import { useMemo } from 'react';
+import 'swiper/swiper.css';
 
 interface BannerSlide {
     id: string | number;
@@ -21,11 +22,6 @@ interface BannerSlide {
     secondaryBtn: string;
     url: string | null;
 }
-
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/autoplay';
 
 const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
 

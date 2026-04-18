@@ -71,7 +71,7 @@ export function MobileNavbar() {
           <div className="flex h-14 sm:h-16 items-center justify-between">
             {/* Logo/Brand */}
             <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
-              <div className="relative h-8 w-8 overflow-hidden rounded-xl bg-gradient-to-br from-primary via-primary to-primary/90 shadow-lg ring-1 ring-primary/20">
+              <div className="relative h-8 w-20 overflow-hidden  bg-gradient-to-br from-primary via-primary to-primary/90 shadow-lg ring-1 ring-primary/20">
                 {brandLogo ? (
                   <Image
                     src={brandLogo}

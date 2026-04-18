@@ -1,9 +1,10 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useCategories, Category as ApiCategory } from '@/lib/api';
 import { useZone } from '@/providers/zone-provider';
 
@@ -135,6 +136,50 @@ interface Category {
   popular?: boolean;
 }
 
+function CategoryIcon({ icon, name }: { icon?: string; name: string }) {
+  const [imgError, setImgError] = useState(false);
+  const isImage = icon && (icon.startsWith('/') || icon.startsWith('http'));
+  const src = isImage
+    ? (icon.startsWith('http') ? icon : `https://bazardor.mainul.tech/storage/${icon.replace(/^\/+/, '')}`)
+    : null;
+
+  if (src && !imgError) {
+    return (
+      <Image
+        src={src}
+        alt={name}
+        width={56}
+        height={56}
+        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+
+  if (imgError || !src) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 56 56"
+        className="w-8 h-8 text-muted-foreground/40 group-hover:scale-110 transition-transform duration-500"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+      >
+        <rect x="6" y="14" width="44" height="32" rx="4" />
+        <path d="M6 22h44M18 14v8M38 14v8" />
+        <circle cx="28" cy="34" r="5" />
+      </svg>
+    );
+  }
+
+  return (
+    <span className="text-xl xs:text-2xl sm:text-3xl filter drop-shadow-sm transform group-hover:scale-110 transition-transform duration-500">
+      {icon || '📦'}
+    </span>
+  );
+}
+
 export function CategorySection() {
   const { zone } = useZone();
   const { data: apiCategoriesData, isLoading: isApiLoading, error: apiError } = useCategories();
@@ -149,7 +194,7 @@ export function CategorySection() {
         markets: cat.market_count || (cat as any).unique_market_count || 0,
         totalItems: cat.product_count || 0,
         rating: cat.rating || 4.5,
-        icon: cat.icon || '📦',
+        icon: cat.image_path || '📦',
         popular: cat.popular || !!cat.popular,
       }));
     }
@@ -191,10 +236,8 @@ export function CategorySection() {
                 <CardContent className="p-2 sm:p-4 text-center relative z-10 flex flex-col items-center">
                   {/* Category Icon Container */}
                   <div className="relative mb-3 group-hover:mb-4 transition-all duration-500">
-                    <div className="w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 mx-auto bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center justify-center shadow-md border border-white/50 dark:border-white/10 group-hover:rotate-6 group-hover:-translate-y-1 transition-all duration-500">
-                      <span className="text-xl xs:text-2xl sm:text-3xl filter drop-shadow-sm transform group-hover:scale-110 transition-transform duration-500">
-                        {category.icon}
-                      </span>
+                    <div className="w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 mx-auto bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center justify-center shadow-md border border-white/50 dark:border-white/10 group-hover:rotate-6 group-hover:-translate-y-1 transition-all duration-500 overflow-hidden">
+                      <CategoryIcon icon={category.icon} name={category.name} />
                     </div>
                     {/* Shadow Glow */}
                     <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-black/5 blur-sm rounded-full group-hover:w-10 group-hover:opacity-50 transition-all duration-500"></div>

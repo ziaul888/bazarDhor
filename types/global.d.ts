@@ -1,5 +1,10 @@
 // Global type declarations
 
+declare module 'swiper/css';
+declare module 'swiper/css/*';
+declare module 'swiper/swiper.css';
+declare module 'swiper/*.css';
+
 declare module 'minimatch' {
   function minimatch(target: string, pattern: string, options?: any): boolean;
   export = minimatch;

@@ -198,7 +198,7 @@ const formatDistance = (value: unknown) => {
     if (typeof value === 'string' && value.trim().length > 0) {
         return value.includes('km') ? value : `${value} km`;
     }
-    return 'N/A';
+    return '';
 };
 
 const isValidCoordinate = (lat: number | null, lng: number | null): lat is number =>
@@ -529,9 +529,12 @@ export function NearestMarketSection() {
                 }
 
                 if (!mapRef.current) {
+                    const isMobile = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
                     mapRef.current = L.map(mapContainerRef.current, {
                         zoomControl: true,
                         scrollWheelZoom: false,
+                        dragging: !isMobile,
+                        tap: false,
                     });
 
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -753,10 +756,10 @@ export function NearestMarketSection() {
                             <p className="text-sm text-destructive">{mapError}</p>
                         </div>
                     )}
-                    <div ref={mapContainerRef} className="relative z-0 h-[600px] sm:h-[380px] lg:h-[430px] w-full" />
+                    <div ref={mapContainerRef} className="relative z-0 h-[400px] sm:h-[380px] lg:h-[430px] w-full" />
                 </div>
 
-                <div className="relative z-20 -mt-[-20px] sm:-mt-[38px] lg:-mt-[43px]">
+                <div className="relative z-20 -mt-[50px] sm:-mt-[38px] lg:-mt-[43px]">
                     <Swiper
                         modules={[Pagination]}
                         spaceBetween={12}
@@ -778,33 +781,28 @@ export function NearestMarketSection() {
                                 slidesOffsetAfter: 16,
                             },
                         }}
-                        className="nearest-markets-slider pb-8"
+                        className="nearest-markets-slider pb-8 [&_.swiper-wrapper]:items-stretch"
                     >
                         {markets.map((market) => {
                             const isSelected = selectedMarketId === market.id;
                             return (
-                                <SwiperSlide key={market.id}>
+                                <SwiperSlide key={market.id} className="!h-auto">
                                     <div
-                                        className={`h-full rounded-xl border p-4 bg-background transition-all ${isSelected
+                                        className={`h-full flex flex-col rounded-xl border p-4 bg-background transition-all ${isSelected
                                             ? 'border-primary shadow-[0_0_0_1px_hsl(var(--primary))]'
                                             : 'border-border hover:border-primary/40'
                                             }`}
                                     >
                                         <Link
                                             href={`/markets/${market.id}`}
-                                            className="block rounded-md mb-3 hover:bg-muted/40 transition-colors p-1 -m-1"
+                                            className="block flex-1 rounded-md mb-3 hover:bg-muted/40 transition-colors p-1 -m-1"
                                         >
                                             <div className="flex items-start justify-between gap-3 mb-2">
                                                 <div className="min-w-0">
                                                     <p className="font-semibold text-sm sm:text-base leading-tight">{market.name}</p>
                                                     <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">{market.address}</p>
                                                 </div>
-                                                <span className={`text-[11px] px-2 py-1 rounded-full whitespace-nowrap ${market.isOpen
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-gray-100 text-gray-600'
-                                                    }`}>
-                                                    {market.isOpen ? 'Open' : 'Closed'}
-                                                </span>
+                                              
                                             </div>
 
                                             <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
@@ -813,7 +811,7 @@ export function NearestMarketSection() {
                                             </div>
                                         </Link>
 
-                                        <div className="flex items-center gap-2">
+                                        <div className="mt-auto flex items-center gap-2">
                                             <button
                                                 type="button"
                                                 onClick={() => setSelectedMarketId(market.id)}

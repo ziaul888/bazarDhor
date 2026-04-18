@@ -256,7 +256,9 @@ export default function CompareMarketsPage() {
           </div>
         </div>
 
-        <div className="mt-10 rounded-2xl border bg-card">
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+
+        <div className="rounded-2xl border bg-card">
           <div className="flex flex-col gap-4 border-b px-4 py-5 sm:flex-row sm:items-end sm:justify-between sm:px-6">
             <div>
               <h2 className="text-2xl font-bold">Product Comparison</h2>
@@ -293,7 +295,74 @@ export default function CompareMarketsPage() {
               No compared products found for {selectedCategory?.name || 'this category'}.
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            {/* Mobile card layout */}
+            <div className="flex flex-col divide-y sm:hidden">
+              {comparedProducts.map((product) => {
+                const market1Price = product.market1Price;
+                const market2Price = product.market2Price;
+                const difference =
+                  market1Price !== null && market2Price !== null
+                    ? Math.abs(market1Price - market2Price)
+                    : null;
+                const cheaperMarket =
+                  market1Price !== null && market2Price !== null
+                    ? market1Price < market2Price
+                      ? selectedMarket1?.name
+                      : market2Price < market1Price
+                        ? selectedMarket2?.name
+                        : 'Same price'
+                    : null;
+
+                return (
+                  <div key={product.id} className="px-4 py-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      {product.image ? (
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          width={44}
+                          height={44}
+                          className="h-11 w-11 rounded-lg object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="h-11 w-11 rounded-lg bg-muted flex-shrink-0" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm truncate">{product.name}</p>
+                        <p className="text-xs text-muted-foreground">{product.category} · {product.unit}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-lg bg-muted/40 px-3 py-2">
+                        <p className="text-[10px] text-muted-foreground mb-0.5 truncate">{selectedMarket1?.name}</p>
+                        <p className="font-semibold text-sm">{market1Price !== null ? `৳${market1Price.toFixed(2)}` : 'N/A'}</p>
+                      </div>
+                      <div className="rounded-lg bg-muted/40 px-3 py-2">
+                        <p className="text-[10px] text-muted-foreground mb-0.5 truncate">{selectedMarket2?.name}</p>
+                        <p className="font-semibold text-sm">{market2Price !== null ? `৳${market2Price.toFixed(2)}` : 'N/A'}</p>
+                      </div>
+                    </div>
+
+                    {difference !== null && (
+                      <div className="flex items-center gap-1.5 text-xs">
+                        {cheaperMarket === selectedMarket1?.name ? (
+                          <ArrowDown className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                        ) : cheaperMarket === selectedMarket2?.name ? (
+                          <ArrowUp className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
+                        ) : null}
+                        <span className="font-medium">{cheaperMarket ?? 'Same price'}</span>
+                        <span className="text-muted-foreground">· diff ৳{difference.toFixed(2)}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop table layout */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead className="bg-muted/40 text-left">
                   <tr>
@@ -374,28 +443,35 @@ export default function CompareMarketsPage() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
 
-        {/* Comparison Results */}
-        {compareQuery.isLoading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Loading comparison…</p>
+          {/* Comparison Results */}
+          <div className="rounded-2xl border bg-card">
+            <div className="border-b px-4 py-5 sm:px-6">
+              <h2 className="text-2xl font-bold">Market Comparison</h2>
+              <p className="text-sm text-muted-foreground">Side-by-side details for the selected markets.</p>
+            </div>
+            {compareQuery.isLoading ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                <p className="text-muted-foreground">Loading comparison…</p>
+              </div>
+            ) : compareQuery.isError ? (
+              <div className="px-6 py-10 text-center">
+                <p className="text-warning font-medium">Comparison failed. Please try again.</p>
+              </div>
+            ) : comparison?.market_1 && comparison?.market_2 ? (
+              <ComparisonTable market1={comparison.market_1} market2={comparison.market_2} />
+            ) : (
+              <div className="px-6 py-10 text-center text-muted-foreground">
+                Select two markets to view comparison.
+              </div>
+            )}
           </div>
-        ) : compareQuery.isError ? (
-          <div className="text-center py-10 border rounded-xl bg-muted/10">
-            <p className="text-warning font-medium">Comparison failed. Please try again.</p>
-          </div>
-        ) : comparison?.market_1 && comparison?.market_2 ? (
-          <ComparisonTable market1={comparison.market_1} market2={comparison.market_2} />
-        ) : (
-          <div className="text-center py-10 border rounded-xl bg-muted/10">
-            <p className="text-muted-foreground">
-              Select two markets to view comparison.
-            </p>
-          </div>
-        )}
+
+        </div>{/* end grid */}
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">

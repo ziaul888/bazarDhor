@@ -75,7 +75,7 @@ export function CompareMarketsSection() {
                                                     <div className="text-xs sm:text-sm text-gray-600 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 lg:space-x-3">
                                                         <div className="flex items-center space-x-1">
                                                             <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                            <span className="truncate">{selectedMarket1.distance || 'N/A'}</span>
+                                                            <span className="truncate">{selectedMarket1.distance || 10} km</span>
                                                         </div>
                                                         <div className="hidden sm:flex items-center space-x-1">
                                                             <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
@@ -83,7 +83,7 @@ export function CompareMarketsSection() {
                                                         </div>
                                                         <div className="flex items-center space-x-1">
                                                             <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
-                                                            <span>{selectedMarket1.rating || 'N/A'}</span>
+                                                            <span>{selectedMarket1.rating || 3.5}</span>
                                                         </div>
                                                     </div>
                                                 </>
@@ -148,7 +148,7 @@ export function CompareMarketsSection() {
                                                     <div className="text-xs sm:text-sm text-gray-600 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 lg:space-x-3">
                                                         <div className="flex items-center space-x-1">
                                                             <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                            <span className="truncate">{selectedMarket2.distance || 'N/A'}</span>
+                                                            <span className="truncate">{selectedMarket2.distance || '7'} km</span>
                                                         </div>
                                                         <div className="hidden sm:flex items-center space-x-1">
                                                             <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
@@ -156,7 +156,7 @@ export function CompareMarketsSection() {
                                                         </div>
                                                         <div className="flex items-center space-x-1">
                                                             <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
-                                                            <span>{selectedMarket2.rating || 'N/A'}</span>
+                                                            <span>{selectedMarket2.rating || '3.7'}</span>
                                                         </div>
                                                     </div>
                                                 </>
