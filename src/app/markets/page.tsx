@@ -338,10 +338,16 @@ export default function MarketsPage() {
     const [activeFilters, setActiveFilters] = useState<Record<string, unknown> | undefined>(undefined);
     const [currentPage, setCurrentPage] = useState(1);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
-    const [sortBy, setSortBy] = useState('distance');
+    const [sortBy, setSortBy] = useState<'distance' | 'rating' | 'name' | 'vendors'>('distance');
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const { data: marketListData } = useMarketList(MARKET_LIST_PARAMS);
+    const marketListParams = {
+        ...MARKET_LIST_PARAMS,
+        sort_by: sortBy,
+        sort_order: (sortBy === 'distance' ? 'asc' : 'desc') as 'asc' | 'desc',
+    };
+
+    const { data: marketListData } = useMarketList(marketListParams);
     const { data: searchData, isFetching: isSearchFetching } = useSearchMarkets(debouncedQuery);
 
     const isSearchActive = debouncedQuery.length > 2;
@@ -444,7 +450,7 @@ export default function MarketsPage() {
     };
 
     const handleSort = (sortOption: string) => {
-        setSortBy(sortOption);
+        setSortBy(sortOption as 'distance' | 'rating' | 'name' | 'vendors');
         const sorted = [...filteredMarkets];
 
         switch (sortOption) {

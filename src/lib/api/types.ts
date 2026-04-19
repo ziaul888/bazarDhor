@@ -173,6 +173,8 @@ export interface MarketListParams {
   offset?: number;
   categoryId?: string;
   category_id?: string;
+  sort_by?: 'distance' | 'rating' | 'name' | 'vendors';
+  sort_order?: 'asc' | 'desc';
 }
 
 export interface ItemFilters {

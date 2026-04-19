@@ -1,31 +1,53 @@
 "use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useState, useRef, useEffect } from 'react';
 import {
     Grid3X3,
     List,
     Search,
-    SlidersHorizontal
+    SlidersHorizontal,
+    Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Pagination, usePagination } from '@/components/ui/pagination';
 import { MarketCard, MarketListItem } from '@/components/market-card';
-import type { Category } from '@/lib/api/types';
+import { useSearchMarkets } from '@/lib/api/hooks/useMarkets';
 
 interface CategoryClientPageProps {
     markets: any[];
+    categoryId: string;
 }
 
-export function CategoryClientPage({ markets }: CategoryClientPageProps) {
+export function CategoryClientPage({ markets, categoryId }: CategoryClientPageProps) {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [sortBy, setSortBy] = useState('distance');
     const [filterOpen, setFilterOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedQuery, setDebouncedQuery] = useState('');
     const [filteredMarkets, setFilteredMarkets] = useState(markets);
     const [currentPage, setCurrentPage] = useState(1);
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const isSearchActive = debouncedQuery.length > 2;
+    const { data: searchData, isFetching: isSearchFetching } = useSearchMarkets(debouncedQuery, categoryId);
+
+    // Apply API search results
+    useEffect(() => {
+        if (!isSearchActive) return;
+        const raw = searchData?.data;
+        const results = Array.isArray(raw) ? raw : [];
+        setFilteredMarkets(results.length > 0 ? results : []);
+        setCurrentPage(1);
+    }, [searchData, isSearchActive]);
+
+    // Reset to full list when query is cleared
+    useEffect(() => {
+        if (!isSearchActive) {
+            setFilteredMarkets(markets);
+            setCurrentPage(1);
+        }
+    }, [isSearchActive, markets]);
 
     // Pagination logic - 9 items per page
     const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredMarkets, 9);
@@ -34,12 +56,8 @@ export function CategoryClientPage({ markets }: CategoryClientPageProps) {
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
-        const filtered = markets.filter(market =>
-            market.name.toLowerCase().includes(query.toLowerCase()) ||
-            market.address.toLowerCase().includes(query.toLowerCase())
-        );
-        setFilteredMarkets(filtered);
-        setCurrentPage(1);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => setDebouncedQuery(query), 400);
     };
 
     const handleSort = (sortOption: string) => {
@@ -77,8 +95,11 @@ export function CategoryClientPage({ markets }: CategoryClientPageProps) {
                         placeholder="Search markets..."
                         value={searchQuery}
                         onChange={(e) => handleSearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background"
+                        className="w-full pl-10 pr-10 py-2.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background"
                     />
+                    {isSearchFetching && (
+                        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
+                    )}
                 </div>
 
                 {/* Controls */}

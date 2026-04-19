@@ -37,6 +37,9 @@ export const marketsApi = {
       params: {
         limit,
         offset,
+        ...(filters?.search ? { search: filters.search } : {}),
+        ...(filters?.category ? { category: filters.category } : {}),
+        ...(filters?.sortBy ? { sort_by: filters.sortBy, sort_order: filters.sortOrder ?? 'asc' } : {}),
       },
     });
 
@@ -70,8 +73,10 @@ export const marketsApi = {
   },
 
   // Search markets
-  searchMarkets: async (query: string): Promise<ApiResponse<Market[]>> => {
-    const { data } = await apiClient.get('/markets/search', { params: { q: query } });
+  searchMarkets: async (query: string, categoryId?: string): Promise<ApiResponse<Market[]>> => {
+    const { data } = await apiClient.get('/markets/search', {
+      params: { q: query, ...(categoryId ? { category_id: categoryId } : {}) },
+    });
     return data;
   },
 

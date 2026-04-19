@@ -13,7 +13,7 @@ export const marketKeys = {
   detail: (id: string) => [...marketKeys.details(), id] as const,
   items: (id: string) => [...marketKeys.detail(id), 'items'] as const,
   itemsList: (id: string, filters: ItemFilters) => [...marketKeys.items(id), filters] as const,
-  search: (query: string) => [...marketKeys.all, 'search', query] as const,
+  search: (query: string, categoryId?: string) => [...marketKeys.all, 'search', query, categoryId] as const,
   nearby: (lat: number, lng: number) => [...marketKeys.all, 'nearby', lat, lng] as const,
   categories: () => [...marketKeys.all, 'categories'] as const,
   random: () => [...marketKeys.all, 'random'] as const,
@@ -71,12 +71,12 @@ export const useMarketItems = (marketId: string, filters?: ItemFilters) => {
 };
 
 // Search markets
-export const useSearchMarkets = (query: string) => {
+export const useSearchMarkets = (query: string, categoryId?: string) => {
   const { zone } = useZone();
 
   return useQuery({
-    queryKey: marketKeys.search(query),
-    queryFn: () => marketsApi.searchMarkets(query),
+    queryKey: marketKeys.search(query, categoryId),
+    queryFn: () => marketsApi.searchMarkets(query, categoryId),
     enabled: !!zone?.id && query.length > 2,
     staleTime: 30 * 1000, // 30 seconds
   });

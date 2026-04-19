@@ -537,7 +537,7 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
         </div>
       </div>
 
-      <CategoryClientPage markets={markets} />
+      <CategoryClientPage markets={markets} categoryId={category.id.toString()} />
     </div>
   );
 }

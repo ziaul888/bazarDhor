@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Search, Loader2 } from 'lucide-react';
 import { useMarketItems } from '@/lib/api/hooks/useMarkets';
 import { Pagination } from '@/components/ui/pagination';
 import type { ItemFilters } from '@/lib/api/types';
@@ -61,6 +62,8 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     page: 1,
     limit: 15,
   });
+  const [searchInput, setSearchInput] = useState('');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [items, setItems] = useState<Array<{
     id: number | string;
     name: string;
@@ -125,8 +128,12 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     setItems(mapped);
   }, [itemsData?.data]);
 
-  const handleSearch = (search: string) => {
-    setFilters(prev => ({ ...prev, search, page: 1 }));
+  const handleSearch = (value: string) => {
+    setSearchInput(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setFilters(prev => ({ ...prev, search: value, page: 1 }));
+    }, 400);
   };
 
   const handlePageChange = (page: number) => {
@@ -161,12 +168,17 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     <div className="space-y-6">
       {/* Search */}
       <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <input
           type="text"
           placeholder="Search items..."
+          value={searchInput}
           onChange={(e) => handleSearch(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className="w-full pl-10 pr-10 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-background"
         />
+        {isLoading && filters.search && (
+          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
+        )}
       </div>
 
       {/* Items Grid */}
