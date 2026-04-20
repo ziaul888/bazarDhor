@@ -88,7 +88,7 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
   useEffect(() => {
     const rawItems = itemsData?.data ?? [];
     const mapped = rawItems.map((item) => {
-      const rawItem = item as Record<string, unknown>;
+      const rawItem = item as unknown as Record<string, unknown>;
       const market = (rawItem.market ?? null) as Record<string, unknown> | null;
       const category = (rawItem.category ?? null) as Record<string, unknown> | null;
       const unit = (rawItem.unit ?? null) as Record<string, unknown> | null;
@@ -100,10 +100,10 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
       const latestPrice = (marketPrices[0] ?? null) as Record<string, unknown> | null;
 
       return {
-        id: rawItem.id ?? rawItem.item_id ?? rawItem.product_id,
-        name: rawItem.name ?? rawItem.title ?? 'Item',
-        marketName: market?.name ?? rawItem.market_name ?? 'Local Market',
-        marketId: market?.id ?? rawItem.market_id,
+        id: toString(rawItem.id ?? rawItem.item_id ?? rawItem.product_id, '0'),
+        name: toString(rawItem.name ?? rawItem.title, 'Item'),
+        marketName: toString(market?.name ?? rawItem.market_name, 'Local Market'),
+        marketId: toNumber(market?.id ?? rawItem.market_id),
         currentPrice: toNumber(
           latestPrice?.discount_price ??
           latestPrice?.price ??
@@ -113,8 +113,8 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
           0
         ),
         image: toImageUrl(rawItem.image ?? rawItem.image_url ?? rawItem.image_path),
-        category: category?.name ?? rawItem.category ?? 'Fresh Items',
-        priceChange: rawItem.price_change ?? rawItem.priceChange ?? 'down',
+        category: toString(category?.name ?? rawItem.category, 'Fresh Items'),
+        priceChange: toString(rawItem.price_change ?? rawItem.priceChange, 'down'),
         lastUpdated: toString(
           latestPrice?.last_update ??
           rawItem.last_updated ??
