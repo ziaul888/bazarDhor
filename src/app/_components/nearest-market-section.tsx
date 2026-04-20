@@ -418,6 +418,7 @@ export function NearestMarketSection() {
     const [isMapReady, setIsMapReady] = useState(false);
     const [mapError, setMapError] = useState<string | null>(null);
     const [routeError, setRouteError] = useState<string | null>(null);
+    const [showOnMap, setShowOnMap] = useState(false);
 
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<LeafletMap | null>(null);
@@ -568,13 +569,6 @@ export function NearestMarketSection() {
                     boundsCoordinates.push([market.latitude, market.longitude]);
                 });
 
-                if (userLocation && isFiniteLatLng(userLocation.lat, userLocation.lng)) {
-                    const userMarkerIcon = createUserMarkerIcon(L);
-                    userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], { icon: userMarkerIcon })
-                        .addTo(mapRef.current as LeafletMap)
-                        .bindPopup('<div><strong>Your Location</strong></div>');
-                }
-
                 if (boundsCoordinates.length === 1) {
                     mapRef.current.setView(boundsCoordinates[0], 13);
                 } else if (boundsCoordinates.length > 1) {
@@ -603,7 +597,23 @@ export function NearestMarketSection() {
         return () => {
             cancelled = true;
         };
-    }, [markets, userLocation]);
+    }, [markets]);
+
+    useEffect(() => {
+        if (!isMapReady || !mapRef.current) return;
+        const L = getLeaflet();
+        if (!L) return;
+
+        userMarkerRef.current?.remove();
+        userMarkerRef.current = null;
+
+        if (showOnMap && userLocation && isFiniteLatLng(userLocation.lat, userLocation.lng)) {
+            const userMarkerIcon = createUserMarkerIcon(L);
+            userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], { icon: userMarkerIcon })
+                .addTo(mapRef.current as LeafletMap)
+                .bindPopup('<div><strong>Your Location</strong></div>');
+        }
+    }, [showOnMap, userLocation, isMapReady]);
 
     useEffect(() => {
         let cancelled = false;
@@ -634,6 +644,18 @@ export function NearestMarketSection() {
 
             const currentZoom = mapRef.current.getZoom();
             const safeZoom = Number.isFinite(currentZoom) ? Math.max(currentZoom, 14) : 14;
+
+            if (!showOnMap) {
+                routeLineRef.current?.remove();
+                routeLineRef.current = null;
+                setRouteError(null);
+                try {
+                    mapRef.current.flyTo(targetCenter, safeZoom, { duration: 0.5 });
+                } catch {
+                    mapRef.current.setView(targetCenter, safeZoom);
+                }
+                return;
+            }
 
             if (!userLocation || !isFiniteLatLng(userLocation.lat, userLocation.lng)) {
                 routeLineRef.current?.remove();
@@ -689,7 +711,7 @@ export function NearestMarketSection() {
         return () => {
             cancelled = true;
         };
-    }, [selectedMarketId, userLocation, marketSignature]);
+    }, [selectedMarketId, userLocation, marketSignature, showOnMap]);
 
     useEffect(() => {
         const markerInstances = markersRef.current;
@@ -756,7 +778,7 @@ export function NearestMarketSection() {
                             <p className="text-sm text-destructive">{mapError}</p>
                         </div>
                     )}
-                    <div ref={mapContainerRef} className="relative z-0 h-[400px] sm:h-[380px] lg:h-[430px] w-full" />
+                    <div ref={mapContainerRef} className="relative z-0 h-[350px] sm:h-[380px] lg:h-[430px] w-full" />
                 </div>
 
                 <div className="relative z-20 -mt-[50px] sm:-mt-[38px] lg:-mt-[43px]">
@@ -814,7 +836,7 @@ export function NearestMarketSection() {
                                         <div className="mt-auto flex items-center gap-2">
                                             <button
                                                 type="button"
-                                                onClick={() => setSelectedMarketId(market.id)}
+                                                onClick={() => { setShowOnMap(true); setSelectedMarketId(market.id); }}
                                                 className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md border border-primary/30 text-primary hover:bg-primary/10 text-xs sm:text-sm font-medium transition-colors"
                                             >
                                                 <MapPin className="h-4 w-4" />

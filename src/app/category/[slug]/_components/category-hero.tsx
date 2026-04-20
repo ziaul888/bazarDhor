@@ -7,9 +7,10 @@ import { Store } from 'lucide-react';
 interface CategoryHeroProps {
     image: string;
     name: string;
+    overlay?: boolean;
 }
 
-export function CategoryHero({ image, name }: CategoryHeroProps) {
+export function CategoryHero({ image, name, overlay = false }: CategoryHeroProps) {
     const [imgError, setImgError] = useState(false);
 
     return (
@@ -25,11 +26,11 @@ export function CategoryHero({ image, name }: CategoryHeroProps) {
                 />
             ) : (
                 <div className="absolute inset-0 bg-muted flex flex-col items-center justify-center">
-                    <Store className="h-16 w-16 text-muted-foreground/20 mb-2" />
-                    <span className="text-muted-foreground font-medium">{name}</span>
+                    <Store className="h-10 w-10 text-muted-foreground/30 mb-1" />
+                    <span className="text-xs text-muted-foreground font-medium">{name}</span>
                 </div>
             )}
-            <div className="absolute inset-0 bg-black/40" />
+            {overlay && <div className="absolute inset-0 bg-black/40" />}
         </>
     );
 }

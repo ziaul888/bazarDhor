@@ -20,51 +20,31 @@ async function getMarketData(id: string) {
   
   try {
     const market = await marketServerApi.getMarketById(id, marketHeaders);
-    
-    if (!market) {
-      return null;
-    }
-    
-    // Mock additional data that would come from API
-    const mockMarketData = {
-      ...market,
-      fullAddress: market.address,
-      coordinates: { lat: 40.7128, lng: -74.0060 },
-      images: [
-        "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=800&h=600&fit=crop"
-      ],
-      isOpen: true,
-      specialties: ["Fresh Produce", "Artisan Crafts", "Organic Food", "Local Honey"],
-      featured: true,
-      type: "Farmers Market",
-      priceRange: "$",
-      hasParking: true,
-      acceptsCards: true,
-      hasDelivery: false,
-      phone: "+1 (555) 123-4567",
-      website: "www.downtownmarket.com",
-      email: "info@downtownmarket.com",
-      established: "1985",
-      operatingDays: ["Monday", "Wednesday", "Friday", "Saturday"],
-      features: {
-        freeParking: true,
-        organicCertified: true,
-        petFriendly: true,
-        wheelchairAccessible: true,
-        restrooms: true,
-        atm: true
-      },
-      socialMedia: {
-        facebook: "downtownmarket",
-        instagram: "downtown_market",
-        twitter: "downtownmarket"
-      }
+    if (!market) return null;
+
+    const raw = market as unknown as Record<string, unknown>;
+    const zone = raw.zone as { id?: string; name?: string } | null ?? null;
+
+    return {
+      id: String(raw.id ?? id),
+      name: String(raw.name ?? ''),
+      slug: String(raw.slug ?? ''),
+      description: typeof raw.description === 'string' ? raw.description : null,
+      image_path: typeof raw.image_path === 'string' ? raw.image_path : null,
+      address: typeof raw.address === 'string' ? raw.address : null,
+      latitude: typeof raw.latitude === 'number' ? raw.latitude : null,
+      longitude: typeof raw.longitude === 'number' ? raw.longitude : null,
+      phone: typeof raw.phone === 'string' ? raw.phone : null,
+      email: typeof raw.email === 'string' ? raw.email : null,
+      website: typeof raw.website === 'string' ? raw.website : null,
+      is_open: raw.is_open === true,
+      is_featured: raw.is_featured === true,
+      division: typeof raw.division === 'string' ? raw.division : null,
+      district: typeof raw.district === 'string' ? raw.district : null,
+      upazila_or_thana: typeof raw.upazila_or_thana === 'string' ? raw.upazila_or_thana : null,
+      opening_hours: raw.opening_hours ?? null,
+      zone: zone ? { id: String(zone.id ?? ''), name: String(zone.name ?? '') } : null,
     };
-    
-    return mockMarketData;
   } catch (error) {
     console.error('Error fetching market data:', error);
     return null;

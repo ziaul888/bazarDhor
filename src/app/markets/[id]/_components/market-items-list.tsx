@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 import { useMarketItems } from '@/lib/api/hooks/useMarkets';
 import { Pagination } from '@/components/ui/pagination';
-import type { ItemFilters } from '@/lib/api/types';
 import { ProductCard } from '@/components/product-card';
 
 interface MarketItemsListProps {
@@ -58,11 +57,9 @@ const toString = (value: unknown, fallback = ''): string => {
 };
 
 export function MarketItemsList({ marketId }: MarketItemsListProps) {
-  const [filters, setFilters] = useState<ItemFilters>({
-    page: 1,
-    limit: 15,
-  });
+  const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [items, setItems] = useState<Array<{
     id: number | string;
@@ -77,12 +74,13 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     unit?: string;
   }>>([]);
 
-  const { 
-    data: itemsData, 
-    isLoading, 
-    isError, 
-    error 
-  } = useMarketItems(marketId, filters);
+  const {
+    data: itemsData,
+    isLoading,
+    isFetching,
+    isError,
+    error
+  } = useMarketItems(marketId, { page, limit: 15, search: debouncedSearch || undefined });
   const pagination = itemsData?.pagination;
 
   useEffect(() => {
@@ -132,12 +130,13 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     setSearchInput(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      setFilters(prev => ({ ...prev, search: value, page: 1 }));
+      setDebouncedSearch(value);
+      setPage(1);
     }, 400);
   };
 
-  const handlePageChange = (page: number) => {
-    setFilters(prev => ({ ...prev, page }));
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
   };
 
   if (isLoading) {
@@ -176,7 +175,7 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
           onChange={(e) => handleSearch(e.target.value)}
           className="w-full pl-10 pr-10 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-background"
         />
-        {isLoading && filters.search && (
+        {isFetching && debouncedSearch && (
           <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
         )}
       </div>

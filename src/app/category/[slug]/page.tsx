@@ -470,67 +470,41 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Header - Server Rendered */}
-      <div className="relative">
-        {/* Hero Image */}
-        <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
-          <CategoryHero
-            image={category.image}
-            name={category.name}
-          />
-
-          {/* Back Button */}
-          <div className="absolute top-4 left-4">
-            <BackButton variant="secondary" size="sm" fallbackHref="/category" />
-          </div>
-
-          {/* Category Info Overlay */}
-          <div className="absolute inset-0 flex items-end">
-            <div className="container mx-auto px-4 pb-6">
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-2xl">
-                  {category.icon}
-                </div>
-                <div>
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
-                    {category.name}
-                  </h1>
-                  <p className="text-white/90 text-sm sm:text-base max-w-2xl">
-                    {category.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Top Section */}
+      <div className="bg-card border-b">
+        {/* Back Button */}
+        <div className="container mx-auto px-4 pt-4">
+          <BackButton variant="ghost" size="sm" fallbackHref="/category" />
         </div>
 
-        {/* Stats Bar - Server Rendered */}
-        <div className="bg-card border-b">
-          <div className="container mx-auto px-4 py-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-lg sm:text-xl font-bold">{category.marketCount}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Markets</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg sm:text-xl font-bold">{category.productCount}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Products</div>
-              </div>
-              <div className="text-center">
-                <div className={`text-lg sm:text-xl font-bold flex items-center justify-center space-x-1 ${category.priceChange === 'up' ? 'text-red-600' : 'text-green-600'
-                  }`}>
+        {/* Category Identity */}
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center gap-4">
+            {/* Image */}
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden flex-shrink-0 border shadow-sm">
+              <CategoryHero image={category.image} name={category.name} />
+            </div>
+
+            {/* Info */}
+            <div className="min-w-0 flex-1">
+             
+              <h1 className="text-lg sm:text-2xl font-bold leading-tight">{category.name}</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 line-clamp-2">
+                {category.description}
+              </p>
+              <div className="flex items-center gap-3 mt-2 text-xs sm:text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">{category.marketCount}</span> Markets
+                <span className="text-border">·</span>
+                <span className="font-medium text-foreground">{category.productCount}</span> Products
+                <span className="text-border">·</span>
+                <span className={`flex items-center gap-0.5 font-medium ${category.priceChange === 'up' ? 'text-red-500' : 'text-green-500'}`}>
                   {category.priceChange === 'up' ? (
-                    <TrendingUp className="h-4 w-4" />
+                    <TrendingUp className="h-3.5 w-3.5" />
                   ) : (
-                    <TrendingDown className="h-4 w-4" />
+                    <TrendingDown className="h-3.5 w-3.5" />
                   )}
-                  <span>{Math.abs(category.avgPriceChange)}%</span>
-                </div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Price Change</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg sm:text-xl font-bold">4.7</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Avg Rating</div>
+                  {Math.abs(category.avgPriceChange)}%
+                </span>
               </div>
             </div>
           </div>

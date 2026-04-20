@@ -194,7 +194,15 @@ export function ProductPriceDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
             Cancel
           </Button>
-          <Button onClick={onSave} disabled={disableSave || saving}>
+          <Button
+            onClick={onSave}
+            disabled={
+              disableSave ||
+              saving ||
+              newPrice === '' ||
+              Number(newPrice) === item.currentPrice
+            }
+          >
             {confirmLabel}
           </Button>
         </DialogFooter>
