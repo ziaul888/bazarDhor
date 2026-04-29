@@ -5,10 +5,12 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X, Upload, MapPin, Camera, Sparkles, Tag, DollarSign, Package } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAddItem } from './add-item-context';
 import { useCreateUserProduct } from '@/lib/api/hooks';
 import { useCategories } from '@/lib/api/hooks/useCategories';
 import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
+import { handleApiError } from '@/lib/api';
 
 const addItemSchema = z.object({
   name: z.string().min(1, 'Item name is required'),
@@ -98,6 +100,7 @@ export function AddItemDrawer() {
     };
 
     try {
+      let response;
       if (values.image) {
         const payload = new FormData();
         payload.append('name', basePayload.name);
@@ -108,16 +111,19 @@ export function AddItemDrawer() {
         if (basePayload.description) payload.append('description', basePayload.description);
         if (basePayload.status) payload.append('status', basePayload.status);
         payload.append('image', values.image);
-        await mutateAsync(payload);
+        response = await mutateAsync(payload);
       } else {
-        await mutateAsync(basePayload);
+        response = await mutateAsync(basePayload);
       }
+
+      toast.success(response?.message ?? 'Item added successfully.');
 
       reset();
       setImagePreview(null);
       onClose();
     } catch (submitError) {
       console.error('Failed to add item:', submitError);
+      toast.error(handleApiError(submitError));
     }
   };
 

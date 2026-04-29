@@ -72,10 +72,10 @@ export const marketsApi = {
     };
   },
 
-  // Search markets
+  // Search markets (uses /markets/list with `search` as the query param)
   searchMarkets: async (query: string, categoryId?: string): Promise<ApiResponse<Market[]>> => {
-    const { data } = await apiClient.get('/markets/search', {
-      params: { q: query, ...(categoryId ? { category_id: categoryId } : {}) },
+    const { data } = await apiClient.get('/markets/list', {
+      params: { search: query, ...(categoryId ? { category_id: categoryId } : {}) },
     });
     return data;
   },
@@ -102,7 +102,13 @@ export const marketsApi = {
 
   // Get markets list by user location (offset/limit)
   getMarketList: async (params: MarketListParams): Promise<unknown> => {
-    const { data } = await apiClient.get('/markets/list', { params });
+    const categoryId = params.category_id ?? params.categoryId;
+    const { data } = await apiClient.get('/markets/list', {
+      params: {
+        ...params,
+        ...(categoryId ? { category_id: categoryId, categoryId } : {}),
+      },
+    });
     return data;
   },
 

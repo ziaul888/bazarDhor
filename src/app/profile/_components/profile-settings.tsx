@@ -279,22 +279,6 @@ export function ProfileSettings({ userData }: ProfileSettingsProps) {
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-medium">Show Activity</div>
-              <div className="text-sm text-muted-foreground">Display your recent activity to other users</div>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={privacy.showActivity}
-                onChange={(e) => handlePrivacyChange('showActivity', e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-            </label>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
               <div className="font-medium">Share Location</div>
               <div className="text-sm text-muted-foreground">Allow location sharing for better market recommendations</div>
             </div>

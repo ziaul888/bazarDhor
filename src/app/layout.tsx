@@ -19,6 +19,7 @@ import { ZoneProvider } from "@/providers/zone-provider";
 import { cookies } from "next/headers";
 import { configServerApi } from "@/lib/api/services/server/config-server";
 import { ConfigBootstrap } from "@/providers/config-bootstrap";
+import { RouteTransition } from "@/components/route-transition";
 
 
 // Primary fonts - Modern and friendly
@@ -132,6 +133,7 @@ export default async function RootLayout({
       </head>
       <body
         className={`${poppins.variable} ${sourceCodePro.variable} ${playfairDisplay.variable} ${openSans.variable} font-poppins antialiased`}
+        suppressHydrationWarning
       >
         <QueryProvider>
           <ConfigBootstrap appConfig={appConfig} settings={settings} generalConfig={generalConfig} />
@@ -141,7 +143,7 @@ export default async function RootLayout({
                 <AddItemProvider>
                   <MobileNavbar />
                   <main className="min-h-screen pb-20 md:pb-0">
-                    {children}
+                    <RouteTransition>{children}</RouteTransition>
                   </main>
                   <Footer />
                   <BottomNav />

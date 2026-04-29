@@ -1,169 +1,125 @@
-"use client";
-
 import Image from 'next/image';
-import { MapPin, Users, TrendingUp, Heart, Shield, Award, Target } from 'lucide-react';
+import {
+  Search,
+  TrendingUp,
+  GitCompare,
+  ShieldCheck,
+  Compass,
+  Tag,
+  Camera,
+  CheckCircle2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-const stats = [
-  { label: "Local Markets", value: "150+", icon: MapPin },
-  { label: "Active Users", value: "25K+", icon: Users },
-  { label: "Price Updates Daily", value: "500+", icon: TrendingUp },
-  { label: "Community Members", value: "12K+", icon: Heart }
-];
-
 const features = [
   {
-    icon: MapPin,
-    title: "Find Nearest Markets",
-    description: "Discover fresh produce markets within 5km of your location with real-time availability and pricing."
+    icon: Search,
+    title: 'Discover local markets',
+    description:
+      'Browse markets in your zone, filter by category, and see ratings, opening hours, and what each market is known for.',
   },
   {
     icon: TrendingUp,
-    title: "Real-time Price Updates",
-    description: "Get the latest prices updated by our community of market visitors and vendors themselves."
+    title: 'Community-submitted prices',
+    description:
+      'See what items actually cost — submitted by people who shopped there, not scraped from generic listings.',
   },
   {
-    icon: Users,
-    title: "Community Driven",
-    description: "Join thousands of users who help keep market information accurate and up-to-date."
+    icon: GitCompare,
+    title: 'Compare two markets',
+    description:
+      'Put any two markets side by side to weigh distance, services, product range, and prices before you head out.',
   },
   {
-    icon: Shield,
-    title: "Quality Assurance",
-    description: "Verified market information with user reviews and ratings to ensure reliability."
-  }
+    icon: ShieldCheck,
+    title: 'Verified before published',
+    description:
+      'Every price submission goes through admin review, so the data you read is moderated rather than raw user input.',
+  },
 ];
 
-const team = [
+const howItWorks = [
   {
-    name: "Sarah Johnson",
-    role: "Founder & CEO",
-    image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop",
-    bio: "Former farmer's market vendor with 10+ years experience in local food systems."
+    step: '01',
+    icon: Compass,
+    title: 'Pick your zone',
+    description:
+      'On your first visit we detect your area automatically — every market, price, and search result is scoped to that zone.',
   },
   {
-    name: "Michael Chen",
-    role: "CTO",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop",
-    bio: "Tech entrepreneur passionate about connecting communities through technology."
+    step: '02',
+    icon: Tag,
+    title: 'Browse and search',
+    description:
+      'Look up markets by category or search by item. Each listing shows community-submitted prices for what it carries.',
   },
   {
-    name: "Emily Rodriguez",
-    role: "Community Manager",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
-    bio: "Local food advocate helping build stronger connections between markets and communities."
+    step: '03',
+    icon: Camera,
+    title: 'Submit what you find',
+    description:
+      'Spotted a price we don’t have? Add it through the in-app form with a photo as proof — it joins the moderation queue.',
   },
   {
-    name: "David Kim",
-    role: "Product Manager",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop",
-    bio: "UX designer focused on creating intuitive experiences for market discovery."
-  }
-];
-
-const values = [
-  {
-    icon: Heart,
-    title: "Community First",
-    description: "We believe in strengthening local communities by connecting people with their neighborhood markets."
+    step: '04',
+    icon: CheckCircle2,
+    title: 'We verify, you benefit',
+    description:
+      'Admins review submissions and publish the verified ones, so the next person checking the app gets accurate info.',
   },
-  {
-    icon: Shield,
-    title: "Transparency",
-    description: "Open and honest pricing information helps everyone make better shopping decisions."
-  },
-  {
-    icon: Target,
-    title: "Accessibility",
-    description: "Making fresh, local produce accessible to everyone regardless of their location or budget."
-  },
-  {
-    icon: Award,
-    title: "Quality",
-    description: "Supporting vendors who prioritize quality, freshness, and sustainable practices."
-  }
 ];
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="relative py-12 sm:py-20 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6">
-              Connecting Communities with
-              <span className="block text-primary">Local Markets</span>
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+              Know what your market
+              <span className="block text-primary">actually charges</span>
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              We&apos;re building a platform that makes it easy to discover fresh produce, 
-              compare prices, and support local vendors in your neighborhood.
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Fresh Market Finder shows you community-submitted prices from local markets in your zone — so you can plan
+              the trip, compare options, and shop with real numbers instead of guesses.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button size="lg" asChild>
-                <Link href="/markets">
-                  Explore Markets
-                </Link>
+                <Link href="/markets">Explore markets</Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <Link href="/markets/compare">
-                  Compare Prices
-                </Link>
+                <Link href="/markets/compare">Compare two markets</Link>
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-8 sm:py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <stat.icon className="h-8 w-8 text-primary" />
-                </div>
-                <div className="text-3xl font-bold mb-2">{stat.value}</div>
-                <div className="text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Our Story Section */}
-      <section className="py-8 sm:py-16">
+      {/* Why this exists */}
+      <section className="py-10 sm:py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-6">Our Story</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-6">Why we built this</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  MyMarket was born from a simple frustration: finding fresh, affordable produce 
-                  in local markets shouldn&apos;t be a guessing game. As frequent market-goers ourselves, 
-                  we noticed how prices varied between vendors and how difficult it was to know 
-                  what was available before making the trip.
+                  Prices at local markets shift constantly and rarely show up online. The same item can swing 20–30%
+                  between two shops a few minutes apart, and the only way to know is to walk in and ask.
                 </p>
                 <p>
-                  In 2023, we decided to solve this problem by creating a community-driven platform 
-                  where market visitors could share real-time information about prices, availability, 
-                  and quality. What started as a weekend project has grown into a thriving community 
-                  of over 25,000 users across 150+ local markets.
-                </p>
-                <p>
-                  Today, MyMarket helps thousands of families discover fresh produce, support local 
-                  vendors, and make informed shopping decisions. We&apos;re proud to be part of the 
-                  movement that strengthens local food systems and builds stronger communities.
+                  Fresh Market Finder turns that legwork into something the community shares. Shoppers submit what they
+                  paid, our team verifies it, and the next person looking for the same item gets a real price instead of
+                  a guess — without anyone having to make the trip blind.
                 </p>
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-2xl overflow-hidden">
+              <div className="aspect-[4/3] rounded-2xl overflow-hidden">
                 <Image
-                  src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=600&h=600&fit=crop"
-                  alt="Local farmers market"
+                  src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=800&h=600&fit=crop"
+                  alt="Local market stall"
                   fill
                   className="object-cover"
                 />
@@ -173,24 +129,27 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-8 sm:py-16 bg-muted/30">
+      {/* What the platform does */}
+      <section className="py-10 sm:py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4">What We Do</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">What you can do here</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Our platform combines technology with community knowledge to make local market 
-              shopping easier, more transparent, and more rewarding for everyone.
+              Every feature maps to a real shopping decision — finding a market, knowing the price, picking between
+              options, trusting the data.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="bg-card rounded-xl p-6 border hover:shadow-md transition-shadow">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature) => (
+              <div
+                key={feature.title}
+                className="bg-card rounded-xl p-6 border hover:shadow-md transition-shadow"
+              >
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <feature.icon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-sm sm:text-base font-semibold mb-3">{feature.title}</h3>
+                <h3 className="text-base font-semibold mb-2">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground">{feature.description}</p>
               </div>
             ))}
@@ -198,83 +157,48 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Values Section */}
-      <section className="py-8 sm:py-16">
+      {/* How it works */}
+      <section className="py-10 sm:py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Our Values</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">How it works</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              These core principles guide everything we do and shape how we build 
-              our platform and serve our community.
+              Four steps from opening the app to acting on a verified price.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {values.map((value, index) => (
-              <div key={index} className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <value.icon className="h-6 w-6 text-primary" />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {howItWorks.map((item) => (
+              <div key={item.step} className="relative bg-card rounded-xl p-6 border">
+                <span className="text-xs font-mono font-semibold text-primary/70 tracking-wider">
+                  STEP {item.step}
+                </span>
+                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mt-3 mb-4">
+                  <item.icon className="h-5 w-5 text-primary" />
                 </div>
-                <div>
-                  <h3 className="text-sm sm:text-base font-semibold mb-2">{value.title}</h3>
-                  <p className="text-muted-foreground">{value.description}</p>
-                </div>
+                <h3 className="text-base font-semibold mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-8 sm:py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Meet Our Team</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              We&apos;re a passionate team of food enthusiasts, technologists, and community 
-              builders working to make local markets more accessible to everyone.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {team.map((member, index) => (
-              <div key={index} className="bg-card rounded-xl p-6 border text-center hover:shadow-md transition-shadow">
-                <div className="relative w-24 h-24 mx-auto mb-4">
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    className="object-cover rounded-full"
-                  />
-                </div>
-                <h3 className="text-sm sm:text-base font-semibold mb-1">{member.name}</h3>
-                <p className="text-primary text-sm mb-3">{member.role}</p>
-                <p className="text-xs text-muted-foreground">{member.bio}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-8 sm:py-16">
+      {/* CTA */}
+      <section className="py-10 sm:py-16">
         <div className="container mx-auto px-4">
           <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 rounded-2xl p-8 sm:p-12 text-center text-primary-foreground">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Join Our Community</h2>
-            <p className="text-base sm:text-lg opacity-90 mb-8 max-w-2xl mx-auto">
-              Help us build a better way to discover and support local markets. 
-              Start exploring fresh produce in your neighborhood today.
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">Start with the markets near you</h2>
+            <p className="text-base opacity-90 mb-8 max-w-2xl mx-auto">
+              Open the map, find what’s close, and check what people paid yesterday. Add a price the next time you shop
+              and the data gets better for everyone.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button size="lg" variant="secondary" asChild>
-                <Link href="/markets">
-                  Find Markets Near You
-                </Link>
+                <Link href="/markets">Find markets in your zone</Link>
               </Button>
               <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10" asChild>
-                <Link href="mailto:hello@mymarket.com">
-                  Contact Us
-                </Link>
+                <Link href="/category">Browse by category</Link>
               </Button>
             </div>
           </div>

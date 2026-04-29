@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, Home, Store, Grid3X3, Info, Bell, Heart, LogIn } from "lucide-react";
+import { Menu, Home, Store, Grid3X3, Info, Bell, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useConfig } from "@/hooks/use-config";
@@ -80,19 +80,6 @@ export function Navbar() {
             >
               <LogIn className="h-4 w-4 mr-2" />
               Sign In
-            </Button>
-
-            {/* Wishlist */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative"
-              aria-label="Wishlist"
-            >
-              <Heart className="h-4 w-4" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground rounded-full text-xs flex items-center justify-center font-medium">
-                3
-              </span>
             </Button>
 
             {/* Notifications */}

@@ -17,7 +17,6 @@ import {
   Info,
   Search,
   Bell,
-  Heart,
   Plus,
   User,
   LogIn
@@ -196,19 +195,6 @@ export function MobileNavbar() {
               )}
 
 
-
-              {/* Wishlist */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative h-9 w-9"
-                aria-label="Wishlist"
-              >
-                <Heart className="h-4 w-4" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground rounded-full text-xs flex items-center justify-center font-medium">
-                  3
-                </span>
-              </Button>
 
               {/* Notifications */}
               {/* <Button

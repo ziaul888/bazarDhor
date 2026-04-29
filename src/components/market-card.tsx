@@ -48,7 +48,7 @@ export function MarketCard({
     <Card className={`overflow-hidden hover:shadow-lg transition-all duration-300 py-0 gap-0 ${className}`}>
       {/* Market Image */}
       <div className={`relative overflow-hidden ${isCompact ? 'h-32' : 'h-48'} bg-muted flex items-center justify-center`}>
-        {!imgError ? (
+        {market.image && !imgError ? (
           <Image
             src={market.image}
             alt={market.name}
@@ -137,7 +137,7 @@ export function MarketCard({
         )}
         {/* Specialties */}
         <div className="flex flex-wrap gap-1 mb-4">
-          {market.specialties.slice(0, isCompact ? 1 : 2).map((specialty, index) => (
+          {(market.specialties ?? []).slice(0, isCompact ? 1 : 2).map((specialty, index) => (
             <span
               key={index}
               className={`px-2 py-1 bg-accent text-accent-foreground rounded-md ${isCompact ? 'text-xs' : 'text-xs'

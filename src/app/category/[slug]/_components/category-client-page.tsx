@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Pagination, usePagination } from '@/components/ui/pagination';
 import { MarketCard, MarketListItem } from '@/components/market-card';
 import { useSearchMarkets } from '@/lib/api/hooks/useMarkets';
+import { extractMarketArray, mapMarketFromApi } from '@/lib/markets/normalize';
 
 interface CategoryClientPageProps {
     markets: any[];
@@ -35,9 +36,8 @@ export function CategoryClientPage({ markets, categoryId }: CategoryClientPagePr
     // Apply API search results
     useEffect(() => {
         if (!isSearchActive) return;
-        const raw = searchData?.data;
-        const results = Array.isArray(raw) ? raw : [];
-        setFilteredMarkets(results.length > 0 ? results : []);
+        const results = extractMarketArray(searchData).map(mapMarketFromApi);
+        setFilteredMarkets(results);
         setCurrentPage(1);
     }, [searchData, isSearchActive]);
 

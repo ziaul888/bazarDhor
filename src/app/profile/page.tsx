@@ -16,8 +16,6 @@ import {
   Camera,
   Star,
   Clock,
-  Award,
-  Target,
   LogIn
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -106,12 +104,10 @@ export default function ProfilePage() {
     phone: user.phone || '—',
     location,
     joinDate,
-    membershipLevel: 'Member',
     stats: {
       marketsVisited: 0,
       priceUpdates: 0,
       reviewsWritten: 0,
-      pointsEarned: 0,
     },
     preferences: {
       notifications: {
@@ -122,7 +118,6 @@ export default function ProfilePage() {
       },
       privacy: {
         profileVisible: true,
-        showActivity: false,
         shareLocation: true,
       },
     },
@@ -172,11 +167,7 @@ export default function ProfilePage() {
 
               {/* User Info - Mobile */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center space-x-2 mb-1">
-                  <h1 className="text-lg font-bold truncate">{userData.name}</h1>
-                  <Award className="h-5 w-5 text-yellow-300 flex-shrink-0" />
-                </div>
-                <p className="text-primary-foreground/80 text-sm mb-2">{userData.membershipLevel}</p>
+                <h1 className="text-lg font-bold truncate mb-2">{userData.name}</h1>
                 <div className="flex items-center space-x-3 text-xs text-primary-foreground/70">
                   <span className="flex items-center space-x-1">
                     <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
@@ -236,11 +227,7 @@ export default function ProfilePage() {
 
             {/* User Info */}
             <div className="flex-1 text-left">
-              <div className="flex items-center space-x-2 mb-2">
-                <h1 className="text-2xl md:text-3xl font-bold">{userData.name}</h1>
-                <Award className="h-6 w-6 text-yellow-300" />
-              </div>
-              <p className="text-primary-foreground/80 mb-1">{userData.membershipLevel}</p>
+              <h1 className="text-2xl md:text-3xl font-bold mb-2">{userData.name}</h1>
               <div className="flex items-center space-x-4 text-sm text-primary-foreground/70">
                 <span className="flex items-center space-x-1">
                   <MapPin className="h-4 w-4" />
@@ -270,7 +257,7 @@ export default function ProfilePage() {
 
       {/* Stats Cards */}
       <div className="container mx-auto px-4 -mt-6 sm:-mt-8 mb-6 sm:mb-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <div className="bg-card rounded-xl p-3 sm:p-4 border shadow-sm">
             <div className="flex items-center space-x-2 sm:space-x-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
@@ -307,17 +294,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="bg-card rounded-xl p-3 sm:p-4 border shadow-sm">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
-                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
-              </div>
-              <div>
-                <div className="text-lg sm:text-2xl font-bold">{userData.stats.pointsEarned}</div>
-                <div className="text-xs text-muted-foreground">Points Earned</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -360,12 +336,10 @@ interface UserData {
   phone: string;
   location: string;
   joinDate: string;
-  membershipLevel: string;
   stats: {
     marketsVisited: number;
     priceUpdates: number;
     reviewsWritten: number;
-    pointsEarned: number;
   };
   preferences: {
     notifications: {
@@ -376,7 +350,6 @@ interface UserData {
     };
     privacy: {
       profileVisible: boolean;
-      showActivity: boolean;
       shareLocation: boolean;
     };
   };
@@ -415,55 +388,10 @@ function OverviewTab({ userData }: { userData: UserData }) {
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-card rounded-xl p-4 sm:p-6 border">
-          <h3 className="text-base sm:text-lg font-semibold mb-4">Recent Activity</h3>
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3 p-3 bg-muted/30 rounded-lg">
-              <TrendingUp className="h-5 w-5 text-green-600 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm sm:text-base">Updated tomato prices at Downtown Market</div>
-                <div className="text-sm text-muted-foreground">2 hours ago</div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3 p-3 bg-muted/30 rounded-lg">
-              <Star className="h-5 w-5 text-yellow-600 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm sm:text-base">Reviewed Riverside Organic Market</div>
-                <div className="text-sm text-muted-foreground">1 day ago</div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3 p-3 bg-muted/30 rounded-lg">
-              <Heart className="h-5 w-5 text-red-600 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm sm:text-base">Added Central Plaza Market to favorites</div>
-                <div className="text-sm text-muted-foreground">3 days ago</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Sidebar */}
       <div className="space-y-4 sm:space-y-6">
-        {/* Membership Status */}
-        <div className="bg-card rounded-xl p-4 sm:p-6 border">
-          <h3 className="text-base sm:text-lg font-semibold mb-4">Membership Status</h3>
-          <div className="text-center">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Award className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
-            </div>
-            <div className="text-base sm:text-lg font-semibold">{userData.membershipLevel}</div>
-            <div className="text-sm text-muted-foreground mb-4">
-              {userData.stats.pointsEarned} points earned
-            </div>
-            <div className="w-full bg-muted rounded-full h-2 mb-2">
-              <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full" style={{ width: '75%' }}></div>
-            </div>
-            <div className="text-xs text-muted-foreground">250 points to Platinum</div>
-          </div>
-        </div>
-
         {/* Quick Actions */}
         <div className="bg-card rounded-xl p-4 sm:p-6 border">
           <h3 className="text-base sm:text-lg font-semibold mb-4">Quick Actions</h3>
