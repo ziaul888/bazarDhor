@@ -30,7 +30,8 @@ export function BottomNav() {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "flex flex-col items-center justify-center py-2 px-3 transition-all duration-200 min-w-[60px] relative group",
+                    "flex flex-col items-center justify-center py-2 px-3 transition-all duration-200 min-w-[60px] relative group rounded-xl",
+                    "active:scale-95 active:bg-accent/50 active:duration-75 [-webkit-tap-highlight-color:transparent]",
                     isActive
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
