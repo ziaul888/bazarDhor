@@ -490,11 +490,11 @@ export default function ItemsPage() {
                 </SelectContent>
               </Select>
 
-              {/* Filters Toggle */}
+              {/* Filters Toggle - desktop only */}
               <Button
                 variant="outline"
                 onClick={() => setShowFilters(!showFilters)}
-                className="w-full sm:w-auto"
+                className="hidden sm:inline-flex sm:w-auto"
               >
                 <SlidersHorizontal className="h-4 w-4 mr-2" />
                 Filters

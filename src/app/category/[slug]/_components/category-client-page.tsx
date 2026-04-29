@@ -5,11 +5,8 @@ import {
     Grid3X3,
     List,
     Search,
-    SlidersHorizontal,
     Loader2
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Pagination, usePagination } from '@/components/ui/pagination';
 import { MarketCard, MarketListItem } from '@/components/market-card';
 import { useSearchMarkets } from '@/lib/api/hooks/useMarkets';
@@ -23,7 +20,6 @@ interface CategoryClientPageProps {
 export function CategoryClientPage({ markets, categoryId }: CategoryClientPageProps) {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [sortBy, setSortBy] = useState('distance');
-    const [filterOpen, setFilterOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
     const [filteredMarkets, setFilteredMarkets] = useState(markets);
@@ -132,22 +128,6 @@ export function CategoryClientPage({ markets, categoryId }: CategoryClientPagePr
                         <option value="items">Sort by Items</option>
                     </select> */}
 
-                    {/* Mobile Filter */}
-                    <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="sm" className="sm:hidden">
-                                <SlidersHorizontal className="h-4 w-4" />
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="right">
-                            <SheetHeader>
-                                <SheetTitle>Filter Markets</SheetTitle>
-                            </SheetHeader>
-                            <div className="py-4">
-                                <p className="text-muted-foreground">Filter options coming soon...</p>
-                            </div>
-                        </SheetContent>
-                    </Sheet>
                 </div>
             </div>
 

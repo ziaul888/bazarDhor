@@ -101,7 +101,7 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
         id: toString(rawItem.id ?? rawItem.item_id ?? rawItem.product_id, '0'),
         name: toString(rawItem.name ?? rawItem.title, 'Item'),
         marketName: toString(market?.name ?? rawItem.market_name, 'Local Market'),
-        marketId: toNumber(market?.id ?? rawItem.market_id),
+        marketId: toString(market?.id ?? rawItem.market_id) || marketId,
         currentPrice: toNumber(
           latestPrice?.discount_price ??
           latestPrice?.price ??

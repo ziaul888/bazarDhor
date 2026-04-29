@@ -2,12 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Search, MapPin, SlidersHorizontal, GitCompare, Loader2 } from 'lucide-react';
+import { Search, MapPin, GitCompare, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { MarketCard } from '@/components/market-card';
 import { Pagination, usePagination } from '@/components/ui/pagination';
-import { MarketFilters } from './_components/market-filters';
 import { useMarketList, useSearchMarkets } from '@/lib/api/hooks/useMarkets';
 import type { Market } from '@/lib/api/types';
 
@@ -335,9 +333,7 @@ export default function MarketsPage() {
     const [debouncedQuery, setDebouncedQuery] = useState("");
     const [marketSource, setMarketSource] = useState<Market[]>(fallbackMarkets);
     const [filteredMarkets, setFilteredMarkets] = useState<Market[]>(fallbackMarkets);
-    const [activeFilters, setActiveFilters] = useState<Record<string, unknown> | undefined>(undefined);
     const [currentPage, setCurrentPage] = useState(1);
-    const [showMobileFilters, setShowMobileFilters] = useState(false);
     const [sortBy, setSortBy] = useState<'distance' | 'rating' | 'name' | 'vendors'>('distance');
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -443,7 +439,7 @@ export default function MarketsPage() {
         if (debounceRef.current) clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(() => setDebouncedQuery(query), 400);
         if (query.length <= 2) {
-            const filtered = computeFilteredMarkets(marketSource, query, activeFilters);
+            const filtered = computeFilteredMarkets(marketSource, query, undefined);
             setFilteredMarkets(filtered);
             setCurrentPage(1);
         }
@@ -479,7 +475,7 @@ export default function MarketsPage() {
         const mapped = markets.map(mapMarketFromApi);
         setMarketSource(mapped);
         if (!isSearchActive) {
-            setFilteredMarkets(computeFilteredMarkets(mapped, searchQuery, activeFilters));
+            setFilteredMarkets(computeFilteredMarkets(mapped, searchQuery, undefined));
             setCurrentPage(1);
         }
     }, [marketListData]);
@@ -489,9 +485,9 @@ export default function MarketsPage() {
         if (!isSearchActive) return;
         const markets = extractMarketArray(searchData);
         const mapped = markets.map(mapMarketFromApi);
-        setFilteredMarkets(computeFilteredMarkets(mapped, '', activeFilters));
+        setFilteredMarkets(computeFilteredMarkets(mapped, '', undefined));
         setCurrentPage(1);
-    }, [searchData, isSearchActive, activeFilters]);
+    }, [searchData, isSearchActive]);
 
     return (
         <div className="min-h-screen bg-background">
@@ -523,54 +519,6 @@ export default function MarketsPage() {
                                 )}
                             </div>
 
-                            {/* Filter Toggle - Mobile */}
-                            <Sheet open={showMobileFilters} onOpenChange={setShowMobileFilters}>
-                                <SheetTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className="px-4 py-3 h-auto lg:hidden"
-                                    >
-                                        <SlidersHorizontal className="h-4 w-4 mr-2" />
-                                        Filters
-                                    </Button>
-                                </SheetTrigger>
-                                <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0">
-                                    <SheetHeader className="p-6 border-b">
-                                        <SheetTitle>Filter Markets</SheetTitle>
-                                    </SheetHeader>
-                                    <div className="p-6 overflow-y-auto h-full">
-                                        <MarketFilters
-                                            isMobile={true}
-                                            onFilterChange={(filters: Record<string, unknown> | undefined) => {
-                                                setActiveFilters(filters);
-                                                const filtered = computeFilteredMarkets(marketSource, searchQuery, filters);
-                                                setFilteredMarkets(filtered);
-                                                setCurrentPage(1);
-                                                // Don't auto-close sidebar, let user apply multiple filters
-                                            }}
-                                        />
-
-                                        {/* Apply Filters Button for Mobile */}
-                                        <div className="sticky bottom-0 bg-background pt-4 border-t mt-6">
-                                            <Button
-                                                className="w-full"
-                                                onClick={() => setShowMobileFilters(false)}
-                                            >
-                                                Apply Filters
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </SheetContent>
-                            </Sheet>
-
-                            {/* Filter Toggle - Desktop (Hidden) */}
-                            {/* <Button
-                                variant="outline"
-                                className="px-4 py-3 h-auto hidden"
-                            >
-                                <SlidersHorizontal className="h-4 w-4 mr-2" />
-                                Filters
-                            </Button> */}
                         </div>
                     </div>
                 </div>

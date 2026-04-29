@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Search, SlidersHorizontal, Store, TrendingUp } from 'lucide-react';
+import { Search, Store, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import Link from 'next/link';
 import { CategoryCard } from './_components/category-card';
 import { Pagination, usePagination } from '@/components/ui/pagination';
-import { CategoryFilters } from './_components/category-filters';
 import { useCategoryList } from '@/lib/api/hooks/useCategories';
 
 const allCategories = [
@@ -156,9 +154,7 @@ export default function CategoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categorySource, setCategorySource] = useState(allCategories);
   const [filteredCategories, setFilteredCategories] = useState(allCategories);
-  const [activeFilters, setActiveFilters] = useState<Record<string, unknown> | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [sortBy, setSortBy] = useState('popular');
   const { data: apiCategories } = useCategoryList(CATEGORY_LIST_PARAMS);
 
@@ -169,7 +165,7 @@ export default function CategoryPage() {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    const filtered = computeFilteredCategories(categorySource, query, activeFilters);
+    const filtered = computeFilteredCategories(categorySource, query, undefined);
     setFilteredCategories(filtered);
     setCurrentPage(1);
   };
@@ -247,9 +243,9 @@ export default function CategoryPage() {
 
     const mapped = apiCategories.map((category, index) => mapCategoryFromApi(category as unknown as Record<string, unknown>, index));
     setCategorySource(mapped);
-    setFilteredCategories(computeFilteredCategories(mapped, searchQuery, activeFilters));
+    setFilteredCategories(computeFilteredCategories(mapped, searchQuery, undefined));
     setCurrentPage(1);
-  }, [apiCategories, searchQuery, activeFilters]);
+  }, [apiCategories, searchQuery]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -278,44 +274,6 @@ export default function CategoryPage() {
                 />
               </div>
 
-              {/* Filter Toggle - Mobile */}
-              <Sheet open={showMobileFilters} onOpenChange={setShowMobileFilters}>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="px-4 py-3 h-auto lg:hidden"
-                  >
-                    <SlidersHorizontal className="h-4 w-4 mr-2" />
-                    Filters
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0">
-                  <SheetHeader className="p-6 border-b">
-                    <SheetTitle>Filter Categories</SheetTitle>
-                  </SheetHeader>
-                  <div className="p-6 overflow-y-auto h-full">
-                    <CategoryFilters
-                      isMobile={true}
-                      onFilterChange={(filters: Record<string, unknown> | undefined) => {
-                        setActiveFilters(filters);
-                        const filtered = computeFilteredCategories(categorySource, searchQuery, filters);
-                        setFilteredCategories(filtered);
-                        setCurrentPage(1);
-                      }}
-                    />
-
-                    {/* Apply Filters Button for Mobile */}
-                    <div className="sticky bottom-0 bg-background pt-4 border-t mt-6">
-                      <Button
-                        className="w-full"
-                        onClick={() => setShowMobileFilters(false)}
-                      >
-                        Apply Filters
-                      </Button>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
             </div>
           </div>
         </div>

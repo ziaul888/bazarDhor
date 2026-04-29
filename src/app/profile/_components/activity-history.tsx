@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { TrendingUp, Star, Heart, MapPin, ShoppingCart, MessageSquare, Calendar, Filter } from 'lucide-react';
+import { TrendingUp, Star, Heart, MapPin, ShoppingCart, MessageSquare, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const activityData = [
@@ -99,7 +99,6 @@ const filterOptions = [
 
 export function ActivityHistory() {
   const [filter, setFilter] = useState('all');
-  const [showFilters, setShowFilters] = useState(false);
 
   const filteredActivity = filter === 'all' 
     ? activityData 
@@ -117,16 +116,6 @@ export function ActivityHistory() {
         </div>
         
         <div className="flex items-center space-x-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            className="sm:hidden"
-          >
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-          
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -140,30 +129,6 @@ export function ActivityHistory() {
           </select>
         </div>
       </div>
-
-      {/* Mobile Filter Dropdown */}
-      {showFilters && (
-        <div className="sm:hidden bg-card border rounded-lg p-4">
-          <div className="grid grid-cols-2 gap-2">
-            {filterOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => {
-                  setFilter(option.value);
-                  setShowFilters(false);
-                }}
-                className={`p-2 text-sm rounded-md transition-colors ${
-                  filter === option.value
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted hover:bg-muted/80'
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Activity Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
