@@ -142,6 +142,41 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Kill the default mobile blue tap flash on every interactive element;
+     we render our own press feedback below so it looks intentional. */
+  a,
+  button,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  label,
+  summary,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Press feedback on touch devices for clickable elements that don't go
+   through the Button component (tabs, nav links, segmented controls, etc.).
+   Scoped to coarse pointers so desktop hover/click stays unchanged. */
+@media (hover: none) and (pointer: coarse) {
+  a:active,
+  [role="button"]:not(:disabled):active,
+  [role="tab"]:not([aria-disabled="true"]):active,
+  [role="menuitem"]:active,
+  [role="option"]:active,
+  label:active,
+  summary:active {
+    transform: scale(0.97);
+    opacity: 0.85;
+    transition: transform 75ms ease-out, opacity 75ms ease-out;
+  }
 }
 
 /* Search Section Animations */
