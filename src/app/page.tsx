@@ -23,7 +23,7 @@ export default function Home() {
       </div> */}
       <NearestMarketSection />
       {/* Category Section */}
-     
+
 
       {/* Nearest Market Section */}
       <BestPriceSection />
@@ -33,7 +33,7 @@ export default function Home() {
       <BannerSection />
 
       {/* Best Price Section */}
-      
+
 
       {/* Compare Markets Section */}
       <CompareMarketsSection />
