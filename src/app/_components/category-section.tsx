@@ -218,6 +218,17 @@ export function CategorySection() {
         </div>
 
         {/* Categories Grid */}
+        {isLoading ? (
+          <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3 sm:gap-4 lg:gap-6 animate-pulse">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <div key={i} className="flex flex-col items-center gap-2 py-3 px-2">
+                <div className="w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 rounded-2xl bg-muted-foreground/15" />
+                <div className="h-2.5 bg-muted-foreground/15 rounded w-3/4" />
+                <div className="h-2 bg-muted-foreground/10 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : (
         <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3 sm:gap-4 lg:gap-6">
           {displayCategories.map((category) => (
             <Link key={category.id} href={`/category/${category.id}`} className="group">
@@ -285,6 +296,7 @@ export function CategorySection() {
             </Card>
           </Link>
         </div>
+        )}
       </div>
 
       {/* Custom styles for xs breakpoint */}

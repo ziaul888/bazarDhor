@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, MapPin, DollarSign, Beef, Carrot, Loader2, LucideIcon } from 'lucide-react';
+import { ArrowRight, MapPin, DollarSign, Beef, Carrot, LucideIcon } from 'lucide-react';
 import { useBanners } from '@/lib/api/hooks/useBanners';
 import { useMemo } from 'react';
 import 'swiper/swiper.css';
@@ -26,32 +26,35 @@ interface BannerSlide {
 const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
 
 export function BannerSection() {
-    const { data: apiBanners, isLoading } = useBanners(10, 1, 'feature');
+    const { data: apiBanners, isLoading } = useBanners(10, 1);
 
     const bannerSlides = useMemo<BannerSlide[]>(() => {
         if (apiBanners && apiBanners.length > 0) {
+            const themes = [
+                { gradient: "from-green-600 via-green-500 to-green-400", emoji: "🥦", icon: Carrot },
+                { gradient: "from-blue-600 via-blue-500 to-blue-400", emoji: "💰", icon: DollarSign },
+                { gradient: "from-red-600 via-red-500 to-red-400", emoji: "🍖", icon: Beef },
+                { gradient: "from-orange-600 via-orange-500 to-orange-400", emoji: "🛒", icon: MapPin },
+            ];
+
             return apiBanners.map((banner, index) => {
-                // Determine theme based on index or type
-                const themes = [
-                    { gradient: "from-green-600 via-green-500 to-green-400", emoji: "🥦", icon: Carrot },
-                    { gradient: "from-blue-600 via-blue-500 to-blue-400", emoji: "💰", icon: DollarSign },
-                    { gradient: "from-red-600 via-red-500 to-red-400", emoji: "🍖", icon: Beef },
-                    { gradient: "from-orange-600 via-orange-500 to-orange-400", emoji: "🛒", icon: MapPin }
-                ];
                 const theme = themes[index % themes.length];
+                const imageUrl = banner.image_path
+                    ? (banner.image_path.startsWith('http') ? banner.image_path : `${IMAGE_BASE_URL}${banner.image_path}`)
+                    : '';
 
                 return {
                     id: banner.id,
-                    badge: { icon: theme.icon, text: banner.badge_text || "Special Offer" },
+                    badge: { icon: theme.icon, text: banner.badge_text ?? '' },
                     title: banner.title,
                     subtitle: "Local Market Deals",
-                    description: banner.description || "Discover fresh products and amazing deals in your neighborhood markets.",
-                    image: banner.image_path ? (banner.image_path.startsWith('http') ? banner.image_path : `${IMAGE_BASE_URL}${banner.image_path}`) : '',
+                    description: banner.description ?? '',
+                    image: imageUrl,
                     emoji: theme.emoji,
-                    gradient: banner.badge_background_color || theme.gradient,
-                    primaryBtn: banner.button_text || "Explore Now",
+                    gradient: theme.gradient,
+                    primaryBtn: banner.button_text ?? 'Explore Now',
                     secondaryBtn: "Learn More",
-                    url: banner.url
+                    url: banner.url,
                 };
             });
         }
@@ -60,10 +63,25 @@ export function BannerSection() {
 
     if (isLoading) {
         return (
-            <div className="py-12 flex flex-col items-center justify-center bg-muted/5 rounded-3xl mx-4 sm:mx-8">
-                <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
-                <p className="text-muted-foreground font-medium">Loading fresh deals...</p>
-            </div>
+            <section className="py-4 sm:py-8 lg:py-8">
+                <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+                    <div className="rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
+                        <div className="bg-muted h-[220px] sm:h-[260px] lg:h-[320px] flex items-center px-4 sm:px-6 lg:px-8 gap-6 lg:gap-8">
+                            <div className="flex-1 space-y-4">
+                                <div className="h-5 bg-muted-foreground/20 rounded-full w-24" />
+                                <div className="h-8 bg-muted-foreground/20 rounded-lg w-3/4" />
+                                <div className="h-4 bg-muted-foreground/15 rounded w-2/3" />
+                                <div className="h-4 bg-muted-foreground/15 rounded w-1/2" />
+                                <div className="flex gap-3 pt-2">
+                                    <div className="h-10 bg-muted-foreground/20 rounded-lg w-28" />
+                                    <div className="h-10 bg-muted-foreground/15 rounded-lg w-24" />
+                                </div>
+                            </div>
+                            <div className="hidden sm:block flex-shrink-0 w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 bg-muted-foreground/20 rounded-xl sm:rounded-2xl" />
+                        </div>
+                    </div>
+                </div>
+            </section>
         );
     }
 
@@ -103,23 +121,24 @@ export function BannerSection() {
                                         <div className="flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8">
                                             {/* Left Content */}
                                             <div className="flex-1 text-center lg:text-left w-full lg:w-auto">
-                                                <div className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 bg-white/20 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
-                                                    <slide.badge.icon className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-                                                    <span className="truncate">{slide.badge.text}</span>
-                                                </div>
+                                                {slide.badge.text && (
+                                                    <div className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 bg-white/20 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+                                                        <slide.badge.icon className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+                                                        <span className="truncate">{slide.badge.text}</span>
+                                                    </div>
+                                                )}
 
                                                 <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 sm:mb-4 leading-tight">
                                                     <span className="block">{slide.title}</span>
-                                                    <span className="block text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-normal opacity-90 mt-1">
-                                                        {slide.subtitle}
-                                                    </span>
                                                 </h2>
 
-                                                <p className="text-sm sm:text-base lg:text-lg opacity-90 mb-4 sm:mb-6 max-w-sm sm:max-w-md lg:max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                                                    {slide.description}
-                                                </p>
+                                                {slide.description && (
+                                                    <p className="text-sm sm:text-base lg:text-lg opacity-90 mb-4 sm:mb-6 max-w-sm sm:max-w-md lg:max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                                                        {slide.description}
+                                                    </p>
+                                                )}
 
-                                                {slide.url ? (
+                                                {slide.url && (
                                                     <div className="flex flex-col xs:flex-row sm:flex-row gap-2 sm:gap-3 justify-center lg:justify-start">
                                                         <Link
                                                             href={slide.url}
@@ -135,7 +154,7 @@ export function BannerSection() {
                                                             <span className="truncate">{slide.secondaryBtn}</span>
                                                         </Link>
                                                     </div>
-                                                ) : null}
+                                                )}
                                             </div>
 
                                             {/* Right Image/Illustration */}

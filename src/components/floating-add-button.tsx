@@ -2,10 +2,16 @@
 
 import { Plus, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import { useAddItem } from '@/components/add-item-context';
 
 interface FloatingAddButtonProps {
   onClick?: () => void;
   className?: string;
+}
+
+export function GlobalFloatingAddButton() {
+  const { openAddDrawer } = useAddItem();
+  return <FloatingAddButton onClick={openAddDrawer} />;
 }
 
 export function FloatingAddButton({ onClick, className = "" }: FloatingAddButtonProps) {
@@ -29,16 +35,16 @@ export function FloatingAddButton({ onClick, className = "" }: FloatingAddButton
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className={`
-          relative w-20 h-20 
+          relative w-12 h-12
           bg-gradient-to-br from-primary via-primary to-primary/90
           hover:from-primary/90 hover:via-primary hover:to-primary
-          text-primary-foreground 
-          rounded-full 
-          shadow-2xl hover:shadow-primary/40
+          text-primary-foreground
+          rounded-full
+          shadow-lg hover:shadow-primary/40
           flex items-center justify-center
           transition-all duration-300 ease-out
           transform hover:scale-110 active:scale-95
-          border-4 border-white
+          border-2 border-white
           ${isPressed ? 'scale-95' : ''}
           ${className}
         `}
@@ -50,9 +56,8 @@ export function FloatingAddButton({ onClick, className = "" }: FloatingAddButton
         {/* Icon container */}
         <div className="relative z-10 flex items-center justify-center">
           <Plus
-            className={`h-8 w-8 font-bold transition-all duration-300 ${isPressed ? 'rotate-90 scale-75' : isHovered ? 'rotate-45 scale-110' : 'rotate-0'
-              }`}
-            strokeWidth={3}
+            className={`h-5 w-5 transition-all duration-300 ${isPressed ? 'rotate-90 scale-75' : isHovered ? 'rotate-45 scale-110' : 'rotate-0'}`}
+            strokeWidth={2.5}
           />
 
           {/* Enhanced sparkle effects */}

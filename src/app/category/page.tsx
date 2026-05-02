@@ -140,9 +140,9 @@ const toImageUrl = (value: unknown) => {
 
 const mapCategoryFromApi = (item: Record<string, unknown>, index: number) => {
   return {
-    id: toNumber(item.id ?? index + 1, index + 1),
+    id: (item.id as string | number) ?? index + 1,
     name: String(item.name ?? item.category_name ?? 'Category'),
-    image: toImageUrl(item.image ?? item.image_path),
+    image: toImageUrl(item.image_path ?? item.image),
     productCount: toNumber(item.productCount ?? item.product_count ?? item.item_count, 0),
     icon: String(item.icon ?? item.emoji ?? '📦'),
     priceChange: index % 2 === 0 ? 'down' : 'up' as 'down' | 'up',
@@ -150,13 +150,15 @@ const mapCategoryFromApi = (item: Record<string, unknown>, index: number) => {
   };
 };
 
+type CategoryItem = { id: string | number; name: string; image: string; productCount: number; icon: string; priceChange: string; markets: number };
+
 export default function CategoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [categorySource, setCategorySource] = useState(allCategories);
-  const [filteredCategories, setFilteredCategories] = useState(allCategories);
+  const [categorySource, setCategorySource] = useState<CategoryItem[]>(allCategories);
+  const [filteredCategories, setFilteredCategories] = useState<CategoryItem[]>(allCategories);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('popular');
-  const { data: apiCategories } = useCategoryList(CATEGORY_LIST_PARAMS);
+  const { data: apiCategories, isLoading: isCategoryLoading } = useCategoryList(CATEGORY_LIST_PARAMS);
 
   // Pagination logic
   const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredCategories, 12);
@@ -171,7 +173,7 @@ export default function CategoryPage() {
   };
 
   const computeFilteredCategories = (
-    categories: typeof allCategories,
+    categories: CategoryItem[],
     query: string,
     filters?: Record<string, unknown>
   ) => {
@@ -334,6 +336,19 @@ export default function CategoryPage() {
             </div>
 
             {/* Categories Grid */}
+            {isCategoryLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-pulse">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={i} className="rounded-xl border overflow-hidden">
+                    <div className="h-40 bg-muted-foreground/15" />
+                    <div className="p-4 space-y-2">
+                      <div className="h-4 bg-muted-foreground/20 rounded w-2/3" />
+                      <div className="h-3 bg-muted-foreground/15 rounded w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {paginatedCategories.map((category) => (
                 <CategoryCard
@@ -342,6 +357,7 @@ export default function CategoryPage() {
                 />
               ))}
             </div>
+            )}
 
             {/* Pagination */}
             {totalPages > 1 && (

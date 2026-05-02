@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MarketItemsList } from './market-items-list';
-import { MarketMap } from './market-map';
 
 interface MarketData {
   id: string;
@@ -49,11 +48,6 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
     typeof marketData.latitude === 'number' &&
     typeof marketData.longitude === 'number';
 
-  const locationParts = [
-    marketData.upazila_or_thana,
-    marketData.district,
-    marketData.division,
-  ].filter(Boolean).join(', ');
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,131 +87,113 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
 
       {/* Market Info Header */}
       <div className="bg-card border-b">
-        <div className="container mx-auto px-4 py-4 sm:py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Market Details */}
-            <div className="lg:col-span-2">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <div className="flex items-center space-x-3 mb-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      marketData.is_open
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {marketData.is_open ? 'Open Now' : 'Closed'}
-                    </span>
-                    {marketData.is_featured && (
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
-                        Featured
-                      </span>
-                    )}
-                  </div>
-                </div>
+        <div className="container mx-auto px-4 py-3 lg:py-6">
+          <div className="flex flex-col lg:flex-row lg:gap-8">
+
+            {/* Left — info */}
+            <div className="flex-1 min-w-0">
+              {/* Badges */}
+              <div className="flex flex-wrap items-center gap-2 mb-2 lg:mb-3">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                  marketData.is_open
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-muted text-muted-foreground'
+                }`}>
+                  {marketData.is_open ? 'Open Now' : 'Closed'}
+                </span>
+                {marketData.is_featured && (
+                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+                    Featured
+                  </span>
+                )}
+                {/* address inline on mobile only */}
+                {marketData.address && (
+                  <span className="flex lg:hidden items-center gap-1 text-xs text-muted-foreground truncate max-w-[220px]">
+                    <MapPin className="h-3 w-3 flex-shrink-0" />
+                    {marketData.address}
+                  </span>
+                )}
               </div>
 
+              {/* Description */}
               {marketData.description && (
-                <p className="text-muted-foreground mb-4 text-sm sm:text-base">
+                <p className="text-muted-foreground mb-3 text-xs sm:text-sm line-clamp-2 lg:line-clamp-3">
                   {marketData.description}
                 </p>
               )}
 
-              {/* Contact Info */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              {/* Contact grid — 2 cols on desktop */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-2 text-xs lg:text-sm">
                 {marketData.address && (
-                  <div className="flex items-start space-x-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-                    <div>
-                      <span>{marketData.address}</span>
-                      {locationParts && (
-                        <p className="text-xs text-muted-foreground mt-0.5">{locationParts}</p>
-                      )}
-                    </div>
+                  <div className="hidden lg:flex items-start gap-2 text-muted-foreground">
+                    <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5 text-primary/60" />
+                    <span>{marketData.address}</span>
                   </div>
                 )}
                 {marketData.opening_hours != null && (
-                  <div className="flex items-center space-x-2">
-                    <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5 flex-shrink-0 text-primary/60" />
                     <span>{String(marketData.opening_hours)}</span>
                   </div>
                 )}
                 {marketData.phone && (
-                  <div className="flex items-center space-x-2">
-                    <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <a href={`tel:${marketData.phone}`} className="hover:text-primary transition-colors">
-                      {marketData.phone}
-                    </a>
-                  </div>
+                  <a href={`tel:${marketData.phone}`} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                    <Phone className="h-3.5 w-3.5 flex-shrink-0 text-primary/60" />
+                    {marketData.phone}
+                  </a>
                 )}
                 {marketData.email && (
-                  <div className="flex items-center space-x-2">
-                    <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <a href={`mailto:${marketData.email}`} className="hover:text-primary transition-colors truncate">
-                      {marketData.email}
-                    </a>
-                  </div>
+                  <a href={`mailto:${marketData.email}`} className="hidden lg:flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors truncate">
+                    <Mail className="h-3.5 w-3.5 flex-shrink-0 text-primary/60" />
+                    <span className="truncate">{marketData.email}</span>
+                  </a>
                 )}
                 {marketData.website && (
-                  <div className="flex items-center space-x-2">
-                    <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <a
-                      href={marketData.website.startsWith('http') ? marketData.website : `https://${marketData.website}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-primary transition-colors truncate"
-                    >
-                      {marketData.website}
-                    </a>
-                  </div>
+                  <a
+                    href={marketData.website.startsWith('http') ? marketData.website : `https://${marketData.website}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hidden lg:flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors truncate"
+                  >
+                    <Globe className="h-3.5 w-3.5 flex-shrink-0 text-primary/60" />
+                    <span className="truncate">{marketData.website}</span>
+                  </a>
                 )}
               </div>
-            </div>
 
-            {/* Map & Directions */}
-            <div className="lg:col-span-1">
-              <div className="bg-muted/30 rounded-lg p-4 h-48 lg:h-full min-h-[200px] flex flex-col">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-sm">Location</h3>
-                </div>
-
-                <div className="flex-1 rounded-lg overflow-hidden mb-3 relative z-0">
-                  {hasCoords ? (
-                    <MarketMap
-                      latitude={marketData.latitude!}
-                      longitude={marketData.longitude!}
-                      name={marketData.name}
-                      address={marketData.address}
-                    />
-                  ) : (
-                    <div className="h-full bg-muted flex items-center justify-center">
-                      <div className="text-center text-muted-foreground">
-                        <MapPin className="h-8 w-8 mx-auto mb-2" />
-                        <p className="text-sm">Location unavailable</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    size="sm"
-                    className="w-full"
-                    asChild
-                    disabled={!hasCoords}
-                  >
+              {/* Directions — mobile only */}
+              {hasCoords && (
+                <div className="flex lg:hidden mt-3">
+                  <Button size="sm" variant="outline" className="h-7 px-3 text-xs" asChild>
                     <a
-                      href={hasCoords ? `https://www.google.com/maps/dir/?api=1&destination=${marketData.latitude},${marketData.longitude}` : '#'}
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${marketData.latitude},${marketData.longitude}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Navigation className="h-3 w-3 mr-1" />
-                      Directions
+                      <Navigation className="h-3 w-3 mr-1.5" />
+                      Get Directions
                     </a>
                   </Button>
-                 
                 </div>
-              </div>
+              )}
             </div>
+
+            {/* Right — directions button, desktop only */}
+            {hasCoords && (
+              <div className="hidden lg:flex flex-col justify-center flex-shrink-0">
+                <Button size="sm" asChild>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${marketData.latitude},${marketData.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Navigation className="h-3.5 w-3.5 mr-2" />
+                    Get Directions
+                  </a>
+                </Button>
+              </div>
+            )}
+
           </div>
         </div>
       </div>

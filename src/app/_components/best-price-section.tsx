@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Tag, Loader2 } from 'lucide-react';
+import { Tag } from 'lucide-react';
 import { useRandomProducts } from '@/lib/api/hooks/useMarkets';
 import { ProductCard } from '@/components/product-card';
 
@@ -192,9 +192,17 @@ export function BestPriceSection() {
 
                 {/* Products Grid */}
                 {isLoading ? (
-                    <div className="flex flex-col items-center justify-center py-20 bg-muted/10 rounded-2xl border-2 border-dashed">
-                        <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
-                        <p className="text-muted-foreground font-medium">Fetching real-time market data...</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4 animate-pulse">
+                        {Array.from({ length: 10 }).map((_, i) => (
+                            <div key={i} className="rounded-xl border bg-muted overflow-hidden">
+                                <div className="h-32 sm:h-36 bg-muted-foreground/15" />
+                                <div className="p-3 space-y-2">
+                                    <div className="h-3.5 bg-muted-foreground/20 rounded w-3/4" />
+                                    <div className="h-3 bg-muted-foreground/15 rounded w-1/2" />
+                                    <div className="h-5 bg-muted-foreground/20 rounded w-2/3" />
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4">

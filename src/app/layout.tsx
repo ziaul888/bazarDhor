@@ -10,6 +10,7 @@ import { Footer } from "./_components/footer";
 import { QueryProvider } from "@/providers/query-provider";
 import { AddItemProvider } from "@/components/add-item-context";
 import { AddItemDrawer } from "@/components/add-item-drawer";
+import { GlobalFloatingAddButton } from "@/components/floating-add-button";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import { OfflineIndicator } from "@/components/offline-indicator";
 import { PWAStatus } from "@/components/pwa-status";
@@ -149,6 +150,7 @@ export default async function RootLayout({
                   <BottomNav />
                   <AuthModal />
                   <AddItemDrawer />
+                  <GlobalFloatingAddButton />
                   <PWAInstallPrompt />
                   <OfflineIndicator />
                   <PWAStatus />

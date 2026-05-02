@@ -331,7 +331,7 @@ export default async function CategoryDetailsPage({ params }: { params: Promise<
     id: apiCategory.id,
     name: apiCategory.name,
     description: apiCategory.description || "Local market category",
-    image: apiCategory.image ? (apiCategory.image.startsWith('http') ? apiCategory.image : `${IMAGE_BASE_URL}${apiCategory.image}`) : (categoryData[slug]?.image || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=400&fit=crop"),
+    image: (() => { const raw = apiCategory.image_path ?? (apiCategory as unknown as Record<string, unknown>).image as string | undefined; return raw ? (raw.startsWith('http') ? raw : `${IMAGE_BASE_URL}${raw}`) : (categoryData[slug]?.image || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=400&fit=crop"); })(),
     icon: apiCategory.icon || categoryData[slug]?.icon || "📦",
     productCount: apiCategory.product_count || 0,
     marketCount: apiCategory.market_count || apiCategory.unique_market_count || categoryData[slug]?.marketCount || 0,

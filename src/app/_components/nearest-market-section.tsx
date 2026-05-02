@@ -729,11 +729,11 @@ export function NearestMarketSection() {
     }, []);
 
     return (
-        <section className="py-4 sm:py-8 bg-muted/30">
+        <section className="pt-0 pb-4 sm:py-8 bg-muted/30">
             <div className="container mx-auto px-4">
-                
 
-                <div className="relative z-0 rounded-2xl border border-border overflow-hidden bg-card">
+
+                <div className="relative z-0 -mx-4 sm:mx-0 sm:rounded-2xl border-y sm:border border-border overflow-hidden bg-card">
                     <div className="absolute right-3 top-3 z-20 w-[200px] max-w-[calc(100%-1.5rem)] sm:right-4 sm:w-full sm:max-w-[400px]">
                         <div className="flex items-center gap-3 rounded-xl border border-border/80 bg-background/95 px-3 py-2.5 shadow-lg backdrop-blur-sm">
                             <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
@@ -781,14 +781,14 @@ export function NearestMarketSection() {
                     <div ref={mapContainerRef} className="relative z-0 h-[350px] sm:h-[380px] lg:h-[430px] w-full" />
                 </div>
 
-                <div className="relative z-20 -mt-[50px] sm:-mt-[38px] lg:-mt-[43px]">
+                <div className="relative z-20 -mt-[50px] sm:-mt-[38px] lg:-mt-[43px] -mx-4 sm:mx-0">
                     <Swiper
                         modules={[Pagination]}
                         spaceBetween={12}
                         slidesPerView={1.1}
                         slidesOffsetBefore={12}
                         slidesOffsetAfter={12}
-                        pagination={{ clickable: true }}
+                        pagination={{ clickable: true, el: '.nearest-markets-pagination' }}
                         breakpoints={{
                             640: {
                                 slidesPerView: 2,
@@ -803,7 +803,7 @@ export function NearestMarketSection() {
                                 slidesOffsetAfter: 16,
                             },
                         }}
-                        className="nearest-markets-slider pb-8 [&_.swiper-wrapper]:items-stretch"
+                        className="nearest-markets-slider [&_.swiper-wrapper]:items-stretch"
                     >
                         {markets.map((market) => {
                             const isSelected = selectedMarketId === market.id;
@@ -854,6 +854,7 @@ export function NearestMarketSection() {
                             );
                         })}
                     </Swiper>
+                    <div className="nearest-markets-pagination !relative !bottom-auto mt-4 flex justify-center gap-2 [&_.swiper-pagination-bullet]:bg-muted-foreground/40 [&_.swiper-pagination-bullet-active]:bg-primary" />
                 </div>
 
                 {routeError && (
