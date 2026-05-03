@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Grid3X3, List, SlidersHorizontal } from 'lucide-react';
 import { ProductCard } from '@/components/product-card';
+import { Pagination, usePagination } from '@/components/ui/pagination';
 import {
   Select,
   SelectContent,
@@ -350,9 +351,12 @@ const sortOptions = [
   { value: "updated", label: "Recently Updated" }
 ];
 
+const ITEMS_PER_PAGE = 8;
+
 export default function ItemsPage() {
   const items = allItems;
   const [filteredItems, setFilteredItems] = useState(allItems);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [sortBy, setSortBy] = useState("name");
@@ -361,6 +365,10 @@ export default function ItemsPage() {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 100 });
   const [showInStockOnly, setShowInStockOnly] = useState(false);
   const [showOrganicOnly, setShowOrganicOnly] = useState(false);
+
+  const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredItems, ITEMS_PER_PAGE);
+  const paginatedItems = getPaginatedItems(currentPage);
+  const paginationInfo = getPaginationInfo(currentPage);
 
   // Filter and sort items
   useEffect(() => {
@@ -416,6 +424,7 @@ export default function ItemsPage() {
     });
 
     setFilteredItems(filtered);
+    setCurrentPage(1);
   }, [items, searchQuery, selectedCategory, sortBy, priceRange, showInStockOnly, showOrganicOnly]);
 
   return (
@@ -428,7 +437,9 @@ export default function ItemsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">All Items</h1>
-                <p className="text-gray-600">{filteredItems.length} items available</p>
+                <p className="text-gray-600">
+                  Showing {paginationInfo.startIndex}–{paginationInfo.endIndex} of {paginationInfo.totalItems} items
+                </p>
               </div>
               
               <div className="flex items-center space-x-2">
@@ -569,15 +580,27 @@ export default function ItemsPage() {
             <p className="text-gray-600">Try adjusting your search or filters</p>
           </div>
         ) : (
-          <div className={`grid gap-4 ${
-            viewMode === "grid" 
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
-              : "grid-cols-1 max-w-4xl mx-auto"
-          }`}>
-            {filteredItems.map((item) => (
-              <ProductCard key={item.id} item={item} />
-            ))}
-          </div>
+          <>
+            <div className={`grid gap-4 ${
+              viewMode === "grid"
+                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                : "grid-cols-1 max-w-4xl mx-auto"
+            }`}>
+              {paginatedItems.map((item) => (
+                <ProductCard key={item.id} item={item} />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="mt-8">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

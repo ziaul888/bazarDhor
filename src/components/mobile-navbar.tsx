@@ -123,8 +123,8 @@ export function MobileNavbar() {
 
             {/* Right Actions */}
             <div className="flex items-center space-x-1 sm:space-x-2">
-              {/* Search - Desktop only */}
-              <Button
+              {/* Search - Desktop only — disabled for now */}
+              {/* <Button
                 variant="ghost"
                 size="icon"
                 className="hidden sm:flex h-9 w-9"
@@ -132,7 +132,7 @@ export function MobileNavbar() {
                 onClick={toggleSearch}
               >
                 <Search className="h-4 w-4" />
-              </Button>
+              </Button> */}
 
               {/* Sign In/Profile - Desktop only */}
               {hasHydrated && (
@@ -265,8 +265,8 @@ export function MobileNavbar() {
 
                     {/* Content */}
                     <div className="flex-1 p-6">
-                      {/* Search on mobile */}
-                      <div className="mb-6">
+                      {/* Search on mobile — disabled for now */}
+                      {/* <div className="mb-6">
                         <Button
                           variant="outline"
                           className="w-full justify-start h-11"
@@ -278,7 +278,7 @@ export function MobileNavbar() {
                           <Search className="h-4 w-4 mr-3" />
                           Search Products
                         </Button>
-                      </div>
+                      </div> */}
 
                       {/* Add Item on mobile */}
                       <div className="mb-6">

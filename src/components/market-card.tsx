@@ -3,25 +3,29 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Clock, Star, TrendingUp, TrendingDown, Store } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { MapPin, Clock, Store, Heart, Check, ArrowRight, Tag, Activity } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 
 interface Market {
   id: number | string;
   name: string;
   address: string;
+  location?: string;
   distance: string;
   rating: number;
   reviews: number;
+  vendors?: number;
+  type?: string;
   image: string;
   isOpen: boolean;
   openTime: string;
   specialties: string[];
   priceRange?: string;
-  priceChange?: 'up' | 'down';
+  showPriceChange?: boolean;
+  showPriceRange?: boolean;
   categoryItems?: number;
   featured?: boolean;
+  isVerified?: boolean;
 }
 
 interface MarketCardProps {
@@ -36,24 +40,30 @@ interface MarketCardProps {
 export function MarketCard({
   market,
   showCategoryItems = false,
-  showPriceChange = false,
-  showPriceRange = true,
   variant = 'default',
-  className = ''
+  className = '',
 }: MarketCardProps) {
   const isCompact = variant === 'compact';
   const [imgError, setImgError] = useState(false);
+  const [favorited, setFavorited] = useState(false);
+
+  const locationLine = market.location || market.address;
+  const distanceSuffix =
+    market.distance && market.distance !== 'N/A' ? ` • ${market.distance}` : '';
+  const marketType = market.type && market.type.trim().length > 0 ? market.type : 'Market';
+  const statusLabel = market.isOpen ? 'Open' : 'Closed';
+  void showCategoryItems;
 
   return (
-    <Card className={`overflow-hidden hover:shadow-lg transition-all duration-300 py-0 gap-0 ${className}`}>
-      {/* Market Image */}
-      <div className={`relative overflow-hidden ${isCompact ? 'h-32' : 'h-48'} bg-muted flex items-center justify-center`}>
+    <Card className={`overflow-hidden hover:shadow-lg transition-all duration-300 group py-0 gap-0 border border-border/60 ${className}`}>
+      {/* Image */}
+      <div className={`relative overflow-hidden ${isCompact ? 'h-36' : 'h-48'} bg-muted`}>
         {market.image && !imgError ? (
           <Image
             src={market.image}
             alt={market.name}
             fill
-            className="object-cover"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
             onError={() => setImgError(true)}
           />
         ) : (
@@ -65,119 +75,136 @@ export function MarketCard({
           </div>
         )}
 
-        {/* Status Badge */}
-        <div className="absolute top-3 left-3">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${market.isOpen
-            ? 'bg-green-500 text-white'
-            : 'bg-gray-500 text-white'
-            }`}>
-            {market.isOpen ? 'Open Now' : 'Closed'}
-          </span>
-        </div>
+        {/* Favourite button — top left */}
+        <button
+          type="button"
+          onClick={(e) => { e.preventDefault(); setFavorited((f) => !f); }}
+          className="absolute top-3 left-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+        >
+          <Heart
+            className={`h-4 w-4 transition-colors ${
+              favorited ? 'fill-rose-500 text-rose-500' : 'text-gray-400'
+            }`}
+          />
+        </button>
 
-        {/* Featured Badge */}
-        {market.featured && (
-          <div className="absolute top-3 right-3">
-            <span className="px-2 py-1 bg-primary text-primary-foreground rounded-full text-xs font-medium">
-              Featured
-            </span>
-          </div>
-        )}
-
-
-
-        {/* Distance Badge */}
-        <div className="absolute bottom-3 right-3">
-          <span className="px-2 py-1 bg-black/70 text-white rounded-full text-xs backdrop-blur-sm">
-            {market.distance}
+        {/* Open / Closed badge — top right */}
+        <div className="absolute top-3 right-3">
+          <span
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold shadow ${
+              market.isOpen
+                ? 'bg-green-500 text-white'
+                : 'bg-gray-500 text-white'
+            }`}
+          >
+            {market.isOpen && <Check className="h-3 w-3 stroke-[3]" />}
+            {market.isOpen ? 'Open' : 'Closed'}
           </span>
         </div>
       </div>
 
-      {/* Market Info */}
-      <CardContent className={`${isCompact ? 'p-3' : 'p-4'}`}>
-        {/* Market Name & Rating */}
-        <div className="flex items-start justify-between mb-1">
-          <div className="flex-1 min-w-0">
-            <h3 className={`font-semibold truncate ${isCompact ? 'text-sm' : 'text-lg'}`}>
-              {market.name}
-            </h3>
-            <p className={`text-muted-foreground truncate ${isCompact ? 'text-xs' : 'text-sm'}`}>
-              {market.address}
-            </p>
-          </div>
-          <div className="flex items-center space-x-1 ml-2">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-medium">{market.rating}</span>
-            {!isCompact && (
-              <span className="text-xs text-muted-foreground">({market.reviews})</span>
-            )}
-          </div>
-        </div>
-
-        {/* Category Items (if enabled) */}
-        {showCategoryItems && market.categoryItems && (
-          <div className="bg-muted/30 rounded-lg p-2 mb-1">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Items Available:</span>
-              <span className="font-medium">{market.categoryItems}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Details */}
-        {!isCompact && (
-          <div className="space-y-2 mb-3">
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{market.openTime}</span>
+      {/* Content */}
+      <Link href={`/markets/${market.id}`} className="block">
+        <div className={`${isCompact ? 'p-3' : 'p-4'}`}>
+          {/* Market icon + name + location */}
+          <div className="flex items-start gap-3">
+            {/* Store icon */}
+            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Store className="h-5 w-5 text-orange-500" />
             </div>
 
-          </div>
-        )}
-        {/* Specialties */}
-        <div className="flex flex-wrap gap-1 mb-4">
-          {(market.specialties ?? []).slice(0, isCompact ? 1 : 2).map((specialty, index) => (
-            <span
-              key={index}
-              className={`px-2 py-1 bg-accent text-accent-foreground rounded-md ${isCompact ? 'text-xs' : 'text-xs'
-                }`}
-            >
-              {specialty}
-            </span>
-          ))}
-        </div>
+            <div className="flex-1 min-w-0">
+              {/* Name + arrow */}
+              <div className="flex items-center gap-1 mb-0.5">
+                <h3
+                  className={`font-bold leading-tight line-clamp-1 flex-1 ${
+                    isCompact ? 'text-sm' : 'text-sm sm:text-base'
+                  }`}
+                >
+                  {market.name}
+                </h3>
+                <ArrowRight className="h-4 w-4 text-primary flex-shrink-0" />
+              </div>
 
-        {/* Actions */}
-        <CardFooter className="flex space-x-2 px-0 pt-4">
-          <Button className="flex-1" size={isCompact ? "sm" : "default"} asChild>
-            <Link href={`/markets/${market.id}`}>
-              View Market
-            </Link>
-          </Button>
-          {/* <Button variant="outline" size={isCompact ? "sm" : "default"}>
-            <MapPin className="h-4 w-4" />
-          </Button> */}
-        </CardFooter>
-      </CardContent>
+              {/* Location + distance */}
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <MapPin className="h-3 w-3 flex-shrink-0" />
+                <span className="text-xs line-clamp-1">
+                  {locationLine}
+                  {distanceSuffix}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-border/60 my-3" />
+
+          {/* 3-column stats */}
+          <div className="grid grid-cols-3 gap-2 text-center">
+            {/* Market Type */}
+            <div>
+              <div className="flex items-center justify-center gap-1 mb-0.5">
+                <Tag className="h-4 w-4 text-primary" />
+                <span className="font-bold text-xs leading-tight line-clamp-1">
+                  {marketType}
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">Type</p>
+            </div>
+
+            {/* Market Status */}
+            <div>
+              <div className="flex items-center justify-center gap-1 mb-0.5">
+                <Activity
+                  className={`h-4 w-4 ${market.isOpen ? 'text-green-500' : 'text-gray-400'}`}
+                />
+                <span
+                  className={`font-bold text-xs leading-tight ${
+                    market.isOpen ? 'text-green-600' : 'text-gray-500'
+                  }`}
+                >
+                  {statusLabel}
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">Status</p>
+            </div>
+
+            {/* Hours */}
+            <div>
+              <div className="flex items-center justify-center gap-0.5 mb-0.5">
+                <Clock className="h-4 w-4 text-orange-500" />
+                <span className="font-bold text-xs leading-tight">
+                  {market.openTime || '—'}
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">Hours</p>
+            </div>
+          </div>
+        </div>
+      </Link>
     </Card>
   );
 }
 
-// Market List Item Component for horizontal layout
+// Horizontal list-item variant
 export function MarketListItem({
   market,
   showCategoryItems = false,
-  showPriceChange = false,
-  className = ''
+  className = '',
 }: MarketCardProps) {
   const [imgError, setImgError] = useState(false);
+  const [favorited, setFavorited] = useState(false);
+
+  const locationLine = market.location || market.address;
+  const distanceSuffix =
+    market.distance && market.distance !== 'N/A' ? ` • ${market.distance}` : '';
 
   return (
-    <Card className={`hover:shadow-lg transition-all duration-300 ${className}`}>
-      <CardContent className="flex items-center space-x-4">
-        {/* Market Image */}
-        <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center">
+    <Card className={`hover:shadow-md transition-all duration-300 overflow-hidden ${className}`}>
+      <div className="flex items-stretch">
+        {/* Thumbnail */}
+        <div className="relative w-24 sm:w-32 flex-shrink-0 bg-muted">
           {!imgError ? (
             <Image
               src={market.image}
@@ -191,59 +218,61 @@ export function MarketListItem({
               <Store className="h-8 w-8 text-primary/20" />
             </div>
           )}
+          {/* Open badge */}
+          <div className="absolute top-2 left-2">
+            <span
+              className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                market.isOpen ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'
+              }`}
+            >
+              {market.isOpen && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+              {market.isOpen ? 'Open' : 'Closed'}
+            </span>
+          </div>
         </div>
 
-        {/* Market Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg truncate">{market.name}</h3>
-              <p className="text-sm text-muted-foreground truncate">{market.address}</p>
-            </div>
-            <div className="flex items-center space-x-2 ml-4">
-              <div className="flex items-center space-x-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{market.rating}</span>
+        {/* Info */}
+        <Link href={`/markets/${market.id}`} className="flex-1 min-w-0 p-3 sm:p-4">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <div className="flex items-center gap-1 flex-1 min-w-0">
+              <div className="w-7 h-7 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Store className="h-4 w-4 text-orange-500" />
               </div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${market.isOpen
-                ? 'bg-green-500 text-white'
-                : 'bg-gray-500 text-white'
-                }`}>
+              <h3 className="font-bold text-sm sm:text-base line-clamp-1 flex-1">{market.name}</h3>
+              <ArrowRight className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+            </div>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); setFavorited((f) => !f); }}
+              className="w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors flex-shrink-0"
+            >
+              <Heart className={`h-3.5 w-3.5 ${favorited ? 'fill-rose-500 text-rose-500' : 'text-gray-400'}`} />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1 text-muted-foreground mb-2">
+            <MapPin className="h-3 w-3 flex-shrink-0" />
+            <span className="text-xs line-clamp-1">{locationLine}{distanceSuffix}</span>
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-1">
+              <Tag className="h-3.5 w-3.5 text-primary" />
+              <span className="text-xs font-semibold line-clamp-1">{market.type || 'Market'}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Activity className={`h-3.5 w-3.5 ${market.isOpen ? 'text-green-500' : 'text-gray-400'}`} />
+              <span className={`text-xs font-semibold ${market.isOpen ? 'text-green-600' : 'text-gray-500'}`}>
                 {market.isOpen ? 'Open' : 'Closed'}
               </span>
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-            <div>
-              <span className="text-muted-foreground">Distance:</span>
-              <div className="font-medium">{market.distance}</div>
-            </div>
-            {showCategoryItems && market.categoryItems && (
-              <div>
-                <span className="text-muted-foreground">Items:</span>
-                <div className="font-medium">{market.categoryItems}</div>
-              </div>
-            )}
-            <div>
-              <span className="text-muted-foreground">Hours:</span>
-              <div className="font-medium">{market.openTime}</div>
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              <span className="text-xs">{market.openTime}</span>
             </div>
           </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex flex-col space-y-2">
-          <Button size="sm" asChild>
-            <Link href={`/markets/${market.id}`}>
-              View Market
-            </Link>
-          </Button>
-          {/* <Button variant="outline" size="sm">
-            <MapPin className="h-4 w-4" />
-          </Button> */}
-        </div>
-      </CardContent>
+        </Link>
+      </div>
     </Card>
   );
 }
