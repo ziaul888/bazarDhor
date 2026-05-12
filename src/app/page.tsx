@@ -1,48 +1,34 @@
-"use client";
-
-import { SearchSection } from "./_components/search-section";
-import { CategorySection } from "./_components/category-section";
+import { HomeHeader } from "./_components/home-header";
+import { PriceList } from "./_components/price-list";
 import { NearestMarketSection } from "./_components/nearest-market-section";
-import { BannerSection } from "./_components/banner-section";
-import { BestPriceSection } from "./_components/best-price-section";
-import { CompareMarketsSection } from "./_components/compare-markets-section";
-import { useSearch } from "./_components/search-context";
+import { CompareStrip } from "./_components/compare-strip";
 
 export default function Home() {
-  const { isSearchVisible, hideSearch } = useSearch();
-
   return (
-    <div>
-      {/* Search Section - Hidden by default, shows when search is clicked */}
-      <SearchSection isVisible={isSearchVisible} onClose={hideSearch} />
-
-      {/* Triple Slider Section */}
-      {/* <div className={`transition-all duration-500 ease-in-out ${isSearchVisible ? 'transform translate-y-0' : 'transform translate-y-0'
-        }`}>
-        <TripleSlider />
-      </div> */}
+    <div className="pb-24">
+      <HomeHeader />
       <NearestMarketSection />
-      {/* Category Section */}
 
+      <div className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 lg:mt-4">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
+          <div className="lg:min-w-0">
+            <PriceList />
+          </div>
+          <aside className="lg:pt-6 lg:sticky lg:top-4 lg:self-start lg:space-y-4">
+            <CompareStrip />
+            <div className="hidden lg:block px-4 text-xs text-muted-foreground space-y-1.5">
+              <a className="block hover:text-foreground" href="/markets">All nearby markets →</a>
+              <a className="block hover:text-foreground" href="/about">About BazarDhor</a>
+            </div>
+          </aside>
+        </div>
+      </div>
 
-      {/* Nearest Market Section */}
-      <BestPriceSection />
-     <CategorySection />
-
-      {/* Banner Section */}
-      <BannerSection />
-
-      {/* Best Price Section */}
-
-
-      {/* Compare Markets Section */}
-      <CompareMarketsSection />
-
-      {/* App Download Section */}
-      {/* <AppDownloadSection /> */}
-
-      {/* Newsletter Section */}
-      {/* <NewsletterSection /> */}
+      <div className="lg:hidden container mx-auto max-w-3xl px-4 pt-8 text-center text-xs text-muted-foreground">
+        <a href="/markets" className="hover:text-foreground">Nearby markets</a>
+        <span className="mx-2">·</span>
+        <a href="/about" className="hover:text-foreground">About</a>
+      </div>
     </div>
   );
 }

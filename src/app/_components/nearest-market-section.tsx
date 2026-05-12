@@ -5,11 +5,9 @@ import Link from 'next/link';
 import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper/modules';
 import { Button } from '@/components/ui/button';
 import { useZone } from '@/providers/zone-provider';
 import 'swiper/css';
-import 'swiper/css/pagination';
 
 type LeafletMap = {
     setView: (center: [number, number], zoom: number) => void;
@@ -730,7 +728,7 @@ export function NearestMarketSection() {
 
     return (
         <section className="pt-0 pb-4 sm:py-8 bg-muted/30">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto max-w-3xl lg:max-w-6xl px-4">
 
 
                 <div className="relative z-0 -mx-4 sm:mx-0 sm:rounded-2xl border-y sm:border border-border overflow-hidden bg-card">
@@ -783,24 +781,16 @@ export function NearestMarketSection() {
 
                 <div className="relative z-20 -mt-[50px] sm:-mt-[38px] lg:-mt-[43px] -mx-4 sm:mx-0">
                     <Swiper
-                        modules={[Pagination]}
                         spaceBetween={12}
                         slidesPerView={1.1}
                         slidesOffsetBefore={12}
                         slidesOffsetAfter={12}
-                        pagination={{ clickable: true, el: '.nearest-markets-pagination' }}
                         breakpoints={{
                             640: {
                                 slidesPerView: 2,
                                 spaceBetween: 14,
                                 slidesOffsetBefore: 14,
                                 slidesOffsetAfter: 14,
-                            },
-                            1280: {
-                                slidesPerView: 3,
-                                spaceBetween: 16,
-                                slidesOffsetBefore: 16,
-                                slidesOffsetAfter: 16,
                             },
                         }}
                         className="nearest-markets-slider [&_.swiper-wrapper]:items-stretch"
@@ -854,7 +844,6 @@ export function NearestMarketSection() {
                             );
                         })}
                     </Swiper>
-                    <div className="nearest-markets-pagination !relative !bottom-auto mt-4 flex justify-center gap-2 [&_.swiper-pagination-bullet]:bg-muted-foreground/40 [&_.swiper-pagination-bullet-active]:bg-primary" />
                 </div>
 
                 {routeError && (
