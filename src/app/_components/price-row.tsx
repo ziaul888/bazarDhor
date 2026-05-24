@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from 'react';
+import Image from 'next/image';
+import { PencilLine } from 'lucide-react';
 import { ProductPriceDialog } from '@/components/product-price-dialog';
 import { useSubmitProductPrice } from '@/lib/api/hooks/useUser';
 import { handleApiError } from '@/lib/api/client';
@@ -13,6 +15,7 @@ export type PriceRowItem = {
   marketId?: string | number;
   price: number;
   unit?: string;
+  image?: string;
 };
 
 const taka = new Intl.NumberFormat('en-IN');
@@ -24,9 +27,11 @@ interface PriceRowProps {
 export function PriceRow({ item }: PriceRowProps) {
   const [open, setOpen] = useState(false);
   const [newPrice, setNewPrice] = useState(item.price.toString());
+  const [imageError, setImageError] = useState(false);
   const submit = useSubmitProductPrice();
 
   const initial = item.name.trim().charAt(0).toUpperCase() || '?';
+  const hasImage = Boolean(item.image && item.image.trim().length > 0) && !imageError;
 
   const handleOpen = () => {
     setNewPrice(item.price.toString());
@@ -66,9 +71,20 @@ export function PriceRow({ item }: PriceRowProps) {
       >
         <span
           aria-hidden
-          className="flex-none w-10 h-10 rounded-full bg-primary/10 text-primary font-semibold flex items-center justify-center"
+          className="relative flex-none w-10 h-10 rounded-full overflow-hidden bg-primary/10 text-primary font-semibold flex items-center justify-center"
         >
-          {initial}
+          {hasImage ? (
+            <Image
+              src={item.image!}
+              alt=""
+              fill
+              sizes="40px"
+              className="object-cover"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            initial
+          )}
         </span>
 
         <span className="flex-1 min-w-0">
@@ -78,13 +94,30 @@ export function PriceRow({ item }: PriceRowProps) {
           </span>
         </span>
 
-        <span className="flex-none text-right leading-tight">
-          <span className="block text-xl sm:text-2xl font-bold text-primary tabular-nums">
-            ৳ {taka.format(item.price)}
+        <span className="flex-none flex items-center gap-2">
+          <span className="text-right leading-tight">
+            <span className="block text-xl sm:text-2xl font-bold text-primary tabular-nums">
+              ৳ {taka.format(item.price)}
+            </span>
+            {item.unit ? (
+              <span className="block text-[10px] text-muted-foreground">/ {item.unit}</span>
+            ) : null}
           </span>
-          {item.unit ? (
-            <span className="block text-[10px] text-muted-foreground">/ {item.unit}</span>
-          ) : null}
+          <span className="group relative flex-none">
+            <span
+              aria-label="Update price"
+              title="Update price"
+              className="flex w-8 h-8 rounded-full bg-primary/10 text-primary items-center justify-center"
+            >
+              <PencilLine className="h-4 w-4" />
+            </span>
+            <span
+              role="tooltip"
+              className="pointer-events-none absolute right-0 -top-8 whitespace-nowrap rounded-md bg-foreground text-background text-[11px] font-medium px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              Update price
+            </span>
+          </span>
         </span>
       </button>
 
@@ -97,7 +130,7 @@ export function PriceRow({ item }: PriceRowProps) {
           marketName: item.marketName,
           marketId: item.marketId,
           currentPrice: item.price,
-          image: '',
+          image: item.image ?? '',
         }}
         newPrice={newPrice}
         onNewPriceChange={setNewPrice}

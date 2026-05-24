@@ -6,6 +6,17 @@ import { useCategories } from '@/lib/api/hooks/useCategories';
 import { PriceRow, type PriceRowItem } from './price-row';
 
 const PAGE_SIZE = 20;
+const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
+
+function resolveImage(value?: string | null) {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+    return trimmed;
+  }
+  return `${IMAGE_BASE_URL}${trimmed}`;
+}
 
 function mapToRow(p: NonNullable<ReturnType<typeof useRandomProducts>['data']>[number]): PriceRowItem | null {
   const lowest = p.market_prices?.[0];
@@ -18,6 +29,7 @@ function mapToRow(p: NonNullable<ReturnType<typeof useRandomProducts>['data']>[n
     marketName: lowest.market?.name || 'Local market',
     price: hasDiscount ? lowest.discount_price! : (lowest.price || 0),
     unit: p.unit?.symbol || p.unit?.name || undefined,
+    image: resolveImage(p.image_path),
   };
 }
 

@@ -210,31 +210,29 @@ export default function CompareMarketsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-muted/30 border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center space-x-4 mb-4">
-            <BackButton
-              variant="ghost"
-              size="sm"
-              fallbackHref="/markets"
-              label="Back to Markets"
-            />
-          </div>
+    <div className="pb-24">
+      <header className="container mx-auto max-w-3xl lg:max-w-6xl px-4 pt-5 pb-3">
+        <BackButton
+          variant="ghost"
+          size="sm"
+          fallbackHref="/markets"
+          label="Markets"
+          className="-ml-2 h-8 px-2 text-sm text-muted-foreground hover:text-foreground"
+        />
+      </header>
 
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Compare Markets</h1>
-            <p className="text-muted-foreground">Compare details and features between two markets</p>
-          </div>
-        </div>
-      </div>
+      <section className="container mx-auto max-w-3xl lg:max-w-6xl px-4">
+        <h1 className="text-xl sm:text-2xl font-semibold leading-tight">Compare markets</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Pick two markets to see side-by-side prices and details.
+        </p>
+      </section>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto max-w-3xl lg:max-w-6xl px-4 mt-6">
         {/* Market Selectors */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           <div>
-            <h2 className="text-lg font-semibold mb-4">Select First Market</h2>
+            <h2 className="text-sm font-semibold mb-2">First market</h2>
             <MarketSelector
               markets={markets}
               selectedMarket={selectedMarket1}
@@ -245,7 +243,7 @@ export default function CompareMarketsPage() {
           </div>
 
           <div>
-            <h2 className="text-lg font-semibold mb-4">Select Second Market</h2>
+            <h2 className="text-sm font-semibold mb-2">Second market</h2>
             <MarketSelector
               markets={markets}
               selectedMarket={selectedMarket2}
@@ -256,13 +254,13 @@ export default function CompareMarketsPage() {
           </div>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
 
-        <div className="rounded-2xl border bg-card">
-          <div className="flex flex-col gap-4 border-b px-4 py-5 sm:flex-row sm:items-end sm:justify-between sm:px-6">
+        <div className="rounded-xl border bg-card">
+          <div className="flex flex-col gap-4 border-b px-4 py-3 sm:flex-row sm:items-end sm:justify-between sm:px-4">
             <div>
-              <h2 className="text-2xl font-bold">Product Comparison</h2>
-              <p className="text-sm text-muted-foreground">
+              <h2 className="text-base font-semibold">Product comparison</h2>
+              <p className="text-xs text-muted-foreground">
                 Compare product prices between the selected markets by category.
               </p>
             </div>
@@ -448,10 +446,10 @@ export default function CompareMarketsPage() {
         </div>
 
           {/* Comparison Results */}
-          <div className="rounded-2xl border bg-card">
-            <div className="border-b px-4 py-5 sm:px-6">
-              <h2 className="text-2xl font-bold">Market Comparison</h2>
-              <p className="text-sm text-muted-foreground">Side-by-side details for the selected markets.</p>
+          <div className="rounded-xl border bg-card">
+            <div className="border-b px-4 py-3 sm:px-4">
+              <h2 className="text-base font-semibold">Market comparison</h2>
+              <p className="text-xs text-muted-foreground">Side-by-side details for the selected markets.</p>
             </div>
             {compareQuery.isLoading ? (
               <div className="flex flex-col items-center justify-center py-12">
@@ -474,21 +472,22 @@ export default function CompareMarketsPage() {
         </div>{/* end grid */}
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+        <div className="flex flex-col sm:flex-row gap-2 justify-center mt-6">
           <Button
             variant="outline"
+            size="sm"
             onClick={() => compareQuery.refetch()}
             disabled={!selectedMarket1 || !selectedMarket2 || compareQuery.isFetching}
           >
-            Refresh Comparison
+            Refresh comparison
           </Button>
           {selectedMarket1 && (
-            <Button asChild>
+            <Button size="sm" asChild>
               <Link href={`/markets/${selectedMarket1.id}`}>View {selectedMarket1.name}</Link>
             </Button>
           )}
           {selectedMarket2 && (
-            <Button variant="outline" asChild>
+            <Button size="sm" variant="outline" asChild>
               <Link href={`/markets/${selectedMarket2.id}`}>View {selectedMarket2.name}</Link>
             </Button>
           )}

@@ -3,9 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Search, MapPin, GitCompare, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { MarketCard } from '@/components/market-card';
-import { Pagination, usePagination } from '@/components/ui/pagination';
+import { MarketListItem } from '@/components/market-card';
 import { useMarketList, useSearchMarkets } from '@/lib/api/hooks/useMarkets';
 import type { Market } from '@/lib/api/types';
 
@@ -85,162 +83,13 @@ const fallbackMarkets: Market[] = [
         acceptsCards: true,
         hasDelivery: false
     },
-    {
-        id: "4",
-        name: "Sunset Weekend Market",
-        description: "Weekend artisan market with street food and handmade goods",
-        location: "West",
-        address: "321 Sunset Boulevard, West",
-        distance: "3.5 km",
-        openTime: "10:00 AM - 4:00 PM",
-        rating: 4.9,
-        reviews: 298,
-        vendors: 38,
-        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
-        isOpen: true,
-        isVerified: true,
-        contributors: 22,
-        lastUpdated: "2024-01-12",
-        categories: ["Street Food", "Artisan Goods"],
-        specialties: ["Street Food", "Artisan Goods"],
-        featured: true,
-        type: "Weekend Market",
-        priceRange: "$$",
-        hasParking: true,
-        acceptsCards: false,
-        hasDelivery: false
-    },
-    {
-        id: "5",
-        name: "Heritage Square Market",
-        description: "Historic market square with traditional vendors and local crafts",
-        location: "Old Town",
-        address: "654 Heritage Lane, Old Town",
-        distance: "4.2 km",
-        openTime: "8:30 AM - 5:30 PM",
-        rating: 4.5,
-        reviews: 134,
-        vendors: 25,
-        image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop",
-        isOpen: true,
-        isVerified: false,
-        contributors: 7,
-        lastUpdated: "2024-01-11",
-        categories: ["Antiques", "Local Crafts"],
-        specialties: ["Antiques", "Local Crafts"],
-        featured: false,
-        type: "Artisan Market",
-        priceRange: "$$$",
-        hasParking: true,
-        acceptsCards: true,
-        hasDelivery: false
-    },
-    {
-        id: "6",
-        name: "Fresh Valley Market",
-        description: "Large farmers market with fresh produce and dairy products",
-        location: "North",
-        address: "987 Valley Road, North",
-        distance: "5.8 km",
-        openTime: "6:00 AM - 8:00 PM",
-        rating: 4.4,
-        reviews: 87,
-        vendors: 52,
-        image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop",
-        isOpen: true,
-        isVerified: true,
-        contributors: 18,
-        lastUpdated: "2024-01-10",
-        categories: ["Fresh Produce", "Dairy Products"],
-        specialties: ["Fresh Produce", "Dairy Products"],
-        featured: false,
-        type: "Farmers Market",
-        priceRange: "$",
-        hasParking: true,
-        acceptsCards: true,
-        hasDelivery: true
-    },
-    {
-        id: "7",
-        name: "Metro Meat Market",
-        description: "Specialty meat market with fresh cuts and seafood",
-        location: "City Center",
-        address: "147 Metro Street, City Center",
-        distance: "1.8 km",
-        openTime: "7:00 AM - 6:00 PM",
-        rating: 4.3,
-        reviews: 203,
-        vendors: 15,
-        image: "https://images.unsplash.com/photo-1588347818481-c7c1b6b8b4b4?w=400&h=300&fit=crop",
-        isOpen: true,
-        isVerified: false,
-        contributors: 5,
-        lastUpdated: "2024-01-09",
-        categories: ["Meat & Poultry", "Seafood"],
-        specialties: ["Meat & Poultry", "Seafood"],
-        featured: false,
-        type: "Specialty Market",
-        priceRange: "$$",
-        hasParking: false,
-        acceptsCards: true,
-        hasDelivery: true
-    },
-    {
-        id: "8",
-        name: "Seaside Fish Market",
-        description: "Fresh daily catch and seafood market by the coast",
-        location: "Seaside",
-        address: "258 Coastal Drive, Seaside",
-        distance: "6.2 km",
-        openTime: "5:00 AM - 3:00 PM",
-        rating: 4.7,
-        reviews: 167,
-        vendors: 8,
-        image: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=400&h=300&fit=crop",
-        isOpen: true,
-        isVerified: true,
-        contributors: 3,
-        lastUpdated: "2024-01-08",
-        categories: ["Fresh Seafood", "Daily Catch"],
-        specialties: ["Fresh Seafood", "Daily Catch"],
-        featured: false,
-        type: "Seafood Market",
-        priceRange: "$$$",
-        hasParking: true,
-        acceptsCards: true,
-        hasDelivery: false
-    }
 ];
 
-function MarketCardSkeleton() {
-    return (
-        <div className="rounded-xl border bg-card overflow-hidden">
-            <div className="h-48 market-shimmer" />
-            <div className="p-4 space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 space-y-2">
-                        <div className="h-5 market-shimmer rounded w-3/4" />
-                        <div className="h-3.5 market-shimmer rounded w-1/2" />
-                    </div>
-                    <div className="h-5 w-12 market-shimmer rounded flex-shrink-0" />
-                </div>
-                <div className="h-4 market-shimmer rounded w-2/5" />
-                <div className="flex gap-2">
-                    <div className="h-6 w-20 market-shimmer rounded-md" />
-                    <div className="h-6 w-16 market-shimmer rounded-md" />
-                </div>
-                <div className="h-10 market-shimmer rounded-lg w-full" />
-            </div>
-        </div>
-    );
-}
-
-const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
-const DEFAULT_MARKET_IMAGE = "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop";
+const PAGE_SIZE = 10;
 const MARKET_LIST_PARAMS = {
     user_lat: 23.832619866576376,
     user_lng: 90.4348316383023,
-    limit: 10,
+    limit: 50,
     offset: 1
 };
 
@@ -260,63 +109,48 @@ const toNumber = (value: unknown, fallback: number) => {
 };
 
 const toBoolean = (value: unknown, fallback = false) => {
-    if (typeof value === 'boolean') {
-        return value;
-    }
-    if (value === 1 || value === '1') {
-        return true;
-    }
-    if (value === 0 || value === '0') {
-        return false;
-    }
+    if (typeof value === 'boolean') return value;
+    if (value === 1 || value === '1') return true;
+    if (value === 0 || value === '0') return false;
     return fallback;
 };
 
 const formatDistance = (value: unknown) => {
-    if (typeof value === 'number' && Number.isFinite(value)) {
-        return `${value} km`;
-    }
+    if (typeof value === 'number' && Number.isFinite(value)) return `${value} km`;
     if (typeof value === 'string' && value.trim().length > 0) {
         return value.includes('km') || value.includes('mi') ? value : `${value} km`;
     }
     return 'N/A';
 };
 
+const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
+const DEFAULT_MARKET_IMAGE = "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop";
+
 const toImageUrl = (value: unknown) => {
-    if (typeof value !== 'string' || value.trim().length === 0) {
-        return DEFAULT_MARKET_IMAGE;
-    }
+    if (typeof value !== 'string' || value.trim().length === 0) return DEFAULT_MARKET_IMAGE;
     return value.startsWith('http') ? value : `${IMAGE_BASE_URL}${value}`;
 };
 
 const extractMarketArray = (response: unknown): Record<string, unknown>[] => {
-    if (!response) {
-        return [];
-    }
-
+    if (!response) return [];
     if (Array.isArray(response)) {
         return response.filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null);
     }
-
     if (typeof response === 'object') {
         const root = response as Record<string, unknown>;
         const direct = root.data ?? root.markets ?? root.market_list ?? root.marketList;
-
         if (Array.isArray(direct)) {
             return direct.filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null);
         }
-
         if (direct && typeof direct === 'object') {
             const nested = (direct as Record<string, unknown>).data
                 ?? (direct as Record<string, unknown>).markets
                 ?? (direct as Record<string, unknown>).market_list;
-
             if (Array.isArray(nested)) {
                 return nested.filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null);
             }
         }
     }
-
     return [];
 };
 
@@ -351,13 +185,22 @@ const mapMarketFromApi = (item: Record<string, unknown>, index: number): Market 
     };
 };
 
+type SortOption = 'distance' | 'rating' | 'name' | 'vendors';
+
+const sortLabels: Record<SortOption, string> = {
+    distance: 'Distance',
+    rating: 'Rating',
+    name: 'Name',
+    vendors: 'Vendors',
+};
+
 export default function MarketsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
     const [marketSource, setMarketSource] = useState<Market[]>(fallbackMarkets);
     const [filteredMarkets, setFilteredMarkets] = useState<Market[]>(fallbackMarkets);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [sortBy, setSortBy] = useState<'distance' | 'rating' | 'name' | 'vendors'>('distance');
+    const [visible, setVisible] = useState(PAGE_SIZE);
+    const [sortBy, setSortBy] = useState<SortOption>('distance');
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const marketListParams = {
@@ -371,108 +214,19 @@ export default function MarketsPage() {
 
     const isSearchActive = debouncedQuery.length > 2;
 
-    const computeFilteredMarkets = (
-        markets: Market[],
-        query: string,
-        filters?: Record<string, unknown>
-    ) => {
-        let filtered = markets;
-
-        // Search filter
-        if (query) {
-            filtered = filtered.filter(market =>
-                market.name.toLowerCase().includes(query.toLowerCase()) ||
-                market.address.toLowerCase().includes(query.toLowerCase()) ||
-                market.specialties.some(specialty =>
-                    specialty.toLowerCase().includes(query.toLowerCase())
-                )
-            );
-        }
-
-        // Apply filters if provided
-        if (filters) {
-            // Filter by open status
-            if (filters.isOpen) {
-                filtered = filtered.filter(market => market.isOpen);
-            }
-
-            // Filter by featured
-            if (filters.featured) {
-                filtered = filtered.filter(market => market.featured);
-            }
-
-            // Filter by distance
-            if (filters.distance && filters.distance !== '') {
-                const maxDistance = parseFloat(String(filters.distance).replace('km', ''));
-                filtered = filtered.filter(market =>
-                    parseFloat(market.distance.replace('km', '')) <= maxDistance
-                );
-            }
-
-            // Filter by rating
-            if (filters.rating && filters.rating !== '') {
-                const minRating = parseFloat(String(filters.rating));
-                filtered = filtered.filter(market => market.rating >= minRating);
-            }
-
-            // Filter by price range
-            if (filters.priceRange && Array.isArray(filters.priceRange) && filters.priceRange.length > 0) {
-                filtered = filtered.filter(market =>
-                    (filters.priceRange as string[]).includes(market.priceRange)
-                );
-            }
-
-            // Filter by market type
-            if (filters.marketType && Array.isArray(filters.marketType) && filters.marketType.length > 0) {
-                filtered = filtered.filter(market =>
-                    (filters.marketType as string[]).includes(market.type)
-                );
-            }
-
-            // Filter by features
-            if (filters.features && Array.isArray(filters.features) && filters.features.length > 0) {
-                const features = filters.features as string[];
-                filtered = filtered.filter(market => {
-                    return features.every(feature => {
-                        switch (feature) {
-                            case 'hasParking':
-                                return market.hasParking;
-                            case 'acceptsCards':
-                                return market.acceptsCards;
-                            case 'hasDelivery':
-                                return market.hasDelivery;
-                            default:
-                                return true;
-                        }
-                    });
-                });
-            }
-        }
-
-        return filtered;
+    const applyFilter = (markets: Market[], query: string) => {
+        if (!query) return markets;
+        const q = query.toLowerCase();
+        return markets.filter(m =>
+            m.name.toLowerCase().includes(q) ||
+            m.address.toLowerCase().includes(q) ||
+            m.specialties.some(s => s.toLowerCase().includes(q))
+        );
     };
 
-    // Pagination logic
-    const { totalPages, getPaginatedItems, getPaginationInfo } = usePagination(filteredMarkets, 6);
-    const paginatedMarkets = getPaginatedItems(currentPage);
-    const paginationInfo = getPaginationInfo(currentPage);
-
-    const handleSearch = (query: string) => {
-        setSearchQuery(query);
-        if (debounceRef.current) clearTimeout(debounceRef.current);
-        debounceRef.current = setTimeout(() => setDebouncedQuery(query), 400);
-        if (query.length <= 2) {
-            const filtered = computeFilteredMarkets(marketSource, query, undefined);
-            setFilteredMarkets(filtered);
-            setCurrentPage(1);
-        }
-    };
-
-    const handleSort = (sortOption: string) => {
-        setSortBy(sortOption as 'distance' | 'rating' | 'name' | 'vendors');
-        const sorted = [...filteredMarkets];
-
-        switch (sortOption) {
+    const sortMarkets = (markets: Market[], by: SortOption) => {
+        const sorted = [...markets];
+        switch (by) {
             case 'distance':
                 sorted.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
                 break;
@@ -486,173 +240,181 @@ export default function MarketsPage() {
                 sorted.sort((a, b) => b.vendors - a.vendors);
                 break;
         }
-
-        setFilteredMarkets(sorted);
-        setCurrentPage(1); // Reset to first page when sorting
+        return sorted;
     };
 
-    // Populate marketSource from list API
+    const handleSearch = (query: string) => {
+        setSearchQuery(query);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => setDebouncedQuery(query), 400);
+        if (query.length <= 2) {
+            setFilteredMarkets(sortMarkets(applyFilter(marketSource, query), sortBy));
+            setVisible(PAGE_SIZE);
+        }
+    };
+
+    const handleSort = (next: SortOption) => {
+        setSortBy(next);
+        setFilteredMarkets(sortMarkets(filteredMarkets, next));
+        setVisible(PAGE_SIZE);
+    };
+
     useEffect(() => {
         const markets = extractMarketArray(marketListData);
         if (markets.length === 0) return;
         const mapped = markets.map(mapMarketFromApi);
         setMarketSource(mapped);
         if (!isSearchActive) {
-            setFilteredMarkets(computeFilteredMarkets(mapped, searchQuery, undefined));
-            setCurrentPage(1);
+            setFilteredMarkets(sortMarkets(applyFilter(mapped, searchQuery), sortBy));
+            setVisible(PAGE_SIZE);
         }
     }, [marketListData]);
 
-    // Apply search API results
     useEffect(() => {
         if (!isSearchActive) return;
         const markets = extractMarketArray(searchData);
         const mapped = markets.map(mapMarketFromApi);
-        setFilteredMarkets(computeFilteredMarkets(mapped, '', undefined));
-        setCurrentPage(1);
+        setFilteredMarkets(sortMarkets(mapped, sortBy));
+        setVisible(PAGE_SIZE);
     }, [searchData, isSearchActive]);
 
-    return (
-        <div className="min-h-screen bg-background">
-            {/* Header */}
-            <div className="bg-muted/30 border-b">
-                <div className="container mx-auto px-4 py-4 sm:py-6">
-                    <div className="flex flex-col space-y-4">
-                        {/* Title */}
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Local Markets</h1>
-                            <p className="text-muted-foreground">
-                                Discover fresh groceries and local produce near you
-                            </p>
-                        </div>
+    const rows = filteredMarkets.slice(0, visible);
+    const hasMore = filteredMarkets.length > rows.length;
 
-                        {/* Search Bar */}
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <input
-                                    type="text"
-                                    placeholder="Search markets, products, or locations..."
-                                    value={searchQuery}
-                                    onChange={(e) => handleSearch(e.target.value)}
-                                    className="w-full pl-10 pr-10 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background"
-                                />
-                                {isSearchFetching && (
-                                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
+    return (
+        <div className="pb-24">
+            <div className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 lg:mt-4">
+                <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
+                    <div className="lg:min-w-0">
+                        <section>
+                            <div className="px-4 pt-6 flex items-center justify-between gap-3">
+                                <h2 className="text-base font-semibold">Nearby markets</h2>
+                                <Link
+                                    href="/markets/compare"
+                                    className="inline-flex items-center gap-1 text-xs text-primary font-medium hover:underline"
+                                >
+                                    <GitCompare className="h-3.5 w-3.5" />
+                                    Compare
+                                </Link>
+                            </div>
+
+                            <div className="px-4 pt-3">
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => handleSearch(e.target.value)}
+                                        placeholder="Search markets, areas, or specialties"
+                                        className="w-full h-10 pl-9 pr-9 text-sm border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50"
+                                    />
+                                    {isSearchFetching && (
+                                        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="px-4 pt-3 pb-2 sticky top-0 z-10 bg-background">
+                                <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
+                                    {(Object.keys(sortLabels) as SortOption[]).map((key) => (
+                                        <Chip
+                                            key={key}
+                                            label={sortLabels[key]}
+                                            active={sortBy === key}
+                                            onClick={() => handleSort(key)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="px-4 space-y-3">
+                                {isMarketListLoading ? (
+                                    Array.from({ length: 4 }).map((_, i) => (
+                                        <div key={i} className="rounded-xl border bg-card overflow-hidden">
+                                            <RowSkeleton />
+                                        </div>
+                                    ))
+                                ) : rows.length === 0 ? (
+                                    <div className="rounded-xl border bg-card">
+                                        <EmptyState />
+                                    </div>
+                                ) : (
+                                    rows.map((m) => (
+                                        <MarketListItem key={m.id} market={m} />
+                                    ))
                                 )}
                             </div>
 
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="container mx-auto px-4 py-4 sm:py-6">
-                <div className="flex flex-col lg:flex-row gap-6">
-                    {/* Filters Sidebar - Desktop Only */}
-                    {/* <div className="hidden lg:block lg:w-80">
-                        <MarketFilters
-                            onFilterChange={(filters: Record<string, unknown> | undefined) => {
-                                setActiveFilters(filters);
-                                const filtered = computeFilteredMarkets(marketSource, searchQuery, filters);
-                                setFilteredMarkets(filtered);
-                                setCurrentPage(1);
-                            }}
-                        />
-                    </div> */}
-
-                    {/* Main Content */}
-                    <div className="flex-1">
-                        {/* Controls Bar */}
-                        <div className="flex items-center justify-between mb-6">
-                            <span className="text-sm text-muted-foreground">
-                                Showing {paginationInfo.startIndex}-{paginationInfo.endIndex} of {paginationInfo.totalItems} markets
-                            </span>
-
-                            <div className="flex items-center space-x-3">
-                                {/* Compare Markets Button */}
-                                <Button variant="outline" size="sm" asChild>
-                                    <Link href="/markets/compare">
-                                        <GitCompare className="h-4 w-4 sm:mr-2" />
-                                        <span className="hidden sm:inline">Compare Markets</span>
-                                    </Link>
-                                </Button>
-
-                                {/* Sort Dropdown */}
-                                <select
-                                    value={sortBy}
-                                    onChange={(e) => handleSort(e.target.value)}
-                                    className="text-sm border border-border rounded-md px-3 py-1 bg-background"
-                                >
-                                    <option value="distance">Sort by Distance</option>
-                                    <option value="rating">Sort by Rating</option>
-                                    <option value="name">Sort by Name</option>
-                                    <option value="vendors">Sort by Vendors</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Markets Grid */}
-                        {isMarketListLoading ? (
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {Array.from({ length: 6 }).map((_, i) => (
-                                    <MarketCardSkeleton key={i} />
-                                ))}
-                            </div>
-                        ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {paginatedMarkets.map((market) => (
-                                <MarketCard
-                                    key={market.id}
-                                    market={market}
-                                />
-                            ))}
-                        </div>
-                        )}
-
-                        {/* Pagination */}
-                        {totalPages > 1 && (
-                            <div className="mt-8">
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    onPageChange={setCurrentPage}
-                                />
-                            </div>
-                        )}
-
-                        {/* No Results */}
-                        {filteredMarkets.length === 0 && (
-                            <div className="text-center py-8 sm:py-12">
-                                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <MapPin className="h-8 w-8 text-muted-foreground" />
+                            {hasMore && (
+                                <div className="px-4 py-6 text-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => setVisible(n => n + PAGE_SIZE)}
+                                        className="text-sm text-primary font-medium hover:underline"
+                                    >
+                                        Load more
+                                    </button>
                                 </div>
-                                <h3 className="text-base sm:text-lg font-semibold mb-2">No markets found</h3>
-                                <p className="text-muted-foreground">
-                                    Try adjusting your search or filters to find more markets.
-                                </p>
-                            </div>
-                        )}
+                            )}
+                        </section>
                     </div>
+
+                    <aside className="lg:pt-6 lg:sticky lg:top-4 lg:self-start lg:space-y-4">
+                        <div className="hidden lg:block px-4 text-xs text-muted-foreground space-y-1.5">
+                            <Link className="block hover:text-foreground" href="/markets/compare">Compare two markets →</Link>
+                            <Link className="block hover:text-foreground" href="/items">Browse all items</Link>
+                            <Link className="block hover:text-foreground" href="/about">About BazarDhor</Link>
+                        </div>
+                    </aside>
                 </div>
             </div>
 
-            <style jsx global>{`
-                @keyframes market-shimmer {
-                    0% { background-position: -200% 0; }
-                    100% { background-position: 200% 0; }
-                }
-                .market-shimmer {
-                    background: linear-gradient(
-                        90deg,
-                        hsl(var(--muted)) 25%,
-                        hsl(var(--muted-foreground) / 0.12) 50%,
-                        hsl(var(--muted)) 75%
-                    );
-                    background-size: 200% 100%;
-                    animation: market-shimmer 1.6s infinite linear;
-                }
-            `}</style>
+            <div className="lg:hidden container mx-auto max-w-3xl px-4 pt-8 text-center text-xs text-muted-foreground">
+                <Link href="/markets/compare" className="hover:text-foreground">Compare markets</Link>
+                <span className="mx-2">·</span>
+                <Link href="/items" className="hover:text-foreground">Items</Link>
+            </div>
+        </div>
+    );
+}
+
+function Chip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={`flex-none px-3 py-1.5 text-xs rounded-full border transition-colors whitespace-nowrap ${
+                active
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-background text-muted-foreground border-border hover:text-foreground'
+            }`}
+        >
+            {label}
+        </button>
+    );
+}
+
+function RowSkeleton() {
+    return (
+        <div className="flex items-center gap-3 px-4 py-3 animate-pulse">
+            <div className="w-16 h-16 rounded-lg bg-muted" />
+            <div className="flex-1 space-y-2">
+                <div className="h-3 w-2/5 bg-muted rounded" />
+                <div className="h-2.5 w-1/3 bg-muted rounded" />
+                <div className="h-2.5 w-1/4 bg-muted rounded" />
+            </div>
+        </div>
+    );
+}
+
+function EmptyState() {
+    return (
+        <div className="px-4 py-16 text-center">
+            <div className="w-12 h-12 mx-auto bg-muted rounded-full flex items-center justify-center mb-3">
+                <MapPin className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <p className="text-sm font-medium">No markets match your search.</p>
+            <p className="text-xs text-muted-foreground mt-1">Try a different keyword or clear the filter.</p>
         </div>
     );
 }

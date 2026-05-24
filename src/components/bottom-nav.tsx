@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Store, Grid3X3, User } from "lucide-react";
+import { Home, Store, Tag, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 
 const bottomNavItems = [
   { name: "Home", href: "/", icon: Home },
   { name: "Markets", href: "/markets", icon: Store },
-  { name: "Category", href: "/category", icon: Grid3X3 },
+  { name: "Items", href: "/items", icon: Tag },
   { name: "Profile", href: "/profile", icon: User },
 ];
 

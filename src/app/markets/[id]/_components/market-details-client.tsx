@@ -13,7 +13,6 @@ import {
   Globe,
   Mail,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { MarketItemsList } from './market-items-list';
 
 interface MarketData {
@@ -48,163 +47,174 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
     typeof marketData.latitude === 'number' &&
     typeof marketData.longitude === 'number';
 
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-card border-b sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="icon" asChild>
-                <Link href="/markets">
-                  <ArrowLeft className="h-5 w-5" />
-                </Link>
-              </Button>
-              <div>
-                <h1 className="text-lg sm:text-xl font-bold">{marketData.name}</h1>
-                {marketData.zone && (
-                  <p className="text-sm text-muted-foreground">{marketData.zone.name}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsFavorite(!isFavorite)}
-              >
-                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Share2 className="h-5 w-5" />
-              </Button>
-            </div>
+    <div className="pb-24">
+      <header className="container mx-auto max-w-3xl lg:max-w-6xl px-4 pt-5 pb-3">
+        <div className="flex items-center justify-between gap-3">
+          <Link
+            href="/markets"
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Markets
+          </Link>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setIsFavorite(!isFavorite)}
+              aria-label="Favorite"
+              className="h-8 w-8 inline-flex items-center justify-center rounded-full hover:bg-muted/60"
+            >
+              <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+            </button>
+            <button
+              type="button"
+              aria-label="Share"
+              className="h-8 w-8 inline-flex items-center justify-center rounded-full hover:bg-muted/60"
+            >
+              <Share2 className="h-4 w-4" />
+            </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Market Info Header */}
-      <div className="bg-card border-b">
-        <div className="container mx-auto px-4 py-3 lg:py-6">
-          <div className="flex flex-col lg:flex-row lg:gap-8">
-
-            {/* Left — info */}
-            <div className="flex-1 min-w-0">
-              {/* Status badges — only pills here, no mixed content */}
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                  marketData.is_open
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-muted text-muted-foreground'
-                }`}>
-                  {marketData.is_open ? 'Open Now' : 'Closed'}
-                </span>
-                {marketData.is_featured && (
-                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
-                    Featured
-                  </span>
-                )}
-              </div>
-
-              {/* Description */}
-              {marketData.description && (
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2 lg:line-clamp-3 leading-relaxed">
-                  {marketData.description}
-                </p>
-              )}
-
-              {/* Contact details — consistent icon size, alignment, visible on all screens */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5">
-                {marketData.address && (
-                  <div className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5 text-primary/60" />
-                    <span className="leading-snug">{marketData.address}</span>
-                  </div>
-                )}
-                {marketData.opening_hours != null && (
-                  <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4 flex-shrink-0 text-primary/60" />
-                    <span>{String(marketData.opening_hours)}</span>
-                  </div>
-                )}
-                {marketData.phone && (
-                  <a
-                    href={`tel:${marketData.phone}`}
-                    className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    <Phone className="h-4 w-4 flex-shrink-0 text-primary/60" />
-                    <span>{marketData.phone}</span>
-                  </a>
-                )}
-                {marketData.email && (
-                  <a
-                    href={`mailto:${marketData.email}`}
-                    className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-primary transition-colors min-w-0"
-                  >
-                    <Mail className="h-4 w-4 flex-shrink-0 text-primary/60" />
-                    <span className="truncate">{marketData.email}</span>
-                  </a>
-                )}
-                {marketData.website && (
-                  <a
-                    href={marketData.website.startsWith('http') ? marketData.website : `https://${marketData.website}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-primary transition-colors min-w-0"
-                  >
-                    <Globe className="h-4 w-4 flex-shrink-0 text-primary/60" />
-                    <span className="truncate">{marketData.website}</span>
-                  </a>
-                )}
-              </div>
-
-              {/* Directions — mobile only */}
-              {hasCoords && (
-                <div className="flex lg:hidden mt-4">
-                  <Button size="sm" variant="outline" asChild>
-                    <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${marketData.latitude},${marketData.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Navigation className="h-4 w-4 mr-2" />
-                      Get Directions
-                    </a>
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            {/* Right — directions button, desktop only */}
-            {hasCoords && (
-              <div className="hidden lg:flex flex-col justify-center flex-shrink-0">
-                <Button size="sm" asChild>
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${marketData.latitude},${marketData.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Navigation className="h-3.5 w-3.5 mr-2" />
-                    Get Directions
-                  </a>
-                </Button>
-              </div>
-            )}
-
-          </div>
+      <section className="container mx-auto max-w-3xl lg:max-w-6xl px-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h1 className="text-xl sm:text-2xl font-semibold leading-tight">{marketData.name}</h1>
+          <span
+            className={`flex-none text-[11px] font-medium px-2 py-0.5 rounded-full ${
+              marketData.is_open
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                : 'bg-muted text-muted-foreground'
+            }`}
+          >
+            {marketData.is_open ? 'Open' : 'Closed'}
+          </span>
         </div>
-      </div>
+        {marketData.zone && (
+          <p className="text-xs text-muted-foreground mt-1">{marketData.zone.name}</p>
+        )}
+        {marketData.description && (
+          <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+            {marketData.description}
+          </p>
+        )}
+      </section>
 
-      <div className="container mx-auto px-4 py-4 sm:py-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base sm:text-lg font-semibold">All Items</h3>
-          </div>
-          <MarketItemsList marketId={String(marketData.id)} />
+      <section className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 mt-4">
+        <div className="border-y lg:border lg:rounded-xl bg-card divide-y">
+          {marketData.address && (
+            <InfoRow icon={<MapPin className="h-4 w-4" />} label="Address" value={marketData.address} />
+          )}
+          {marketData.opening_hours != null && (
+            <InfoRow
+              icon={<Clock className="h-4 w-4" />}
+              label="Hours"
+              value={String(marketData.opening_hours)}
+            />
+          )}
+          {marketData.phone && (
+            <InfoRow
+              icon={<Phone className="h-4 w-4" />}
+              label="Phone"
+              value={marketData.phone}
+              href={`tel:${marketData.phone}`}
+            />
+          )}
+          {marketData.email && (
+            <InfoRow
+              icon={<Mail className="h-4 w-4" />}
+              label="Email"
+              value={marketData.email}
+              href={`mailto:${marketData.email}`}
+            />
+          )}
+          {marketData.website && (
+            <InfoRow
+              icon={<Globe className="h-4 w-4" />}
+              label="Website"
+              value={marketData.website}
+              href={
+                marketData.website.startsWith('http')
+                  ? marketData.website
+                  : `https://${marketData.website}`
+              }
+              external
+            />
+          )}
+          {hasCoords && (
+            <InfoRow
+              icon={<Navigation className="h-4 w-4" />}
+              label="Directions"
+              value="Open in Google Maps"
+              href={`https://www.google.com/maps/dir/?api=1&destination=${marketData.latitude},${marketData.longitude}`}
+              external
+              accent
+            />
+          )}
         </div>
-      </div>
+      </section>
+
+      <section className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 mt-6">
+        <h2 className="px-4 lg:px-0 text-base font-semibold mb-2">All items</h2>
+        <MarketItemsList marketId={String(marketData.id)} />
+      </section>
     </div>
   );
+}
+
+function InfoRow({
+  icon,
+  label,
+  value,
+  href,
+  external = false,
+  accent = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  href?: string;
+  external?: boolean;
+  accent?: boolean;
+}) {
+  const content = (
+    <>
+      <span
+        aria-hidden
+        className={`flex-none w-9 h-9 rounded-full ${
+          accent ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'
+        } flex items-center justify-center`}
+      >
+        {icon}
+      </span>
+      <span className="flex-1 min-w-0">
+        <span className="block text-[11px] text-muted-foreground uppercase tracking-wide">
+          {label}
+        </span>
+        <span
+          className={`block text-sm truncate ${accent ? 'text-primary font-medium' : 'font-medium'}`}
+        >
+          {value}
+        </span>
+      </span>
+    </>
+  );
+
+  const className =
+    'w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors';
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        target={external ? '_blank' : undefined}
+        rel={external ? 'noopener noreferrer' : undefined}
+        className={className}
+      >
+        {content}
+      </a>
+    );
+  }
+  return <div className={className}>{content}</div>;
 }

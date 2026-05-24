@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, Home, Store, Grid3X3, Info, Bell, LogIn } from "lucide-react";
+import { Menu, Home, Store, Tag, Info, Bell, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useConfig } from "@/hooks/use-config";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 const navigation = [
   { name: "Home", href: "/", icon: Home },
   { name: "Markets", href: "/markets", icon: Store },
-  { name: "Category", href: "/category", icon: Grid3X3 },
+  { name: "Items", href: "/items", icon: Tag },
   { name: "About", href: "/about", icon: Info },
 ];
 

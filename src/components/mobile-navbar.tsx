@@ -13,7 +13,7 @@ import {
   Menu,
   Home,
   Store,
-  Grid3X3,
+  Tag,
   Info,
   Search,
   Bell,
@@ -29,7 +29,7 @@ import { cn } from "@/lib/utils";
 const navigation = [
   { name: "Home", href: "/", icon: Home },
   { name: "Markets", href: "/markets", icon: Store },
-  { name: "Category", href: "/category", icon: Grid3X3 },
+  { name: "Items", href: "/items", icon: Tag },
   { name: "About", href: "/about", icon: Info },
 ];
 

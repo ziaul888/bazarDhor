@@ -1,22 +1,21 @@
 "use client";
 
 import { useState } from 'react';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Bell, 
-  Shield, 
-  Heart, 
-  ShoppingCart, 
-  TrendingUp, 
-  Settings, 
-  Edit3, 
-  Camera,
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Bell,
+  Shield,
+  Heart,
+  ShoppingCart,
+  TrendingUp,
+  Settings,
+  Edit3,
   Star,
   Clock,
-  LogIn
+  LogIn,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProfileSettings } from './_components/profile-settings';
@@ -25,33 +24,58 @@ import { FavoriteMarkets } from './_components/favorite-markets';
 import { useAuth } from '@/components/auth/auth-context';
 
 const getUserInitial = (name?: string | null, email?: string | null): string => {
-  const safeName = (name || "").trim();
-  if (safeName) return safeName[0]?.toUpperCase() ?? "U";
+  const safeName = (name || '').trim();
+  if (safeName) return safeName[0]?.toUpperCase() ?? 'U';
 
-  const safeEmail = (email || "").trim();
-  if (safeEmail) return safeEmail[0]?.toUpperCase() ?? "U";
+  const safeEmail = (email || '').trim();
+  if (safeEmail) return safeEmail[0]?.toUpperCase() ?? 'U';
 
-  return "U";
+  return 'U';
 };
 
 const formatJoinDate = (createdAt?: string | null): string => {
-  if (!createdAt) return "—";
+  if (!createdAt) return '—';
   const date = new Date(createdAt);
-  if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleDateString(undefined, { year: "numeric", month: "long" });
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long' });
 };
 
 const tabs = [
   { id: 'overview', label: 'Overview', icon: User },
   { id: 'settings', label: 'Settings', icon: Settings },
   { id: 'activity', label: 'Activity', icon: Clock },
-  { id: 'favorites', label: 'Favorites', icon: Heart }
+  { id: 'favorites', label: 'Favorites', icon: Heart },
 ];
+
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  joinDate: string;
+  stats: {
+    marketsVisited: number;
+    priceUpdates: number;
+    reviewsWritten: number;
+  };
+  preferences: {
+    notifications: {
+      priceAlerts: boolean;
+      newMarkets: boolean;
+      weeklyDigest: boolean;
+      promotions: boolean;
+    };
+    privacy: {
+      profileVisible: boolean;
+      shareLocation: boolean;
+    };
+  };
+}
 
 export default function ProfilePage() {
   const { hasHydrated, isAuthenticated, user, openAuthModal } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
-  const [isEditing, setIsEditing] = useState(false);
 
   const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('auth_token');
   const isLoadingUser = hasHydrated && hasToken && !user;
@@ -66,16 +90,18 @@ export default function ProfilePage() {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md bg-card border rounded-xl p-6 text-center">
-          <h1 className="text-lg font-semibold mb-2">Sign in required</h1>
-          <p className="text-sm text-muted-foreground mb-6">
-            Please sign in to view your profile.
-          </p>
-          <Button onClick={() => openAuthModal('signin')} className="w-full">
-            <LogIn className="h-4 w-4 mr-2" />
-            Sign In
-          </Button>
+      <div className="pb-24">
+        <div className="container mx-auto max-w-3xl px-4 mt-8">
+          <div className="rounded-xl border bg-card p-6 text-center">
+            <h1 className="text-base font-semibold mb-1">Sign in required</h1>
+            <p className="text-xs text-muted-foreground mb-4">
+              Please sign in to view your profile.
+            </p>
+            <Button size="sm" onClick={() => openAuthModal('signin')} className="w-full sm:w-auto">
+              <LogIn className="h-4 w-4 mr-2" />
+              Sign in
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -139,278 +165,145 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground">
-        <div className="container mx-auto px-4 py-4 sm:py-6 md:py-12 pb-10">
-          {/* Mobile Layout */}
-          <div className="md:hidden">
-            <div className="flex items-center space-x-4 mb-4">
-              {/* Avatar */}
-              <div className="relative flex-shrink-0">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-3 border-white/20 bg-white/10 flex items-center justify-center">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={userData.name}
-                      className="h-full w-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <span className="text-2xl font-bold text-white">{userInitial}</span>
-                  )}
-                </div>
-                <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-white text-primary rounded-full flex items-center justify-center shadow-lg hover:bg-white/90 transition-colors">
-                  <Camera className="h-3.5 w-3.5" />
-                </button>
-              </div>
-
-              {/* User Info - Mobile */}
-              <div className="flex-1 min-w-0">
-                <h1 className="text-lg font-bold truncate mb-2">{userData.name}</h1>
-                <div className="flex items-center space-x-3 text-xs text-primary-foreground/70">
-                  <span className="flex items-center space-x-1">
-                    <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                    <span className="truncate">{userData.location}</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile Action Buttons */}
-            <div className="flex space-x-2">
-              <Button 
-                variant="secondary" 
-                size="sm"
-                onClick={() => setIsEditing(!isEditing)}
-                className="flex-1 text-sm"
-              >
-                <Edit3 className="h-4 w-4 mr-2" />
-                Edit Profile
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Mobile Join Date */}
-            <div className="flex items-center justify-center space-x-1 mt-3 text-xs text-primary-foreground/60">
-              <Clock className="h-3.5 w-3.5" />
-              <span>Joined {userData.joinDate}</span>
-            </div>
+    <div className="pb-24">
+      <section className="container mx-auto max-w-3xl lg:max-w-6xl px-4 pt-4">
+        <div className="flex items-center gap-3">
+          <span
+            aria-hidden
+            className="flex-none w-14 h-14 rounded-full overflow-hidden bg-primary/10 text-primary font-semibold flex items-center justify-center text-xl"
+          >
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={userData.name}
+                className="h-full w-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              userInitial
+            )}
+          </span>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg font-semibold leading-tight truncate">{userData.name}</h1>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">
+              {userData.location}
+              <span className="mx-1.5">·</span>
+              Joined {userData.joinDate}
+            </p>
           </div>
-
-          {/* Desktop Layout */}
-          <div className="hidden md:flex items-center space-y-0 space-x-6">
-            {/* Avatar */}
-            <div className="relative">
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 bg-white/10 flex items-center justify-center">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={userData.name}
-                    className="h-full w-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <span className="text-4xl font-bold text-white">{userInitial}</span>
-                )}
-              </div>
-              <button className="absolute bottom-0 right-0 w-8 h-8 bg-white text-primary rounded-full flex items-center justify-center shadow-lg hover:bg-white/90 transition-colors">
-                <Camera className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* User Info */}
-            <div className="flex-1 text-left">
-              <h1 className="text-2xl md:text-3xl font-bold mb-2">{userData.name}</h1>
-              <div className="flex items-center space-x-4 text-sm text-primary-foreground/70">
-                <span className="flex items-center space-x-1">
-                  <MapPin className="h-4 w-4" />
-                  <span>{userData.location}</span>
-                </span>
-                <span className="flex items-center space-x-1">
-                  <Clock className="h-4 w-4" />
-                  <span>Joined {userData.joinDate}</span>
-                </span>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex space-x-3">
-              <Button 
-                variant="secondary" 
-                size="sm"
-                onClick={() => setIsEditing(!isEditing)}
-              >
-                <Edit3 className="h-4 w-4 mr-2" />
-                Edit Profile
-              </Button>
-            </div>
-          </div>
+          <Button size="sm" variant="outline" className="hidden sm:inline-flex">
+            <Edit3 className="h-3.5 w-3.5 mr-1.5" />
+            Edit
+          </Button>
         </div>
-      </div>
+      </section>
 
-      {/* Stats Cards */}
-      <div className="container mx-auto px-4 -mt-6 sm:-mt-8 mb-6 sm:mb-8">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          <div className="bg-card rounded-xl p-3 sm:p-4 border shadow-sm">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
-              </div>
-              <div>
-                <div className="text-lg sm:text-2xl font-bold">{userData.stats.marketsVisited}</div>
-                <div className="text-xs text-muted-foreground">Markets Visited</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl p-3 sm:p-4 border shadow-sm">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
-              </div>
-              <div>
-                <div className="text-lg sm:text-2xl font-bold">{userData.stats.priceUpdates}</div>
-                <div className="text-xs text-muted-foreground">Price Updates</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl p-3 sm:p-4 border shadow-sm">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
-                <Star className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600" />
-              </div>
-              <div>
-                <div className="text-lg sm:text-2xl font-bold">{userData.stats.reviewsWritten}</div>
-                <div className="text-xs text-muted-foreground">Reviews Written</div>
-              </div>
-            </div>
-          </div>
-
+      <section className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 mt-4">
+        <div className="border-y lg:border lg:rounded-xl bg-card divide-x grid grid-cols-3">
+          <Stat
+            icon={<MapPin className="h-4 w-4 text-primary" />}
+            value={userData.stats.marketsVisited}
+            label="Markets"
+          />
+          <Stat
+            icon={<TrendingUp className="h-4 w-4 text-primary" />}
+            value={userData.stats.priceUpdates}
+            label="Updates"
+          />
+          <Stat
+            icon={<Star className="h-4 w-4 text-primary" />}
+            value={userData.stats.reviewsWritten}
+            label="Reviews"
+          />
         </div>
-      </div>
+      </section>
 
-      {/* Tabs */}
-      <div className="container mx-auto px-4">
-        <div className="border-b border-border mb-4 sm:mb-6">
-          <nav className="flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide">
+      <div className="container mx-auto max-w-3xl lg:max-w-6xl px-4 mt-6">
+        <div className="border-b border-border">
+          <nav className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar -mx-1 px-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-1.5 py-2.5 border-b-2 text-sm whitespace-nowrap transition-colors ${
                   activeTab === tab.id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground'
+                    ? 'border-primary text-primary font-medium'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
-                <span className="hidden sm:inline">{tab.label}</span>
-                <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
+                {tab.label}
               </button>
             ))}
           </nav>
         </div>
 
-        {/* Tab Content */}
-        <div className="pb-6 sm:pb-8">
-          {renderTabContent()}
+        <div className="mt-4">{renderTabContent()}</div>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
+  return (
+    <div className="px-3 py-3 text-center">
+      <div className="flex items-center justify-center gap-1.5">
+        {icon}
+        <span className="text-lg font-semibold">{value}</span>
+      </div>
+      <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
+    </div>
+  );
+}
+
+function OverviewTab({ userData }: { userData: UserData }) {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-4">
+      <div>
+        <h2 className="text-sm font-semibold px-1 mb-2">Personal info</h2>
+        <div className="rounded-xl border bg-card divide-y">
+          <InfoRow icon={<Mail className="h-4 w-4" />} label="Email" value={userData.email || '—'} />
+          <InfoRow icon={<Phone className="h-4 w-4" />} label="Phone" value={userData.phone} />
+          <InfoRow icon={<MapPin className="h-4 w-4" />} label="Location" value={userData.location} />
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-sm font-semibold px-1 mb-2">Quick actions</h2>
+        <div className="rounded-xl border bg-card divide-y">
+          <ActionRow icon={<Bell className="h-4 w-4" />} label="Notification settings" />
+          <ActionRow icon={<Shield className="h-4 w-4" />} label="Privacy settings" />
+          <ActionRow icon={<ShoppingCart className="h-4 w-4" />} label="Order history" />
         </div>
       </div>
     </div>
   );
 }
 
-// User data type
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  joinDate: string;
-  stats: {
-    marketsVisited: number;
-    priceUpdates: number;
-    reviewsWritten: number;
-  };
-  preferences: {
-    notifications: {
-      priceAlerts: boolean;
-      newMarkets: boolean;
-      weeklyDigest: boolean;
-      promotions: boolean;
-    };
-    privacy: {
-      profileVisible: boolean;
-      shareLocation: boolean;
-    };
-  };
-}
-
-// Overview Tab Component
-function OverviewTab({ userData }: { userData: UserData }) {
+function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Personal Information */}
-      <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-        <div className="bg-card rounded-xl p-4 sm:p-6 border">
-          <h3 className="text-base sm:text-lg font-semibold mb-4">Personal Information</h3>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <Mail className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="font-medium truncate">{userData.email}</div>
-                <div className="text-sm text-muted-foreground">Email Address</div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Phone className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="font-medium">{userData.phone}</div>
-                <div className="text-sm text-muted-foreground">Phone Number</div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="font-medium truncate">{userData.location}</div>
-                <div className="text-sm text-muted-foreground">Location</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Sidebar */}
-      <div className="space-y-4 sm:space-y-6">
-        {/* Quick Actions */}
-        <div className="bg-card rounded-xl p-4 sm:p-6 border">
-          <h3 className="text-base sm:text-lg font-semibold mb-4">Quick Actions</h3>
-          <div className="space-y-3">
-            <Button variant="outline" className="w-full justify-start text-sm">
-              <Bell className="h-4 w-4 mr-3" />
-              Notification Settings
-            </Button>
-            <Button variant="outline" className="w-full justify-start text-sm">
-              <Shield className="h-4 w-4 mr-3" />
-              Privacy Settings
-            </Button>
-            <Button variant="outline" className="w-full justify-start text-sm">
-              <ShoppingCart className="h-4 w-4 mr-3" />
-              Order History
-            </Button>
-          </div>
-        </div>
+    <div className="flex items-center gap-3 px-4 py-3">
+      <span className="flex-none w-9 h-9 rounded-full bg-muted text-muted-foreground flex items-center justify-center">
+        {icon}
+      </span>
+      <div className="flex-1 min-w-0">
+        <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{label}</p>
+        <p className="text-sm font-medium truncate">{value}</p>
       </div>
     </div>
+  );
+}
+
+function ActionRow({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <button
+      type="button"
+      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
+    >
+      <span className="flex-none w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+        {icon}
+      </span>
+      <span className="flex-1 text-sm font-medium">{label}</span>
+    </button>
   );
 }

@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="pb-24">
       <HomeHeader />
-      <NearestMarketSection />
+      
 
       <div className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 lg:mt-4">
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
@@ -23,6 +23,7 @@ export default function Home() {
           </aside>
         </div>
       </div>
+      <NearestMarketSection />
 
       <div className="lg:hidden container mx-auto max-w-3xl px-4 pt-8 text-center text-xs text-muted-foreground">
         <a href="/markets" className="hover:text-foreground">Nearby markets</a>

@@ -201,10 +201,10 @@ export function MarketListItem({
     market.distance && market.distance !== 'N/A' ? ` • ${market.distance}` : '';
 
   return (
-    <Card className={`hover:shadow-md transition-all duration-300 overflow-hidden ${className}`}>
-      <div className="flex items-stretch">
+    <Card className={`hover:shadow-md transition-all duration-300 overflow-hidden py-0 gap-0 ${className}`}>
+      <div className="flex items-stretch min-h-28 sm:min-h-32">
         {/* Thumbnail */}
-        <div className="relative w-24 sm:w-32 flex-shrink-0 bg-muted">
+        <div className="relative w-28 sm:w-36 flex-shrink-0 bg-muted self-stretch">
           {!imgError ? (
             <Image
               src={market.image}
