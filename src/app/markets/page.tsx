@@ -6,6 +6,7 @@ import { Search, MapPin, GitCompare, Loader2 } from 'lucide-react';
 import { MarketListItem } from '@/components/market-card';
 import { useMarketList, useSearchMarkets } from '@/lib/api/hooks/useMarkets';
 import type { Market } from '@/lib/api/types';
+import { NearestMarketSection } from '@/app/_components/nearest-market-section';
 
 const fallbackMarkets: Market[] = [
     {
@@ -283,6 +284,8 @@ export default function MarketsPage() {
 
     return (
         <div className="pb-24">
+            <NearestMarketSection />
+
             <div className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 lg:mt-4">
                 <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
                     <div className="lg:min-w-0">
