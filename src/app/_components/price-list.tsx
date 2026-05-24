@@ -56,8 +56,8 @@ export function PriceList() {
   return (
     <section>
       <h2 className="px-4 pt-6 text-base font-semibold">Today&apos;s prices</h2>
-      {/* Category chips */}
-      <div className="px-4 pt-3 pb-2 sticky top-0 z-10 bg-background">
+      {/* Category chips — desktop only */}
+      <div className="hidden lg:block px-4 pt-3 pb-2 sticky top-0 z-10 bg-background">
         <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
           <Chip
             label="All"
