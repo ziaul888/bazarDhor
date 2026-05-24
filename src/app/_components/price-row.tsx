@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { PencilLine } from 'lucide-react';
+import { PencilLine, Package } from 'lucide-react';
 import { ProductPriceDialog } from '@/components/product-price-dialog';
 import { useSubmitProductPrice } from '@/lib/api/hooks/useUser';
 import { handleApiError } from '@/lib/api/client';
@@ -30,7 +30,6 @@ export function PriceRow({ item }: PriceRowProps) {
   const [imageError, setImageError] = useState(false);
   const submit = useSubmitProductPrice();
 
-  const initial = item.name.trim().charAt(0).toUpperCase() || '?';
   const hasImage = Boolean(item.image && item.image.trim().length > 0) && !imageError;
 
   const handleOpen = () => {
@@ -83,7 +82,7 @@ export function PriceRow({ item }: PriceRowProps) {
               onError={() => setImageError(true)}
             />
           ) : (
-            initial
+            <Package className="h-4 w-4" />
           )}
         </span>
 

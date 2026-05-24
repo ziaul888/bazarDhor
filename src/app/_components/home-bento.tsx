@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   Activity,
   Flame,
   MapPin,
+  Package,
   Sparkles,
   Store,
   TrendingDown,
@@ -108,8 +109,8 @@ export function HomeBento() {
     return list.sort((a, b) => b.savingsPct - a.savingsPct);
   }, [products]);
 
-  const hero = deals[0];
-  const trending = deals.slice(1, 3);
+  const heroDeals = deals.slice(0, 3);
+  const trending = deals.slice(3, 6);
 
   const activity = useMemo<FeedItem[]>(() => {
     if (!products) return [];
@@ -185,53 +186,17 @@ export function HomeBento() {
 
   return (
     <section className="px-4 pt-4 space-y-3">
-      {/* Hero — full width on every breakpoint */}
+      {/* Hero slider — auto-rotates top deals, swipeable on mobile */}
       {loading ? (
         <div className="h-52 sm:h-64 rounded-2xl border bg-card overflow-hidden">
           <div className="h-full w-full bg-muted/60 animate-pulse" />
         </div>
-      ) : hero ? (
-        <button
-          type="button"
-          onClick={() => handleOpen(hero)}
-          className="group relative w-full h-52 sm:h-64 rounded-2xl border bg-card overflow-hidden text-left"
-        >
-          {hero.image ? (
-            <Image
-              src={hero.image}
-              alt={hero.name}
-              fill
-              sizes="(max-width: 1024px) 100vw, 720px"
-              className="object-cover transition-transform group-hover:scale-[1.03]"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/25 to-primary/5" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-green-500 text-white text-xs font-semibold px-2.5 py-1 shadow-sm">
-            <Flame className="h-3.5 w-3.5" />
-            Hottest · save {hero.savingsPct}%
-          </span>
-          <div className="absolute bottom-3 left-3 right-3 text-white">
-            <p className="text-[11px] uppercase tracking-wide text-white/70 truncate">
-              @{hero.marketName}
-            </p>
-            <p className="text-lg sm:text-2xl font-semibold leading-tight truncate">
-              {hero.name}
-            </p>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl sm:text-3xl font-bold tabular-nums">
-                ৳ {taka.format(hero.price)}
-              </span>
-              <span className="text-sm text-white/70 line-through tabular-nums">
-                ৳ {taka.format(hero.original)}
-              </span>
-              {hero.unit ? (
-                <span className="text-[11px] text-white/70">/ {hero.unit}</span>
-              ) : null}
-            </div>
-          </div>
-        </button>
+      ) : heroDeals.length > 0 ? (
+        <HeroSlider
+          deals={heroDeals}
+          onOpen={handleOpen}
+          paused={Boolean(activeDeal)}
+        />
       ) : (
         <EmptyTile
           icon={<Sparkles className="h-5 w-5 text-primary/60" />}
@@ -305,15 +270,7 @@ export function HomeBento() {
                 onClick={() => handleOpen(d)}
                 className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/40 transition-colors"
               >
-                <span className="relative flex-none w-10 h-10 rounded-lg overflow-hidden bg-primary/10">
-                  {d.image ? (
-                    <Image src={d.image} alt="" fill sizes="40px" className="object-cover" />
-                  ) : (
-                    <span className="absolute inset-0 flex items-center justify-center text-primary text-sm font-semibold">
-                      {d.name.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </span>
+                <TrendingThumb src={d.image} />
                 <span className="flex-1 min-w-0">
                   <span className="block text-sm font-medium truncate">{d.name}</span>
                   <span className="block text-[11px] text-muted-foreground truncate">
@@ -411,6 +368,156 @@ export function HomeBento() {
         saving={submit.isPending}
       />
     </section>
+  );
+}
+
+const SLIDE_INTERVAL_MS = 5000;
+
+const SWIPE_THRESHOLD = 50;
+
+function HeroSlider({
+  deals,
+  onOpen,
+  paused,
+}: {
+  deals: Deal[];
+  onOpen: (deal: Deal) => void;
+  paused: boolean;
+}) {
+  const [index, setIndex] = useState(0);
+  const [hovered, setHovered] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const touchDeltaX = useRef(0);
+
+  useEffect(() => {
+    if (deals.length <= 1 || paused || hovered) return;
+    const id = window.setInterval(() => {
+      setIndex((i) => (i + 1) % deals.length);
+    }, SLIDE_INTERVAL_MS);
+    return () => window.clearInterval(id);
+  }, [deals.length, paused, hovered]);
+
+  useEffect(() => {
+    if (index >= deals.length) setIndex(0);
+  }, [deals.length, index]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchDeltaX.current = 0;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    touchDeltaX.current = e.touches[0].clientX - touchStartX.current;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null) return;
+    const delta = touchDeltaX.current;
+    touchStartX.current = null;
+    touchDeltaX.current = 0;
+    if (Math.abs(delta) < SWIPE_THRESHOLD || deals.length <= 1) return;
+    if (delta < 0) {
+      setIndex((i) => (i + 1) % deals.length);
+    } else {
+      setIndex((i) => (i - 1 + deals.length) % deals.length);
+    }
+  };
+
+  return (
+    <div
+      className="relative overflow-hidden rounded-2xl"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div
+        className="flex transition-transform duration-500 ease-out"
+        style={{ transform: `translateX(-${index * 100}%)` }}
+      >
+        {deals.map((deal) => (
+          <HeroSlide
+            key={`${deal.productId}-${deal.marketId}`}
+            deal={deal}
+            onClick={() => onOpen(deal)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HeroSlide({ deal, onClick }: { deal: Deal; onClick: () => void }) {
+  const [errored, setErrored] = useState(false);
+  const hasImage = Boolean(deal.image && deal.image.trim().length > 0) && !errored;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex-none w-full relative h-52 sm:h-64 bg-card overflow-hidden text-left"
+    >
+      {hasImage ? (
+        <Image
+          src={deal.image!}
+          alt={deal.name}
+          fill
+          sizes="(max-width: 1024px) 100vw, 720px"
+          className="object-cover transition-transform group-hover:scale-[1.03]"
+          onError={() => setErrored(true)}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/25 to-primary/5 flex items-center justify-center">
+          <Package className="h-12 w-12 text-primary/40" />
+        </div>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+      <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-green-500 text-white text-xs font-semibold px-2.5 py-1 shadow-sm">
+        <Flame className="h-3.5 w-3.5" />
+        Hottest · save {deal.savingsPct}%
+      </span>
+      <div className="absolute bottom-3 left-3 right-3 text-white">
+        <p className="text-[11px] uppercase tracking-wide text-white/70 truncate">
+          @{deal.marketName}
+        </p>
+        <p className="text-lg sm:text-2xl font-semibold leading-tight truncate">
+          {deal.name}
+        </p>
+        <div className="flex items-baseline gap-2 mt-1">
+          <span className="text-2xl sm:text-3xl font-bold tabular-nums">
+            ৳ {taka.format(deal.price)}
+          </span>
+          <span className="text-sm text-white/70 line-through tabular-nums">
+            ৳ {taka.format(deal.original)}
+          </span>
+          {deal.unit ? (
+            <span className="text-[11px] text-white/70">/ {deal.unit}</span>
+          ) : null}
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function TrendingThumb({ src }: { src?: string }) {
+  const [errored, setErrored] = useState(false);
+  const showImage = Boolean(src && src.trim().length > 0) && !errored;
+  return (
+    <span className="relative flex-none w-10 h-10 rounded-lg overflow-hidden bg-primary/10 text-primary flex items-center justify-center">
+      {showImage ? (
+        <Image
+          src={src!}
+          alt=""
+          fill
+          sizes="40px"
+          className="object-cover"
+          onError={() => setErrored(true)}
+        />
+      ) : (
+        <Package className="h-4 w-4" />
+      )}
+    </span>
   );
 }
 

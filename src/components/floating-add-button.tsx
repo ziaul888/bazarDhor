@@ -10,7 +10,8 @@ interface FloatingAddButtonProps {
 }
 
 export function GlobalFloatingAddButton() {
-  const { openAddDrawer } = useAddItem();
+  const { openAddDrawer, isAddDrawerOpen } = useAddItem();
+  if (isAddDrawerOpen) return null;
   return <FloatingAddButton onClick={openAddDrawer} />;
 }
 
