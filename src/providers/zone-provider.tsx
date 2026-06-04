@@ -23,6 +23,7 @@ interface ZoneProviderProps {
 
 const DEFAULT_LOCATION = { lat: 23.8103, lng: 90.4125 };
 const IP_GEO_TIMEOUT_MS = 5000;
+const GPS_TIMEOUT_MS = 8000;
 
 const toCoordinate = (value: unknown) => {
     if (typeof value === 'number' && Number.isFinite(value)) {
@@ -87,6 +88,43 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
 
     const { mutate, data, isPending, error } = useGetZoneMutation();
 
+    // Why: prefer the device's actual current location over IP fallback so the
+    // zone API receives a precise lat/lng. Resolves to null on denial, error,
+    // unsupported environments, or if the user doesn't respond within the timeout.
+    const getLocationFromGPS = (): Promise<{ lat: number; lng: number } | null> =>
+        new Promise((resolve) => {
+            if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
+                resolve(null);
+                return;
+            }
+            let settled = false;
+            const finish = (value: { lat: number; lng: number } | null) => {
+                if (settled) return;
+                settled = true;
+                resolve(value);
+            };
+            const timeoutId = window.setTimeout(() => finish(null), GPS_TIMEOUT_MS);
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    window.clearTimeout(timeoutId);
+                    const parsed = parseCoordinates(
+                        position.coords.latitude,
+                        position.coords.longitude
+                    );
+                    finish(parsed);
+                },
+                () => {
+                    window.clearTimeout(timeoutId);
+                    finish(null);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: GPS_TIMEOUT_MS,
+                    maximumAge: 60_000,
+                }
+            );
+        });
+
     /**
      * Get location from IP address (no permission required)
      */
@@ -138,7 +176,7 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
             const storedLng = localStorage.getItem('user_lng');
 
             if (storedLat && storedLng) {
-                // Use stored coordinates
+                // Reuse a previously-resolved precise location if it's still valid.
                 const parsedStoredCoordinates = parseCoordinates(storedLat, storedLng);
                 if (parsedStoredCoordinates) {
                     setCoordinates(parsedStoredCoordinates);
@@ -146,9 +184,22 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
                     return;
                 }
 
-                // Clear corrupted coordinates and continue with IP/default fallback
+                // Clear corrupted coordinates and continue with GPS/IP/default fallback
                 localStorage.removeItem('user_lat');
                 localStorage.removeItem('user_lng');
+            }
+
+            // Try the device GPS first — this is the user's actual current location.
+            // If permission is denied or unsupported, falls through to IP / default.
+            const gpsLocation = await getLocationFromGPS();
+            if (gpsLocation) {
+                localStorage.setItem('user_lat', gpsLocation.lat.toString());
+                localStorage.setItem('user_lng', gpsLocation.lng.toString());
+                localStorage.setItem('location_source', 'gps');
+
+                setCoordinates(gpsLocation);
+                mutate(gpsLocation);
+                return;
             }
 
             // Try IP-based geolocation (no permission needed)
@@ -163,7 +214,7 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
                 setCoordinates(ipLocation);
                 mutate(ipLocation);
             } else {
-                // Fallback to default location
+                // Last resort: hardcoded default
                 localStorage.setItem('user_lat', DEFAULT_LOCATION.lat.toString());
                 localStorage.setItem('user_lng', DEFAULT_LOCATION.lng.toString());
                 localStorage.setItem('location_source', 'default');

@@ -14,6 +14,14 @@ import type {
   MarketProductComparisonResponse
 } from '../types';
 
+export type RandomProductsParams = {
+  category_id?: string | number;
+  sort_by?: 'latest' | 'trending' | 'now';
+  sort_order?: 'asc' | 'desc';
+  limit?: number;
+  offset?: number;
+};
+
 export const marketsApi = {
   // Get all markets with filters
   getMarkets: async (filters?: MarketFilters): Promise<PaginatedResponse<Market>> => {
@@ -112,9 +120,14 @@ export const marketsApi = {
     return data;
   },
 
-  // Get random list of products
-  getRandomProducts: async (): Promise<Product[]> => {
-    const { data } = await apiClient.get<{ data: Product[] }>('/markets/random-product-list');
+  // Why: callers (e.g. the home Today's prices feed) need to pass category and sort
+  // filters down to the backend so the API can return server-filtered/sorted data.
+  // How: params are forwarded as query string; unknown params are ignored by the
+  // backend until support is added, so this stays forward-compatible.
+  getRandomProducts: async (params?: RandomProductsParams): Promise<Product[]> => {
+    const { data } = await apiClient.get<{ data: Product[] }>('/markets/random-product-list', {
+      params: params && Object.keys(params).length > 0 ? params : undefined,
+    });
     return data.data || [];
   },
 

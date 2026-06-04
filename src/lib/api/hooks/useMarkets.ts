@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { marketsApi } from '../services/markets';
+import { marketsApi, type RandomProductsParams } from '../services/markets';
 import type { MarketFilters, MarketListParams, ItemFilters, MarketComparisonParams, MarketProductComparisonParams, MarketProductComparisonResponse, ApiResponse } from '../types';
 import { useZone } from '@/providers/zone-provider';
 
@@ -17,7 +17,8 @@ export const marketKeys = {
   nearby: (lat: number, lng: number) => [...marketKeys.all, 'nearby', lat, lng] as const,
   categories: () => [...marketKeys.all, 'categories'] as const,
   random: () => [...marketKeys.all, 'random'] as const,
-  randomProducts: () => [...marketKeys.all, 'random-products'] as const,
+  randomProducts: (params?: RandomProductsParams) =>
+    [...marketKeys.all, 'random-products', params || {}] as const,
   compare: (params: MarketComparisonParams) => [...marketKeys.all, 'compare', params] as const,
   compareProducts: (params: MarketProductComparisonParams) => [...marketKeys.all, 'compare-products', params] as const,
 };
@@ -139,12 +140,12 @@ export const useCompareMarketProducts = (params: MarketProductComparisonParams, 
   });
 };
 
-export const useRandomProducts = () => {
+export const useRandomProducts = (params?: RandomProductsParams) => {
   const { zone } = useZone();
 
   return useQuery({
-    queryKey: marketKeys.randomProducts(),
-    queryFn: () => marketsApi.getRandomProducts(),
+    queryKey: marketKeys.randomProducts(params),
+    queryFn: () => marketsApi.getRandomProducts(params),
     enabled: !!zone?.id,
     staleTime: 5 * 60 * 1000,
   });

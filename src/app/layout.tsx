@@ -146,7 +146,9 @@ export default async function RootLayout({
                   <main className="min-h-screen pb-20 md:pb-0">
                     <RouteTransition>{children}</RouteTransition>
                   </main>
-                  <Footer />
+                  <div className="hidden md:block">
+                    <Footer />
+                  </div>
                   <BottomNav />
                   <AuthModal />
                   <AddItemDrawer />
@@ -155,7 +157,7 @@ export default async function RootLayout({
                   <OfflineIndicator />
                   <PWAStatus />
                   <Notifications />
-                  <Toaster position="top-right" richColors closeButton />
+                  <Toaster position="top-center" richColors closeButton />
                 </AddItemProvider>
               </AuthProvider>
             </SearchProvider>

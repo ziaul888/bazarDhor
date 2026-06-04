@@ -10,8 +10,6 @@ import {
   Package,
   Sparkles,
   Store,
-  TrendingDown,
-  Users,
 } from 'lucide-react';
 import { useRandomMarkets, useRandomProducts } from '@/lib/api/hooks/useMarkets';
 import { useZone } from '@/providers/zone-provider';
@@ -36,17 +34,6 @@ type Deal = {
   unit?: string;
 };
 
-type FeedItem = {
-  key: string;
-  productName: string;
-  initial: string;
-  price: number;
-  marketName: string;
-  marketId: string;
-  unit?: string;
-  lastUpdate: number;
-};
-
 function resolveImage(value?: string | null) {
   if (!value) return undefined;
   const t = value.trim();
@@ -58,22 +45,6 @@ function resolveImage(value?: string | null) {
 function parseTs(value: string): number {
   const t = Date.parse(value);
   return Number.isFinite(t) ? t : 0;
-}
-
-function timeAgo(ts: number, now: number) {
-  if (!ts) return 'recently';
-  const diff = Math.max(0, now - ts);
-  const sec = Math.floor(diff / 1000);
-  if (sec < 60) return 'just now';
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}m`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h`;
-  const day = Math.floor(hr / 24);
-  if (day < 7) return `${day}d`;
-  const wk = Math.floor(day / 7);
-  if (wk < 4) return `${wk}w`;
-  return `${Math.floor(day / 30)}mo`;
 }
 
 export function HomeBento() {
@@ -110,30 +81,19 @@ export function HomeBento() {
   }, [products]);
 
   const heroDeals = deals.slice(0, 3);
-  const trending = deals.slice(3, 6);
 
-  const activity = useMemo<FeedItem[]>(() => {
-    if (!products) return [];
-    const rows: FeedItem[] = [];
-    for (const p of products) {
-      for (const mp of p.market_prices ?? []) {
-        const ts = parseTs(mp.last_update);
-        const price = mp.discount_price && mp.discount_price > 0 ? mp.discount_price : mp.price;
-        if (!price) continue;
-        rows.push({
-          key: `${p.id}-${mp.id}`,
-          productName: p.name,
-          initial: p.name.trim().charAt(0).toUpperCase() || '?',
-          price,
-          marketName: mp.market?.name || 'Local market',
-          marketId: String(mp.market?.id ?? ''),
-          unit: p.unit?.symbol || p.unit?.name || undefined,
-          lastUpdate: ts,
-        });
-      }
-    }
-    return rows.sort((a, b) => b.lastUpdate - a.lastUpdate).slice(0, 5);
-  }, [products]);
+  // Why: rendering `new Date()` directly causes a server/client hydration mismatch.
+  // How: format on the client only.
+  const [today, setToday] = useState<string | null>(null);
+  useEffect(() => {
+    setToday(
+      new Intl.DateTimeFormat('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }).format(new Date())
+    );
+  }, []);
 
   const stats = useMemo(() => {
     const now = Date.now();
@@ -181,7 +141,6 @@ export function HomeBento() {
     }
   };
 
-  const now = Date.now();
   const loading = isProductsLoading;
 
   return (
@@ -228,9 +187,12 @@ export function HomeBento() {
           href="/markets"
           className="rounded-2xl border bg-card p-3 hover:bg-muted/40 transition-colors"
         >
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
-            <MapPin className="h-3.5 w-3.5 text-primary" />
-            Your zone
+          <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground mb-2">
+            <span className="flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 text-primary" />
+              Your zone
+            </span>
+            {today ? <span className="text-[11px]">{today}</span> : null}
           </div>
           <p className="text-sm font-semibold truncate">{zone?.name || 'Detecting…'}</p>
           <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
@@ -238,111 +200,6 @@ export function HomeBento() {
             {markets?.length ?? 0} nearby markets →
           </p>
         </Link>
-      </div>
-
-      {/* Trending mini-list */}
-      <div className="rounded-2xl border bg-card overflow-hidden">
-        <div className="flex items-center justify-between px-3 pt-3 pb-1">
-          <p className="text-xs font-semibold flex items-center gap-1.5">
-            <TrendingDown className="h-3.5 w-3.5 text-green-600" />
-            Trending down
-          </p>
-          <Link href="/items" className="text-[11px] text-primary font-medium hover:underline">
-            See all
-          </Link>
-        </div>
-        {loading ? (
-          <div className="divide-y">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <SkeletonRow key={i} />
-            ))}
-          </div>
-        ) : trending.length === 0 ? (
-          <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-            No trending items right now.
-          </div>
-        ) : (
-          <div className="divide-y">
-            {trending.map((d) => (
-              <button
-                type="button"
-                key={`${d.productId}-${d.marketId}`}
-                onClick={() => handleOpen(d)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/40 transition-colors"
-              >
-                <TrendingThumb src={d.image} />
-                <span className="flex-1 min-w-0">
-                  <span className="block text-sm font-medium truncate">{d.name}</span>
-                  <span className="block text-[11px] text-muted-foreground truncate">
-                    @{d.marketName}
-                  </span>
-                </span>
-                <span className="flex-none text-right leading-tight">
-                  <span className="block text-sm font-semibold text-primary tabular-nums">
-                    ৳ {taka.format(d.price)}
-                  </span>
-                  <span className="block text-[10px] text-green-600 font-medium">
-                    −{d.savingsPct}%
-                  </span>
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Activity feed */}
-      <div className="rounded-2xl border bg-card overflow-hidden">
-        <div className="flex items-center justify-between px-3 pt-3 pb-1">
-          <p className="text-xs font-semibold flex items-center gap-1.5">
-            <Users className="h-3.5 w-3.5 text-primary" />
-            Latest submissions
-          </p>
-          <Link href="/items" className="text-[11px] text-primary font-medium hover:underline">
-            See all
-          </Link>
-        </div>
-        {loading ? (
-          <div className="divide-y">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <SkeletonRow key={i} />
-            ))}
-          </div>
-        ) : activity.length === 0 ? (
-          <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-            No recent submissions yet.
-          </div>
-        ) : (
-          <div className="divide-y">
-            {activity.map((row) => (
-              <Link
-                key={row.key}
-                href={row.marketId ? `/markets/${row.marketId}` : '/markets'}
-                className="flex items-center gap-3 px-3 py-2.5 hover:bg-muted/40 transition-colors"
-              >
-                <span
-                  aria-hidden
-                  className="flex-none w-8 h-8 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center"
-                >
-                  {row.initial}
-                </span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-sm truncate">
-                    <span className="font-medium">{row.productName}</span>
-                    <span className="text-muted-foreground"> · </span>
-                    <span className="text-muted-foreground">{row.marketName}</span>
-                  </span>
-                  <span className="block text-[11px] text-muted-foreground">
-                    {timeAgo(row.lastUpdate, now)} ago
-                  </span>
-                </span>
-                <span className="flex-none text-sm font-semibold text-primary tabular-nums">
-                  ৳{taka.format(row.price)}
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
       </div>
 
       <ProductPriceDialog
@@ -497,40 +354,6 @@ function HeroSlide({ deal, onClick }: { deal: Deal; onClick: () => void }) {
         </div>
       </div>
     </button>
-  );
-}
-
-function TrendingThumb({ src }: { src?: string }) {
-  const [errored, setErrored] = useState(false);
-  const showImage = Boolean(src && src.trim().length > 0) && !errored;
-  return (
-    <span className="relative flex-none w-10 h-10 rounded-lg overflow-hidden bg-primary/10 text-primary flex items-center justify-center">
-      {showImage ? (
-        <Image
-          src={src!}
-          alt=""
-          fill
-          sizes="40px"
-          className="object-cover"
-          onError={() => setErrored(true)}
-        />
-      ) : (
-        <Package className="h-4 w-4" />
-      )}
-    </span>
-  );
-}
-
-function SkeletonRow() {
-  return (
-    <div className="flex items-center gap-3 px-3 py-2.5 animate-pulse">
-      <div className="w-10 h-10 rounded-lg bg-muted" />
-      <div className="flex-1 space-y-1.5">
-        <div className="h-2.5 w-2/3 bg-muted rounded" />
-        <div className="h-2 w-1/3 bg-muted rounded" />
-      </div>
-      <div className="h-3 w-10 bg-muted rounded" />
-    </div>
   );
 }
 

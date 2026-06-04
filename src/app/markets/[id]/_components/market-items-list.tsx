@@ -1,10 +1,22 @@
 "use client";
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 import { useMarketItems } from '@/lib/api/hooks/useMarkets';
 import { Pagination } from '@/components/ui/pagination';
 import { PriceRow, type PriceRowItem } from '@/app/_components/price-row';
+import {
+  FeedFilterPopover,
+  applyFeedFilter,
+  parseTs,
+  type FeedFilter,
+} from '@/app/_components/feed-filter';
+
+type ItemRow = PriceRowItem & {
+  rawPrice: number;
+  rawDiscount: number | null;
+  lastUpdateTs: number;
+};
 
 interface MarketItemsListProps {
   marketId: string;
@@ -41,6 +53,9 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [feedFilter, setFeedFilter] = useState<FeedFilter>('now');
+  const [activeCategory, setActiveCategory] = useState<string>('');
+  const [availableCategories, setAvailableCategories] = useState<{ id: string; name: string }[]>([]);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
@@ -49,10 +64,40 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     isFetching,
     isError,
     error,
-  } = useMarketItems(marketId, { page, limit: 15, search: debouncedSearch || undefined });
+  } = useMarketItems(marketId, {
+    page,
+    limit: 15,
+    search: debouncedSearch || undefined,
+    category: activeCategory || undefined,
+  });
   const pagination = itemsData?.pagination;
 
-  const rows = useMemo<PriceRowItem[]>(() => {
+  // Why: categories shown as chips must be market-wise, not global. We derive
+  // them from the items returned for this market.
+  // How: only refresh the chip list while the "All" filter is active so the
+  // chips stay stable while a category is selected; otherwise the chip list
+  // would collapse to just the active category.
+  useEffect(() => {
+    if (activeCategory) return;
+    const items = itemsData?.data ?? [];
+    if (items.length === 0) return;
+    const seen = new Map<string, string>();
+    for (const item of items) {
+      const raw = item as unknown as Record<string, unknown>;
+      const cat = (raw.category ?? null) as Record<string, unknown> | null;
+      const id = cat?.id != null ? String(cat.id) : '';
+      const name = typeof cat?.name === 'string' ? cat.name : '';
+      if (id && name) seen.set(id, name);
+    }
+    setAvailableCategories(Array.from(seen, ([id, name]) => ({ id, name })));
+  }, [itemsData?.data, activeCategory]);
+
+  const handleCategoryChange = (next: string) => {
+    setActiveCategory(next);
+    setPage(1);
+  };
+
+  const allRows = useMemo<ItemRow[]>(() => {
     const rawItems = itemsData?.data ?? [];
     return rawItems.map((item) => {
       const rawItem = item as unknown as Record<string, unknown>;
@@ -64,6 +109,11 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
           ? rawItem.marketPrices
           : [];
       const latestPrice = (marketPrices[0] ?? null) as Record<string, unknown> | null;
+
+      const rawPrice = toNumber(latestPrice?.price ?? rawItem.price, 0);
+      const rawDiscountRaw = latestPrice?.discount_price ?? rawItem.discount_price;
+      const rawDiscount = rawDiscountRaw == null ? null : toNumber(rawDiscountRaw, 0);
+      const lastUpdateTs = parseTs(toStringValue(latestPrice?.last_update ?? rawItem.last_update));
 
       return {
         id: toStringValue(rawItem.id ?? rawItem.item_id ?? rawItem.product_id, '0'),
@@ -82,9 +132,22 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
           rawItem.image_path ?? rawItem.image ?? rawItem.image_url
         ),
         unit: toStringValue(unit?.symbol ?? unit?.name ?? rawItem.unit, undefined as unknown as string) || undefined,
+        rawPrice,
+        rawDiscount,
+        lastUpdateTs,
       };
     });
   }, [itemsData?.data, marketId]);
+
+  const rows = useMemo<ItemRow[]>(
+    () =>
+      applyFeedFilter(allRows, feedFilter, (r) => ({
+        price: r.rawPrice,
+        discountPrice: r.rawDiscount,
+        lastUpdateTs: r.lastUpdateTs,
+      })),
+    [allRows, feedFilter]
+  );
 
   const handleSearch = (value: string) => {
     setSearchInput(value);
@@ -107,8 +170,8 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
 
   return (
     <div>
-      <div className="px-4">
-        <div className="relative">
+      <div className="px-4 flex items-center gap-2">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
@@ -121,7 +184,34 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
             <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
           )}
         </div>
+        <FeedFilterPopover
+          active={feedFilter}
+          onChange={(next) => {
+            setFeedFilter(next);
+            setPage(1);
+          }}
+        />
       </div>
+
+      {availableCategories.length > 0 && (
+        <div className="px-4 pt-3">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
+            <CategoryChip
+              label="All"
+              active={activeCategory === ''}
+              onClick={() => handleCategoryChange('')}
+            />
+            {availableCategories.map((c) => (
+              <CategoryChip
+                key={c.id}
+                label={c.name}
+                active={activeCategory === c.id}
+                onClick={() => handleCategoryChange(c.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="divide-y border-y bg-card mt-3">
         {isLoading ? (
@@ -146,6 +236,30 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
         </div>
       )}
     </div>
+  );
+}
+
+function CategoryChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex-none px-3 py-1.5 text-xs rounded-full border transition-colors whitespace-nowrap ${
+        active
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-background text-muted-foreground border-border hover:text-foreground'
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 

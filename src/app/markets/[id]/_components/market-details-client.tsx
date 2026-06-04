@@ -40,12 +40,104 @@ interface MarketDetailsClientProps {
   marketData: MarketData;
 }
 
+const DAY_KEYS: Record<string, string> = {
+  monday: 'Mon',
+  tuesday: 'Tue',
+  wednesday: 'Wed',
+  thursday: 'Thu',
+  friday: 'Fri',
+  saturday: 'Sat',
+  sunday: 'Sun',
+};
+
+const WEEKDAY_INDEX = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+type DayHours = { day: string; isClosed: boolean; opening: string; closing: string };
+
+function readDayEntry(value: unknown): DayHours | null {
+  if (!value || typeof value !== 'object') return null;
+  const obj = value as Record<string, unknown>;
+  const day = typeof obj.day === 'string' ? obj.day.trim() : '';
+  const isClosed = obj.is_closed === true;
+  const opening = typeof obj.opening === 'string' ? obj.opening.trim() : '';
+  const closing = typeof obj.closing === 'string' ? obj.closing.trim() : '';
+  if (!day && !opening && !closing && !isClosed) return null;
+  return { day, isClosed, opening, closing };
+}
+
+function formatRange(entry: DayHours): string {
+  if (entry.isClosed) return 'Closed';
+  if (entry.opening && entry.closing) return `${entry.opening} – ${entry.closing}`;
+  if (entry.opening) return `Opens ${entry.opening}`;
+  if (entry.closing) return `Closes ${entry.closing}`;
+  return '';
+}
+
+// Why: backend returns opening_hours as an array of per-day records
+// (`[{ day, is_closed, opening, closing }, ...]`). `String(obj)` was rendering
+// "[object Object]" — this picks today's entry so the InfoRow shows the actual
+// open/close times. Falls back to the first non-closed day for older payloads.
+function formatOpeningHours(value: unknown): string | null {
+  if (value == null) return null;
+  if (typeof value === 'string') return value.trim() || null;
+
+  // Array of day records (current backend shape)
+  if (Array.isArray(value)) {
+    const entries = value.map(readDayEntry).filter((e): e is DayHours => e !== null);
+    if (entries.length === 0) return null;
+
+    const todayKey = WEEKDAY_INDEX[new Date().getDay()];
+    const today = entries.find((e) => e.day.toLowerCase() === todayKey);
+    if (today) {
+      const range = formatRange(today);
+      return range ? `Today · ${range}` : null;
+    }
+
+    const firstOpen = entries.find((e) => !e.isClosed && (e.opening || e.closing));
+    if (firstOpen) {
+      const range = formatRange(firstOpen);
+      const label = DAY_KEYS[firstOpen.day.toLowerCase()] ?? firstOpen.day;
+      return range ? `${label} · ${range}` : null;
+    }
+
+    return 'Closed';
+  }
+
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+
+    if (obj.is_closed === true) return 'Closed';
+
+    const opening = typeof obj.opening === 'string' ? obj.opening.trim() : '';
+    const closing = typeof obj.closing === 'string' ? obj.closing.trim() : '';
+    if (opening && closing) return `${opening} – ${closing}`;
+    if (opening) return opening;
+
+    // Per-day dict shape: { monday: '8-6', tuesday: '8-6', ... }
+    const dayLines = Object.entries(obj)
+      .filter(([k]) => k.toLowerCase() in DAY_KEYS)
+      .map(([k, v]) => {
+        const label = DAY_KEYS[k.toLowerCase()];
+        const raw = typeof v === 'string' ? v : v && typeof v === 'object'
+          ? formatOpeningHours(v)
+          : null;
+        return raw ? `${label}: ${raw}` : null;
+      })
+      .filter((line): line is string => Boolean(line));
+    if (dayLines.length > 0) return dayLines.join(' · ');
+  }
+
+  return null;
+}
+
 export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const hasCoords =
     typeof marketData.latitude === 'number' &&
     typeof marketData.longitude === 'number';
+
+  const openingHoursText = formatOpeningHours(marketData.opening_hours);
 
   return (
     <div className="pb-24">
@@ -106,11 +198,11 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
           {marketData.address && (
             <InfoRow icon={<MapPin className="h-4 w-4" />} label="Address" value={marketData.address} />
           )}
-          {marketData.opening_hours != null && (
+          {openingHoursText && (
             <InfoRow
               icon={<Clock className="h-4 w-4" />}
               label="Hours"
-              value={String(marketData.opening_hours)}
+              value={openingHoursText}
             />
           )}
           {marketData.phone && (

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Clock, Store, Heart, Check, ArrowRight, Tag, Activity } from 'lucide-react';
+import { MapPin, Clock, Store, Check, ArrowRight, Tag, Activity } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 interface Market {
@@ -45,7 +45,6 @@ export function MarketCard({
 }: MarketCardProps) {
   const isCompact = variant === 'compact';
   const [imgError, setImgError] = useState(false);
-  const [favorited, setFavorited] = useState(false);
 
   const locationLine = market.location || market.address;
   const distanceSuffix =
@@ -74,19 +73,6 @@ export function MarketCard({
             </span>
           </div>
         )}
-
-        {/* Favourite button — top left */}
-        <button
-          type="button"
-          onClick={(e) => { e.preventDefault(); setFavorited((f) => !f); }}
-          className="absolute top-3 left-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
-        >
-          <Heart
-            className={`h-4 w-4 transition-colors ${
-              favorited ? 'fill-rose-500 text-rose-500' : 'text-gray-400'
-            }`}
-          />
-        </button>
 
         {/* Open / Closed badge — top right */}
         <div className="absolute top-3 right-3">
@@ -194,7 +180,6 @@ export function MarketListItem({
   className = '',
 }: MarketCardProps) {
   const [imgError, setImgError] = useState(false);
-  const [favorited, setFavorited] = useState(false);
 
   const locationLine = market.location || market.address;
   const distanceSuffix =
@@ -241,13 +226,6 @@ export function MarketListItem({
               <h3 className="font-bold text-sm sm:text-base line-clamp-1 flex-1">{market.name}</h3>
               <ArrowRight className="h-3.5 w-3.5 text-primary flex-shrink-0" />
             </div>
-            <button
-              type="button"
-              onClick={(e) => { e.preventDefault(); setFavorited((f) => !f); }}
-              className="w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors flex-shrink-0"
-            >
-              <Heart className={`h-3.5 w-3.5 ${favorited ? 'fill-rose-500 text-rose-500' : 'text-gray-400'}`} />
-            </button>
           </div>
 
           <div className="flex items-center gap-1 text-muted-foreground mb-2">

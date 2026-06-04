@@ -186,14 +186,20 @@ const mapMarketFromApi = (item: Record<string, unknown>, index: number): Market 
     };
 };
 
-type SortOption = 'distance' | 'rating' | 'name' | 'vendors';
+type SortOption = 'distance' | 'rating' | 'name' | 'retails' | 'dealer';
+type ApiSort = 'distance' | 'rating' | 'name';
 
 const sortLabels: Record<SortOption, string> = {
     distance: 'Distance',
     rating: 'Rating',
     name: 'Name',
-    vendors: 'Vendors',
+    retails: 'Retails',
+    dealer: 'Dealer',
 };
+
+const TYPE_FILTERS: SortOption[] = ['retails', 'dealer'];
+const isTypeFilter = (value: SortOption): boolean => TYPE_FILTERS.includes(value);
+const REAL_SORTS = new Set<SortOption>(['distance', 'rating', 'name']);
 
 export default function MarketsPage() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -204,10 +210,14 @@ export default function MarketsPage() {
     const [sortBy, setSortBy] = useState<SortOption>('distance');
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    // Why: retails/dealer are client-side type filters, not real sort keys.
+    // How: send `sort_by` only for the four real sort options; otherwise default
+    // to distance-asc so the list stays sensibly ordered before the type filter runs.
+    const effectiveSort: ApiSort = REAL_SORTS.has(sortBy) ? (sortBy as ApiSort) : 'distance';
     const marketListParams = {
         ...MARKET_LIST_PARAMS,
-        sort_by: sortBy,
-        sort_order: (sortBy === 'distance' ? 'asc' : 'desc') as 'asc' | 'desc',
+        sort_by: effectiveSort,
+        sort_order: (effectiveSort === 'distance' ? 'asc' : 'desc') as 'asc' | 'desc',
     };
 
     const { data: marketListData, isLoading: isMarketListLoading } = useMarketList(marketListParams);
@@ -226,6 +236,11 @@ export default function MarketsPage() {
     };
 
     const sortMarkets = (markets: Market[], by: SortOption) => {
+        if (isTypeFilter(by)) {
+            const needle = by.toLowerCase();
+            return markets.filter((m) => (m.type || '').toLowerCase().includes(needle));
+        }
+
         const sorted = [...markets];
         switch (by) {
             case 'distance':
@@ -236,9 +251,6 @@ export default function MarketsPage() {
                 break;
             case 'name':
                 sorted.sort((a, b) => a.name.localeCompare(b.name));
-                break;
-            case 'vendors':
-                sorted.sort((a, b) => b.vendors - a.vendors);
                 break;
         }
         return sorted;
@@ -284,7 +296,7 @@ export default function MarketsPage() {
 
     return (
         <div className="pb-24">
-            <NearestMarketSection />
+            {/* <NearestMarketSection /> */}
 
             <div className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 lg:mt-4">
                 <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">

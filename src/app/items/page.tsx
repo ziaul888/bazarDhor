@@ -4,8 +4,16 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { PriceRow, type PriceRowItem } from '@/app/_components/price-row';
+import {
+  FeedFilterPopover,
+  applyFeedFilter,
+  parseTs,
+  type FeedFilter,
+} from '@/app/_components/feed-filter';
 import { useRandomProducts } from '@/lib/api/hooks/useMarkets';
 import { useCategories } from '@/lib/api/hooks/useCategories';
+
+type Product = NonNullable<ReturnType<typeof useRandomProducts>['data']>[number];
 
 const PAGE_SIZE = 20;
 const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
@@ -36,19 +44,32 @@ function mapToRow(p: NonNullable<ReturnType<typeof useRandomProducts>['data']>[n
 }
 
 export default function ItemsPage() {
-  const { data: products, isLoading } = useRandomProducts();
-  const { data: categories } = useCategories();
   const [activeCategory, setActiveCategory] = useState<string | 'all'>('all');
+  const [feedFilter, setFeedFilter] = useState<FeedFilter>('now');
   const [searchQuery, setSearchQuery] = useState('');
   const [visible, setVisible] = useState(PAGE_SIZE);
+  const { data: categories } = useCategories();
+  const { data: products, isLoading } = useRandomProducts({
+    sort_by: feedFilter,
+    ...(activeCategory !== 'all' ? { category_id: activeCategory } : {}),
+  });
 
   const allRows = useMemo(() => {
     if (!products) return [];
-    const filtered = activeCategory === 'all'
+    const filtered: Product[] = activeCategory === 'all'
       ? products
       : products.filter((p) => String(p.category?.id) === activeCategory);
 
-    const rows = filtered
+    const sorted = applyFeedFilter(filtered, feedFilter, (p) => {
+      const mp = p.market_prices?.[0];
+      return {
+        price: mp?.price ?? 0,
+        discountPrice: mp?.discount_price ?? null,
+        lastUpdateTs: parseTs(mp?.last_update),
+      };
+    });
+
+    const rows = sorted
       .map(mapToRow)
       .filter((r): r is PriceRowItem => r !== null);
 
@@ -58,7 +79,7 @@ export default function ItemsPage() {
       r.name.toLowerCase().includes(q) ||
       r.marketName.toLowerCase().includes(q)
     );
-  }, [products, activeCategory, searchQuery]);
+  }, [products, activeCategory, feedFilter, searchQuery]);
 
   const rows = allRows.slice(0, visible);
   const hasMore = allRows.length > rows.length;
@@ -69,7 +90,16 @@ export default function ItemsPage() {
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
           <div className="lg:min-w-0">
             <section>
-              <h2 className="px-4 pt-6 text-base font-semibold">All items</h2>
+              <div className="flex items-center justify-between px-4 pt-6">
+                <h2 className="text-base font-semibold">All items</h2>
+                <FeedFilterPopover
+                  active={feedFilter}
+                  onChange={(next) => {
+                    setFeedFilter(next);
+                    setVisible(PAGE_SIZE);
+                  }}
+                />
+              </div>
 
               <div className="px-4 pt-3">
                 <div className="relative">

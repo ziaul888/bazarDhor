@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { PencilLine, Package } from 'lucide-react';
+import { RefreshCw, Package, Store } from 'lucide-react';
 import { ProductPriceDialog } from '@/components/product-price-dialog';
 import { useSubmitProductPrice } from '@/lib/api/hooks/useUser';
 import { handleApiError } from '@/lib/api/client';
@@ -70,7 +70,7 @@ export function PriceRow({ item }: PriceRowProps) {
       >
         <span
           aria-hidden
-          className="relative flex-none w-10 h-10 rounded-full overflow-hidden bg-primary/10 text-primary font-semibold flex items-center justify-center"
+          className="relative flex-none w-10 h-10 rounded-lg overflow-hidden bg-primary/10 text-primary font-semibold flex items-center justify-center"
         >
           {hasImage ? (
             <Image
@@ -88,8 +88,9 @@ export function PriceRow({ item }: PriceRowProps) {
 
         <span className="flex-1 min-w-0">
           <span className="block text-sm font-medium truncate">{item.name}</span>
-          <span className="block text-xs text-muted-foreground truncate">
-            @{item.marketName}
+          <span className="flex items-center gap-1 text-xs text-muted-foreground truncate">
+            <Store className="h-3 w-3 flex-none" />
+            <span className="truncate">{item.marketName}</span>
           </span>
         </span>
 
@@ -108,7 +109,7 @@ export function PriceRow({ item }: PriceRowProps) {
               title="Update price"
               className="flex w-8 h-8 rounded-full bg-primary/10 text-primary items-center justify-center"
             >
-              <PencilLine className="h-4 w-4" />
+              <RefreshCw className="h-4 w-4" />
             </span>
             <span
               role="tooltip"
