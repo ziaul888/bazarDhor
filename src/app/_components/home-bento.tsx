@@ -3,36 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  Activity,
-  Flame,
-  MapPin,
-  Package,
-  Sparkles,
-  Store,
-} from 'lucide-react';
+import { Activity, ImageIcon, MapPin, Sparkles, Store } from 'lucide-react';
 import { useRandomMarkets, useRandomProducts } from '@/lib/api/hooks/useMarkets';
+import { useBanners } from '@/lib/api/hooks/useBanners';
 import { useZone } from '@/providers/zone-provider';
-import { ProductPriceDialog } from '@/components/product-price-dialog';
-import { useSubmitProductPrice } from '@/lib/api/hooks/useUser';
-import { handleApiError } from '@/lib/api/client';
-import { toast } from 'sonner';
+import type { Banner } from '@/lib/api/types';
 
 const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
-const taka = new Intl.NumberFormat('en-IN');
 const ACTIVITY_WINDOW_MS = 1000 * 60 * 60 * 24;
-
-type Deal = {
-  productId: string;
-  name: string;
-  image?: string;
-  marketId: string;
-  marketName: string;
-  price: number;
-  original: number;
-  savingsPct: number;
-  unit?: string;
-};
 
 function resolveImage(value?: string | null) {
   if (!value) return undefined;
@@ -48,39 +26,18 @@ function parseTs(value: string): number {
 }
 
 export function HomeBento() {
-  const { data: products, isLoading: isProductsLoading } = useRandomProducts();
+  const { data: products } = useRandomProducts();
   const { data: markets } = useRandomMarkets();
+  const { data: bannersData, isLoading: isBannersLoading } = useBanners(10, 1);
   const { zone } = useZone();
 
-  const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
-  const [newPrice, setNewPrice] = useState('');
-  const submit = useSubmitProductPrice();
-
-  const deals = useMemo<Deal[]>(() => {
-    if (!products) return [];
-    const list: Deal[] = [];
-    for (const p of products) {
-      const mp = p.market_prices?.[0];
-      if (!mp) continue;
-      const original = mp.price ?? 0;
-      const discount = mp.discount_price ?? 0;
-      if (!discount || !original || discount >= original) continue;
-      list.push({
-        productId: p.id,
-        name: p.name,
-        image: resolveImage(p.image_path),
-        marketId: String(mp.market?.id ?? ''),
-        marketName: mp.market?.name || 'Local market',
-        price: discount,
-        original,
-        savingsPct: Math.round(((original - discount) / original) * 100),
-        unit: p.unit?.symbol || p.unit?.name || undefined,
-      });
-    }
-    return list.sort((a, b) => b.savingsPct - a.savingsPct);
-  }, [products]);
-
-  const heroDeals = deals.slice(0, 3);
+  const banners = useMemo<Banner[]>(() => {
+    if (!bannersData) return [];
+    return bannersData
+      .filter((b) => b.is_active !== false)
+      .slice()
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+  }, [bannersData]);
 
   // Why: rendering `new Date()` directly causes a server/client hydration mismatch.
   // How: format on the client only.
@@ -115,52 +72,20 @@ export function HomeBento() {
     };
   }, [products, markets]);
 
-  const handleOpen = (deal: Deal) => {
-    setActiveDeal(deal);
-    setNewPrice(deal.price.toString());
-  };
-
-  const handleSave = async () => {
-    if (!activeDeal) return;
-    const parsed = Number.parseFloat(newPrice);
-    if (Number.isNaN(parsed) || parsed <= 0) {
-      toast.error('Enter a valid price.');
-      return;
-    }
-    const fd = new FormData();
-    fd.append('product_id', String(activeDeal.productId));
-    fd.append('market_id', String(activeDeal.marketId));
-    fd.append('submitted_price', parsed.toFixed(2));
-    fd.append('proof_image', 'null');
-    try {
-      await submit.mutateAsync(fd);
-      toast.success('Price submitted.');
-      setActiveDeal(null);
-    } catch (e) {
-      toast.error(handleApiError(e));
-    }
-  };
-
-  const loading = isProductsLoading;
-
   return (
     <section className="px-4 pt-4 space-y-3">
-      {/* Hero slider — auto-rotates top deals, swipeable on mobile */}
-      {loading ? (
+      {/* Hero slider — banners curated by admin */}
+      {isBannersLoading ? (
         <div className="h-52 sm:h-64 rounded-2xl border bg-card overflow-hidden">
           <div className="h-full w-full bg-muted/60 animate-pulse" />
         </div>
-      ) : heroDeals.length > 0 ? (
-        <HeroSlider
-          deals={heroDeals}
-          onOpen={handleOpen}
-          paused={Boolean(activeDeal)}
-        />
+      ) : banners.length > 0 ? (
+        <BannerSlider banners={banners} />
       ) : (
         <EmptyTile
           icon={<Sparkles className="h-5 w-5 text-primary/60" />}
-          label="No deals yet"
-          hint="Submit a price to start the feed."
+          label="No banners yet"
+          hint="Promotions will show up here when they're live."
           className="h-52 sm:h-64"
         />
       )}
@@ -201,62 +126,30 @@ export function HomeBento() {
           </p>
         </Link>
       </div>
-
-      <ProductPriceDialog
-        open={Boolean(activeDeal)}
-        onOpenChange={(open) => !open && setActiveDeal(null)}
-        item={
-          activeDeal
-            ? {
-                id: activeDeal.productId,
-                name: activeDeal.name,
-                marketName: activeDeal.marketName,
-                marketId: activeDeal.marketId,
-                currentPrice: activeDeal.price,
-                image: activeDeal.image ?? '',
-              }
-            : null
-        }
-        newPrice={newPrice}
-        onNewPriceChange={setNewPrice}
-        onSave={handleSave}
-        confirmLabel={submit.isPending ? 'Submitting...' : 'Submit Price'}
-        disableSave={!newPrice || Number.parseFloat(newPrice) <= 0 || !activeDeal?.marketId}
-        saving={submit.isPending}
-      />
     </section>
   );
 }
 
 const SLIDE_INTERVAL_MS = 5000;
-
 const SWIPE_THRESHOLD = 50;
 
-function HeroSlider({
-  deals,
-  onOpen,
-  paused,
-}: {
-  deals: Deal[];
-  onOpen: (deal: Deal) => void;
-  paused: boolean;
-}) {
+function BannerSlider({ banners }: { banners: Banner[] }) {
   const [index, setIndex] = useState(0);
   const [hovered, setHovered] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const touchDeltaX = useRef(0);
 
   useEffect(() => {
-    if (deals.length <= 1 || paused || hovered) return;
+    if (banners.length <= 1 || hovered) return;
     const id = window.setInterval(() => {
-      setIndex((i) => (i + 1) % deals.length);
+      setIndex((i) => (i + 1) % banners.length);
     }, SLIDE_INTERVAL_MS);
     return () => window.clearInterval(id);
-  }, [deals.length, paused, hovered]);
+  }, [banners.length, hovered]);
 
   useEffect(() => {
-    if (index >= deals.length) setIndex(0);
-  }, [deals.length, index]);
+    if (index >= banners.length) setIndex(0);
+  }, [banners.length, index]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -273,11 +166,11 @@ function HeroSlider({
     const delta = touchDeltaX.current;
     touchStartX.current = null;
     touchDeltaX.current = 0;
-    if (Math.abs(delta) < SWIPE_THRESHOLD || deals.length <= 1) return;
+    if (Math.abs(delta) < SWIPE_THRESHOLD || banners.length <= 1) return;
     if (delta < 0) {
-      setIndex((i) => (i + 1) % deals.length);
+      setIndex((i) => (i + 1) % banners.length);
     } else {
-      setIndex((i) => (i - 1 + deals.length) % deals.length);
+      setIndex((i) => (i - 1 + banners.length) % banners.length);
     }
   };
 
@@ -294,31 +187,35 @@ function HeroSlider({
         className="flex transition-transform duration-500 ease-out"
         style={{ transform: `translateX(-${index * 100}%)` }}
       >
-        {deals.map((deal) => (
-          <HeroSlide
-            key={`${deal.productId}-${deal.marketId}`}
-            deal={deal}
-            onClick={() => onOpen(deal)}
-          />
+        {banners.map((banner) => (
+          <BannerSlide key={banner.id} banner={banner} />
         ))}
       </div>
     </div>
   );
 }
 
-function HeroSlide({ deal, onClick }: { deal: Deal; onClick: () => void }) {
+function BannerSlide({ banner }: { banner: Banner }) {
   const [errored, setErrored] = useState(false);
-  const hasImage = Boolean(deal.image && deal.image.trim().length > 0) && !errored;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="group flex-none w-full relative h-52 sm:h-64 bg-card overflow-hidden text-left"
-    >
+  const image = resolveImage(banner.image_path);
+  const hasImage = Boolean(image) && !errored;
+
+  // Why: admin-supplied colors come as hex strings; Tailwind classes can't be
+  // generated from them, so apply via inline style on the badge.
+  const badgeStyle =
+    banner.badge_text
+      ? {
+          color: banner.badge_color ?? undefined,
+          backgroundColor: banner.badge_background_color ?? undefined,
+        }
+      : undefined;
+
+  const content = (
+    <div className="group flex-none w-full relative h-52 sm:h-64 bg-card overflow-hidden text-left">
       {hasImage ? (
         <Image
-          src={deal.image!}
-          alt={deal.name}
+          src={image!}
+          alt={banner.title}
           fill
           sizes="(max-width: 1024px) 100vw, 720px"
           className="object-cover transition-transform group-hover:scale-[1.03]"
@@ -326,34 +223,84 @@ function HeroSlide({ deal, onClick }: { deal: Deal; onClick: () => void }) {
         />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-primary/25 to-primary/5 flex items-center justify-center">
-          <Package className="h-12 w-12 text-primary/40" />
+          <ImageIcon className="h-12 w-12 text-primary/40" />
         </div>
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-      <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-green-500 text-white text-xs font-semibold px-2.5 py-1 shadow-sm">
-        <Flame className="h-3.5 w-3.5" />
-        Hottest · save {deal.savingsPct}%
-      </span>
-      <div className="absolute bottom-3 left-3 right-3 text-white">
-        <p className="text-[11px] uppercase tracking-wide text-white/70 truncate">
-          @{deal.marketName}
-        </p>
-        <p className="text-lg sm:text-2xl font-semibold leading-tight truncate">
-          {deal.name}
-        </p>
-        <div className="flex items-baseline gap-2 mt-1">
-          <span className="text-2xl sm:text-3xl font-bold tabular-nums">
-            ৳ {taka.format(deal.price)}
-          </span>
-          <span className="text-sm text-white/70 line-through tabular-nums">
-            ৳ {taka.format(deal.original)}
-          </span>
-          {deal.unit ? (
-            <span className="text-[11px] text-white/70">/ {deal.unit}</span>
+
+      {banner.badge_text ? (
+        <span
+          style={badgeStyle}
+          className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full text-xs font-semibold px-2.5 py-1 shadow-sm"
+        >
+          {banner.badge_icon ? (
+            <BadgeIcon src={banner.badge_icon} />
           ) : null}
-        </div>
+          {banner.badge_text}
+        </span>
+      ) : null}
+
+      <div className="absolute bottom-3 left-3 right-3 text-white">
+        <p className="text-lg sm:text-2xl font-semibold leading-tight truncate">
+          {banner.title}
+        </p>
+        {banner.description ? (
+          <p className="text-xs sm:text-sm text-white/80 mt-1 line-clamp-2">
+            {banner.description}
+          </p>
+        ) : null}
+        {banner.button_text ? (
+          <span className="inline-flex mt-2 items-center rounded-full bg-white text-foreground text-xs font-semibold px-3 py-1.5 shadow-sm">
+            {banner.button_text}
+          </span>
+        ) : null}
       </div>
-    </button>
+    </div>
+  );
+
+  if (banner.url) {
+    const isExternal = /^https?:\/\//.test(banner.url);
+    if (isExternal) {
+      return (
+        <a
+          href={banner.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-none w-full"
+        >
+          {content}
+        </a>
+      );
+    }
+    return (
+      <Link href={banner.url} className="flex-none w-full">
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className="flex-none w-full">{content}</div>;
+}
+
+function BadgeIcon({ src }: { src: string }) {
+  // Treat short strings (emoji / single-char glyphs) as text, anything that
+  // looks like a URL or path as an image.
+  const isImage = src.includes('/') || /\.(png|jpe?g|gif|svg|webp)$/i.test(src);
+  if (!isImage) {
+    return <span aria-hidden>{src}</span>;
+  }
+  const resolved = resolveImage(src);
+  if (!resolved) return null;
+  return (
+    <span className="relative inline-block w-3.5 h-3.5 overflow-hidden">
+      <Image
+        src={resolved}
+        alt=""
+        fill
+        sizes="14px"
+        className="object-contain"
+      />
+    </span>
   );
 }
 
