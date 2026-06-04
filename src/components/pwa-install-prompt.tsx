@@ -6,24 +6,27 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { usePWA } from '@/hooks/use-pwa';
 
+const DISMISS_KEY = 'pwa-install-dismissed';
+const FIRST_LOAD_DELAY_MS = 1500;
+
 export function PWAInstallPrompt() {
   const { canInstall, isInstalled, install } = usePWA();
   const [showPrompt, setShowPrompt] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
-    // Check if dismissed this session
-    const dismissed = sessionStorage.getItem('pwa-install-dismissed');
-    if (dismissed) {
+    // Dismissed permanently on this device.
+    if (typeof window !== 'undefined' && localStorage.getItem(DISMISS_KEY)) {
       setIsDismissed(true);
       return;
     }
 
-    // Show prompt after delay if can install
+    // Why: fire the notification quickly after the first load so the user
+    // notices it during their initial session, instead of waiting 5s.
     if (canInstall && !isInstalled) {
       const timer = setTimeout(() => {
         setShowPrompt(true);
-      }, 5000); // Show after 5 seconds
+      }, FIRST_LOAD_DELAY_MS);
 
       return () => clearTimeout(timer);
     }
@@ -33,6 +36,8 @@ export function PWAInstallPrompt() {
     try {
       await install();
       setShowPrompt(false);
+      // Mark as handled so we never prompt again on this device.
+      localStorage.setItem(DISMISS_KEY, 'installed');
     } catch (error) {
       console.error('Installation failed:', error);
     }
@@ -41,7 +46,7 @@ export function PWAInstallPrompt() {
   const handleDismiss = () => {
     setShowPrompt(false);
     setIsDismissed(true);
-    sessionStorage.setItem('pwa-install-dismissed', 'true');
+    localStorage.setItem(DISMISS_KEY, 'dismissed');
   };
 
   // Don't show if not installable, already installed, dismissed, or not showing

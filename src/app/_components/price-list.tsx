@@ -116,7 +116,7 @@ export function PriceList() {
 
   return (
     <section>
-      <div className="flex items-center justify-between px-4 pt-6">
+      <div className="flex items-center justify-between px-4 pt-6 pb-3 lg:pb-0">
         <h2 className="text-base font-semibold">Today&apos;s prices</h2>
         <FeedFilterPopover active={feedFilter} onChange={handleSortChange} />
       </div>

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { PriceRow, type PriceRowItem } from '@/app/_components/price-row';
+import { MarketSpotlight } from '@/app/_components/market-spotlight';
 import {
   FeedFilterPopover,
   applyFeedFilter,
@@ -89,6 +90,7 @@ export default function ItemsPage() {
       <div className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 lg:mt-4">
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
           <div className="lg:min-w-0">
+            <MarketSpotlight />
             <section>
               <div className="flex items-center justify-between px-4 pt-6">
                 <h2 className="text-base font-semibold">All items</h2>
