@@ -1,95 +1,59 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Download, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { usePWA } from '@/hooks/use-pwa';
 
 const DISMISS_KEY = 'pwa-install-dismissed';
+const TOAST_ID = 'pwa-install';
 const FIRST_LOAD_DELAY_MS = 1500;
 
+// Renders nothing — the prompt surfaces as a Sonner toast so it lives in the
+// same top-center notification slot as the rest of the app.
 export function PWAInstallPrompt() {
   const { canInstall, isInstalled, install } = usePWA();
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [isDismissed, setIsDismissed] = useState(false);
+  const shownRef = useRef(false);
 
   useEffect(() => {
-    // Dismissed permanently on this device.
-    if (typeof window !== 'undefined' && localStorage.getItem(DISMISS_KEY)) {
-      setIsDismissed(true);
-      return;
-    }
+    if (typeof window === 'undefined') return;
+    if (shownRef.current) return;
+    if (!canInstall || isInstalled) return;
+    if (localStorage.getItem(DISMISS_KEY)) return;
 
-    // Why: fire the notification quickly after the first load so the user
-    // notices it during their initial session, instead of waiting 5s.
-    if (canInstall && !isInstalled) {
-      const timer = setTimeout(() => {
-        setShowPrompt(true);
-      }, FIRST_LOAD_DELAY_MS);
+    const timer = window.setTimeout(() => {
+      shownRef.current = true;
+      toast('Install BazarDhor', {
+        id: TOAST_ID,
+        description: 'Add the app to your home screen for faster access.',
+        duration: Infinity,
+        action: {
+          label: 'Install',
+          onClick: async () => {
+            try {
+              await install();
+              localStorage.setItem(DISMISS_KEY, 'installed');
+            } catch (error) {
+              console.error('Installation failed:', error);
+            } finally {
+              toast.dismiss(TOAST_ID);
+            }
+          },
+        },
+        cancel: {
+          label: 'Not now',
+          onClick: () => {
+            localStorage.setItem(DISMISS_KEY, 'dismissed');
+            toast.dismiss(TOAST_ID);
+          },
+        },
+        onDismiss: () => {
+          localStorage.setItem(DISMISS_KEY, 'dismissed');
+        },
+      });
+    }, FIRST_LOAD_DELAY_MS);
 
-      return () => clearTimeout(timer);
-    }
-  }, [canInstall, isInstalled]);
+    return () => window.clearTimeout(timer);
+  }, [canInstall, isInstalled, install]);
 
-  const handleInstall = async () => {
-    try {
-      await install();
-      setShowPrompt(false);
-      // Mark as handled so we never prompt again on this device.
-      localStorage.setItem(DISMISS_KEY, 'installed');
-    } catch (error) {
-      console.error('Installation failed:', error);
-    }
-  };
-
-  const handleDismiss = () => {
-    setShowPrompt(false);
-    setIsDismissed(true);
-    localStorage.setItem(DISMISS_KEY, 'dismissed');
-  };
-
-  // Don't show if not installable, already installed, dismissed, or not showing
-  if (!canInstall || isInstalled || isDismissed || !showPrompt) {
-    return null;
-  }
-
-  return (
-    <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-50">
-      <Card className="shadow-lg backdrop-blur-sm">
-        <CardContent className="flex items-start space-x-3">
-          <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-            <Download className="h-5 w-5 text-primary" />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-foreground mb-1">
-              Install Market Finder
-            </h3>
-            <p className="text-xs text-muted-foreground mb-3">
-              Get quick access to local markets and groceries. Install our app for a better experience!
-            </p>
-
-            <div className="flex space-x-2">
-              <Button
-                size="sm"
-                onClick={handleInstall}
-                className="flex-1"
-              >
-                <Download className="h-4 w-4 mr-1" />
-                Install
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleDismiss}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  return null;
 }
