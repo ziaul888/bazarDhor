@@ -1,20 +1,21 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Check, ChevronDown, Search, Store } from 'lucide-react';
 import { PriceRow, type PriceRowItem } from '@/app/_components/price-row';
-import { MarketSpotlight } from '@/app/_components/market-spotlight';
 import {
   FeedFilterPopover,
   applyFeedFilter,
   parseTs,
   type FeedFilter,
 } from '@/app/_components/feed-filter';
-import { useRandomProducts } from '@/lib/api/hooks/useMarkets';
+import { useRandomMarkets, useRandomProducts } from '@/lib/api/hooks/useMarkets';
 import { useCategories } from '@/lib/api/hooks/useCategories';
 
 type Product = NonNullable<ReturnType<typeof useRandomProducts>['data']>[number];
+type RawMarket = NonNullable<ReturnType<typeof useRandomMarkets>['data']>[number];
+type SelectedMarket = { id: string; name: string };
 
 const PAGE_SIZE = 20;
 const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
@@ -29,10 +30,13 @@ function resolveImage(value?: string | null) {
   return `${IMAGE_BASE_URL}${trimmed}`;
 }
 
-function mapToRow(p: NonNullable<ReturnType<typeof useRandomProducts>['data']>[number]): PriceRowItem | null {
+function mapToRow(p: Product): PriceRowItem | null {
   const lowest = p.market_prices?.[0];
   if (!lowest) return null;
   const hasDiscount = lowest.discount_price && lowest.discount_price > 0;
+  const trend = (lowest as { price_trend?: string }).price_trend;
+  const normalizedTrend: PriceRowItem['priceTrend'] =
+    trend === 'up' || trend === 'down' || trend === 'stable' ? trend : undefined;
   return {
     id: p.id,
     name: p.name,
@@ -41,27 +45,38 @@ function mapToRow(p: NonNullable<ReturnType<typeof useRandomProducts>['data']>[n
     price: hasDiscount ? lowest.discount_price! : (lowest.price || 0),
     unit: p.unit?.symbol || p.unit?.name || undefined,
     image: resolveImage(p.image_path),
+    lastUpdate: lowest.last_update || undefined,
+    priceTrend: normalizedTrend,
   };
 }
 
 export default function ItemsPage() {
   const [activeCategory, setActiveCategory] = useState<string | 'all'>('all');
-  const [feedFilter, setFeedFilter] = useState<FeedFilter>('now');
+  const [activeMarket, setActiveMarket] = useState<SelectedMarket | null>(null);
+  const [feedFilter, setFeedFilter] = useState<FeedFilter>('random');
   const [searchQuery, setSearchQuery] = useState('');
   const [visible, setVisible] = useState(PAGE_SIZE);
   const { data: categories } = useCategories();
+  const { data: markets, isLoading: isMarketsLoading } = useRandomMarkets();
   const { data: products, isLoading } = useRandomProducts({
     sort_by: feedFilter,
     ...(activeCategory !== 'all' ? { category_id: activeCategory } : {}),
+    ...(activeMarket ? { market_id: activeMarket.id } : {}),
   });
 
   const allRows = useMemo(() => {
     if (!products) return [];
-    const filtered: Product[] = activeCategory === 'all'
+    const filteredByCategory: Product[] = activeCategory === 'all'
       ? products
       : products.filter((p) => String(p.category?.id) === activeCategory);
 
-    const sorted = applyFeedFilter(filtered, feedFilter, (p) => {
+    const filteredByMarket: Product[] = activeMarket
+      ? filteredByCategory.filter((p) =>
+          (p.market_prices ?? []).some((mp) => String(mp.market?.id) === activeMarket.id)
+        )
+      : filteredByCategory;
+
+    const sorted = applyFeedFilter(filteredByMarket, feedFilter, (p) => {
       const mp = p.market_prices?.[0];
       return {
         price: mp?.price ?? 0,
@@ -80,7 +95,7 @@ export default function ItemsPage() {
       r.name.toLowerCase().includes(q) ||
       r.marketName.toLowerCase().includes(q)
     );
-  }, [products, activeCategory, feedFilter, searchQuery]);
+  }, [products, activeCategory, activeMarket, feedFilter, searchQuery]);
 
   const rows = allRows.slice(0, visible);
   const hasMore = allRows.length > rows.length;
@@ -90,17 +105,27 @@ export default function ItemsPage() {
       <div className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 lg:mt-4">
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
           <div className="lg:min-w-0">
-            <MarketSpotlight />
             <section>
-              <div className="flex items-center justify-between px-4 pt-6">
+              <div className="flex items-center justify-between gap-2 px-4 pt-6">
                 <h2 className="text-base font-semibold">All items</h2>
-                <FeedFilterPopover
-                  active={feedFilter}
-                  onChange={(next) => {
-                    setFeedFilter(next);
-                    setVisible(PAGE_SIZE);
-                  }}
-                />
+                <div className="flex items-center gap-2">
+                  <MarketPicker
+                    markets={markets ?? []}
+                    isLoading={isMarketsLoading}
+                    selected={activeMarket}
+                    onSelect={(next) => {
+                      setActiveMarket(next);
+                      setVisible(PAGE_SIZE);
+                    }}
+                  />
+                  <FeedFilterPopover
+                    active={feedFilter}
+                    onChange={(next) => {
+                      setFeedFilter(next);
+                      setVisible(PAGE_SIZE);
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="px-4 pt-3">
@@ -193,6 +218,111 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
     >
       {label}
     </button>
+  );
+}
+
+function MarketPicker({
+  markets,
+  isLoading,
+  selected,
+  onSelect,
+}: {
+  markets: RawMarket[];
+  isLoading: boolean;
+  selected: SelectedMarket | null;
+  onSelect: (next: SelectedMarket | null) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (!wrapperRef.current) return;
+      if (!wrapperRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className={`inline-flex items-center gap-1.5 max-w-[180px] px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
+          selected
+            ? 'bg-primary text-primary-foreground border-primary'
+            : 'bg-background border-border hover:bg-muted/60'
+        }`}
+      >
+        <Store className="h-3.5 w-3.5" />
+        <span className="truncate">{selected ? selected.name : 'All markets'}</span>
+        <ChevronDown className="h-3.5 w-3.5 flex-none" />
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full mt-2 z-20 w-64 rounded-lg border bg-card shadow-md overflow-hidden"
+        >
+          <div className="px-3 pt-2 pb-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+            Filter by market
+          </div>
+          <div className="max-h-64 overflow-y-auto pb-1">
+            <button
+              type="button"
+              onClick={() => {
+                onSelect(null);
+                setOpen(false);
+              }}
+              className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors ${
+                selected ? 'hover:bg-muted/60' : 'text-primary font-medium'
+              }`}
+            >
+              <span>All markets</span>
+              {!selected ? <Check className="h-4 w-4 flex-none" /> : null}
+            </button>
+            {isLoading ? (
+              <div className="px-3 py-4 text-xs text-muted-foreground">Loading markets…</div>
+            ) : markets.length === 0 ? (
+              <div className="px-3 py-4 text-xs text-muted-foreground">No markets in your zone yet.</div>
+            ) : (
+              markets.map((m) => {
+                const isActive = selected?.id === m.id;
+                return (
+                  <button
+                    key={m.id}
+                    role="menuitemradio"
+                    aria-checked={isActive}
+                    type="button"
+                    onClick={() => {
+                      onSelect({ id: m.id, name: m.name });
+                      setOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors ${
+                      isActive ? 'text-primary font-medium' : 'hover:bg-muted/60'
+                    }`}
+                  >
+                    <span className="truncate">{m.name}</span>
+                    {isActive ? <Check className="h-4 w-4 flex-none" /> : null}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -53,7 +53,7 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [feedFilter, setFeedFilter] = useState<FeedFilter>('now');
+  const [feedFilter, setFeedFilter] = useState<FeedFilter>('random');
   const [activeCategory, setActiveCategory] = useState<string>('');
   const [availableCategories, setAvailableCategories] = useState<{ id: string; name: string }[]>([]);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -113,7 +113,11 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
       const rawPrice = toNumber(latestPrice?.price ?? rawItem.price, 0);
       const rawDiscountRaw = latestPrice?.discount_price ?? rawItem.discount_price;
       const rawDiscount = rawDiscountRaw == null ? null : toNumber(rawDiscountRaw, 0);
-      const lastUpdateTs = parseTs(toStringValue(latestPrice?.last_update ?? rawItem.last_update));
+      const lastUpdateRaw = toStringValue(latestPrice?.last_update ?? rawItem.last_update);
+      const lastUpdateTs = parseTs(lastUpdateRaw);
+      const trendRaw = toStringValue(latestPrice?.price_trend);
+      const priceTrend: PriceRowItem['priceTrend'] =
+        trendRaw === 'up' || trendRaw === 'down' || trendRaw === 'stable' ? trendRaw : undefined;
 
       return {
         id: toStringValue(rawItem.id ?? rawItem.item_id ?? rawItem.product_id, '0'),
@@ -132,6 +136,8 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
           rawItem.image_path ?? rawItem.image ?? rawItem.image_url
         ),
         unit: toStringValue(unit?.symbol ?? unit?.name ?? rawItem.unit, undefined as unknown as string) || undefined,
+        lastUpdate: lastUpdateRaw || undefined,
+        priceTrend,
         rawPrice,
         rawDiscount,
         lastUpdateTs,

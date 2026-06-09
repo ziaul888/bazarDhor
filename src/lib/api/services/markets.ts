@@ -16,7 +16,8 @@ import type {
 
 export type RandomProductsParams = {
   category_id?: string | number;
-  sort_by?: 'latest' | 'trending' | 'now';
+  market_id?: string | number;
+  sort_by?: 'latest' | 'trending' | 'random';
   sort_order?: 'asc' | 'desc';
   limit?: number;
   offset?: number;
@@ -41,13 +42,15 @@ export const marketsApi = {
     const page = filters?.page ?? 1;
     const offset = page;
 
-    const { data } = await apiClient.get(`/market/products/${marketId}`, {
+    const { data } = await apiClient.get('/products', {
       params: {
+        market_id: marketId,
         limit,
         offset,
+        sort: filters?.sortBy ?? 'latest',
         ...(filters?.search ? { search: filters.search } : {}),
-        ...(filters?.category ? { category: filters.category } : {}),
-        ...(filters?.sortBy ? { sort_by: filters.sortBy, sort_order: filters.sortOrder ?? 'asc' } : {}),
+        ...(filters?.category ? { category_id: filters.category } : {}),
+        ...(filters?.sortOrder ? { sort_order: filters.sortOrder } : {}),
       },
     });
 
@@ -80,9 +83,9 @@ export const marketsApi = {
     };
   },
 
-  // Search markets (uses /markets/list with `search` as the query param)
+  // Search markets (uses /markets with `search` as the query param)
   searchMarkets: async (query: string, categoryId?: string): Promise<ApiResponse<Market[]>> => {
-    const { data } = await apiClient.get('/markets/list', {
+    const { data } = await apiClient.get('/markets', {
       params: { search: query, ...(categoryId ? { category_id: categoryId } : {}) },
     });
     return data;
@@ -104,14 +107,14 @@ export const marketsApi = {
 
   // Get random list of markets
   getRandomMarkets: async (): Promise<Market[]> => {
-    const { data } = await apiClient.get<{ data: Market[] }>('/markets/random-list');
+    const { data } = await apiClient.get<{ data: Market[] }>('/markets/random');
     return data.data || [];
   },
 
   // Get markets list by user location (offset/limit)
   getMarketList: async (params: MarketListParams): Promise<unknown> => {
     const categoryId = params.category_id ?? params.categoryId;
-    const { data } = await apiClient.get('/markets/list', {
+    const { data } = await apiClient.get('/markets', {
       params: {
         ...params,
         ...(categoryId ? { category_id: categoryId, categoryId } : {}),
@@ -122,12 +125,17 @@ export const marketsApi = {
 
   // Why: callers (e.g. the home Today's prices feed) need to pass category and sort
   // filters down to the backend so the API can return server-filtered/sorted data.
-  // How: params are forwarded as query string; unknown params are ignored by the
-  // backend until support is added, so this stays forward-compatible.
+  // How: maps `sort_by` to the backend's `sort` param and forwards `category_id` /
+  // `market_id` as-is; falls back to `sort=latest` when no sort is provided.
   getRandomProducts: async (params?: RandomProductsParams): Promise<Product[]> => {
-    const { data } = await apiClient.get<{ data: Product[] }>('/markets/random-product-list', {
-      params: params && Object.keys(params).length > 0 ? params : undefined,
-    });
+    const query: Record<string, string | number> = { sort: params?.sort_by ?? 'latest' };
+    if (params?.category_id != null && params.category_id !== '') query.category_id = params.category_id;
+    if (params?.market_id != null && params.market_id !== '') query.market_id = params.market_id;
+    if (params?.sort_order) query.sort_order = params.sort_order;
+    if (params?.limit != null) query.limit = params.limit;
+    if (params?.offset != null) query.offset = params.offset;
+
+    const { data } = await apiClient.get<{ data: Product[] }>('/products', { params: query });
     return data.data || [];
   },
 

@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, SlidersHorizontal } from 'lucide-react';
 
-export type FeedFilter = 'now' | 'latest' | 'trending';
+export type FeedFilter = 'random' | 'latest' | 'trending';
 
 export const FEED_FILTERS: { id: FeedFilter; label: string }[] = [
-  { id: 'now', label: 'Now' },
+  { id: 'random', label: 'Random' },
   { id: 'latest', label: 'Latest' },
   { id: 'trending', label: 'Trending' },
 ];
@@ -25,7 +25,7 @@ export function FeedFilterPopover({
 }) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const activeLabel = FEED_FILTERS.find((f) => f.id === active)?.label ?? 'Now';
+  const activeLabel = FEED_FILTERS.find((f) => f.id === active)?.label ?? 'Random';
 
   useEffect(() => {
     if (!open) return;
@@ -108,7 +108,14 @@ export function applyFeedFilter<T>(
   filter: FeedFilter,
   accessor: (row: T) => FilterableItem,
 ): T[] {
-  if (filter === 'now') return rows;
+  if (filter === 'random') {
+    const shuffled = [...rows];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
 
   if (filter === 'latest') {
     return [...rows].sort((a, b) => {

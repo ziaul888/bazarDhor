@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { RefreshCw, Package, Store } from 'lucide-react';
+import { RefreshCw, Package, Store, TrendingUp, TrendingDown, Clock } from 'lucide-react';
 import { ProductPriceDialog } from '@/components/product-price-dialog';
 import { useSubmitProductPrice } from '@/lib/api/hooks/useUser';
 import { handleApiError } from '@/lib/api/client';
@@ -16,6 +16,8 @@ export type PriceRowItem = {
   price: number;
   unit?: string;
   image?: string;
+  lastUpdate?: string;
+  priceTrend?: 'up' | 'down' | 'stable';
 };
 
 const taka = new Intl.NumberFormat('en-IN');
@@ -92,12 +94,23 @@ export function PriceRow({ item }: PriceRowProps) {
             <Store className="h-3 w-3 flex-none" />
             <span className="truncate">{item.marketName}</span>
           </span>
+          {item.lastUpdate ? (
+            <span className="flex items-center gap-1 text-[10px] text-muted-foreground/80 truncate">
+              <Clock className="h-2.5 w-2.5 flex-none" />
+              <span className="truncate">{item.lastUpdate}</span>
+            </span>
+          ) : null}
         </span>
 
         <span className="flex-none flex items-center gap-2">
           <span className="text-right leading-tight">
-            <span className="block text-xl sm:text-2xl font-bold text-primary tabular-nums">
-              ৳ {taka.format(item.price)}
+            <span className="flex items-center justify-end gap-1 text-xl sm:text-2xl font-bold text-primary tabular-nums">
+              {item.priceTrend === 'up' ? (
+                <TrendingUp aria-label="Trending up" className="h-3.5 w-3.5 text-rose-500" />
+              ) : item.priceTrend === 'down' ? (
+                <TrendingDown aria-label="Trending down" className="h-3.5 w-3.5 text-emerald-500" />
+              ) : null}
+              <span>৳ {taka.format(item.price)}</span>
             </span>
             {item.unit ? (
               <span className="block text-[10px] text-muted-foreground">/ {item.unit}</span>

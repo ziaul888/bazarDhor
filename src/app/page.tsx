@@ -18,11 +18,7 @@ export default function Home() {
           <aside className="lg:pt-6 lg:sticky lg:top-4 lg:self-start lg:space-y-4">
             <NearbyMarketsCard />
             <CompareStrip />
-            <div className="hidden lg:block px-4 text-xs text-muted-foreground space-y-1.5">
-              <Link className="block hover:text-foreground" href="/markets">All nearby markets →</Link>
-              <Link className="block hover:text-foreground" href="/items">Browse all items</Link>
-              <Link className="block hover:text-foreground" href="/about">About BazarDhor</Link>
-            </div>
+            
           </aside>
         </div>
       </div>

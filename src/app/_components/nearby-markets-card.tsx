@@ -42,11 +42,11 @@ export function NearbyMarketsCard() {
         </Link>
       </div>
 
-      <div className="rounded-xl border bg-card divide-y overflow-hidden">
+      <div className="space-y-2">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => <RowSkeleton key={i} />)
         ) : rows.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+          <div className="rounded-xl border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
             No markets in your zone yet.
           </div>
         ) : (
@@ -102,7 +102,7 @@ function MarketRow({ market }: { market: RawMarket }) {
   return (
     <Link
       href={`/markets/${market.id}`}
-      className="group flex items-stretch hover:bg-muted/40 transition-colors"
+      className="group flex items-stretch rounded-xl border bg-card overflow-hidden hover:bg-muted/40 transition-colors"
     >
       <span className="relative flex-none w-20 self-stretch bg-primary/10 text-primary flex items-center justify-center overflow-hidden">
         {hasImage ? (
@@ -178,7 +178,7 @@ function MarketRow({ market }: { market: RawMarket }) {
 
 function RowSkeleton() {
   return (
-    <div className="flex items-stretch animate-pulse">
+    <div className="flex items-stretch rounded-xl border bg-card overflow-hidden animate-pulse">
       <div className="w-20 self-stretch min-h-[5.5rem] bg-muted" />
       <div className="flex-1 px-4 py-3 space-y-2">
         <div className="h-3.5 w-2/3 bg-muted rounded" />

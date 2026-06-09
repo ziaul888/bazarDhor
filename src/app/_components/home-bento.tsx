@@ -4,13 +4,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Activity, ImageIcon, MapPin, Sparkles, Store } from 'lucide-react';
-import { useRandomMarkets, useRandomProducts } from '@/lib/api/hooks/useMarkets';
+import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 import { useBanners } from '@/lib/api/hooks/useBanners';
+import { usePulse } from '@/lib/api/hooks/useStats';
 import { useZone } from '@/providers/zone-provider';
 import type { Banner } from '@/lib/api/types';
 
 const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
-const ACTIVITY_WINDOW_MS = 1000 * 60 * 60 * 24;
 
 function resolveImage(value?: string | null) {
   if (!value) return undefined;
@@ -20,15 +20,10 @@ function resolveImage(value?: string | null) {
   return `${IMAGE_BASE_URL}${t}`;
 }
 
-function parseTs(value: string): number {
-  const t = Date.parse(value);
-  return Number.isFinite(t) ? t : 0;
-}
-
 export function HomeBento() {
-  const { data: products } = useRandomProducts();
   const { data: markets } = useRandomMarkets();
   const { data: bannersData, isLoading: isBannersLoading } = useBanners(10, 1);
+  const { data: pulse } = usePulse();
   const { zone } = useZone();
 
   const banners = useMemo<Banner[]>(() => {
@@ -52,25 +47,13 @@ export function HomeBento() {
     );
   }, []);
 
-  const stats = useMemo(() => {
-    const now = Date.now();
-    const since = now - ACTIVITY_WINDOW_MS;
-    let recentPrices = 0;
-    const marketIds = new Set<string>();
-    const productIds = new Set<string>();
-    for (const p of products ?? []) {
-      productIds.add(p.id);
-      for (const mp of p.market_prices ?? []) {
-        if (mp.market?.id) marketIds.add(String(mp.market.id));
-        if (parseTs(mp.last_update) >= since) recentPrices += 1;
-      }
-    }
-    return {
-      recentPrices,
-      markets: marketIds.size || (markets?.length ?? 0),
-      items: productIds.size,
-    };
-  }, [products, markets]);
+  const stats = {
+    recentPrices: pulse?.recent_prices ?? 0,
+    markets: pulse?.markets_total ?? 0,
+    items: pulse?.items_total ?? 0,
+    contributors: pulse?.contributors ?? 0,
+    window: pulse?.window ?? '24h',
+  };
 
   return (
     <section className="px-4 pt-4 space-y-3">
@@ -101,10 +84,11 @@ export function HomeBento() {
             <span className="text-xl sm:text-2xl font-bold tabular-nums">
               {stats.recentPrices}
             </span>
-            <span className="text-[11px] text-muted-foreground">prices · 24h</span>
+            <span className="text-[11px] text-muted-foreground">prices · {stats.window}</span>
           </div>
           <p className="text-[11px] text-muted-foreground mt-1">
             {stats.markets} markets · {stats.items} items
+            {stats.contributors > 0 ? ` · ${stats.contributors} contributors` : ''}
           </p>
         </div>
 

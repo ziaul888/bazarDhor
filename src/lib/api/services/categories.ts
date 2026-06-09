@@ -5,7 +5,7 @@ export const categoriesApi = {
   // Get all categories
   getAll: async (params?: { limit?: number; offset?: number }): Promise<Category[]> => {
     try {
-      const response = await apiClient.get<PaginatedResponse<Category>>('/categories/list', {
+      const response = await apiClient.get<PaginatedResponse<Category>>('/categories', {
         params,
       });
       // Handle actual response format: { data: Category[], ... }

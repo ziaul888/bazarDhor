@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { marketsApi, type RandomProductsParams } from '../services/markets';
 import type { MarketFilters, MarketListParams, ItemFilters, MarketComparisonParams, MarketProductComparisonParams, MarketProductComparisonResponse, ApiResponse } from '../types';
 import { useZone } from '@/providers/zone-provider';
@@ -146,6 +146,30 @@ export const useRandomProducts = (params?: RandomProductsParams) => {
   return useQuery({
     queryKey: marketKeys.randomProducts(params),
     queryFn: () => marketsApi.getRandomProducts(params),
+    enabled: !!zone?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+// Why: the home feed needs to keep fetching more pages as the user scrolls.
+// How: each page is `pageParam` (1-indexed, since the backend uses `offset` as a
+// page number) and `getNextPageParam` stops once the last page returned fewer
+// than `limit` items.
+export const useInfiniteRandomProducts = (
+  params?: Omit<RandomProductsParams, 'offset'>
+) => {
+  const { zone } = useZone();
+  const limit = params?.limit ?? 10;
+
+  return useInfiniteQuery({
+    queryKey: [...marketKeys.all, 'random-products-infinite', { ...(params ?? {}), limit }] as const,
+    queryFn: ({ pageParam }) =>
+      marketsApi.getRandomProducts({ ...params, limit, offset: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < limit) return undefined;
+      return allPages.length + 1;
+    },
     enabled: !!zone?.id,
     staleTime: 5 * 60 * 1000,
   });
