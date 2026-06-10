@@ -2,6 +2,7 @@
 
 import { Plus, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAddItem } from '@/components/add-item-context';
 
 interface FloatingAddButtonProps {
@@ -16,6 +17,7 @@ export function GlobalFloatingAddButton() {
 }
 
 export function FloatingAddButton({ onClick, className = "" }: FloatingAddButtonProps) {
+  const t = useTranslations('addItem');
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
 
@@ -49,7 +51,7 @@ export function FloatingAddButton({ onClick, className = "" }: FloatingAddButton
           ${isPressed ? 'scale-95' : ''}
           ${className}
         `}
-        aria-label="Add new item"
+        aria-label={t('addNewItem')}
       >
         {/* Inner highlight */}
         <div className="absolute inset-2 bg-gradient-to-br from-white/30 to-transparent rounded-full" />

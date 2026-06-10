@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import {
   ArrowLeft,
   Heart,
@@ -40,19 +41,17 @@ interface MarketDetailsClientProps {
   marketData: MarketData;
 }
 
-const DAY_KEYS: Record<string, string> = {
-  monday: 'Mon',
-  tuesday: 'Tue',
-  wednesday: 'Wed',
-  thursday: 'Thu',
-  friday: 'Fri',
-  saturday: 'Sat',
-  sunday: 'Sun',
-};
-
 const WEEKDAY_INDEX = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 type DayHours = { day: string; isClosed: boolean; opening: string; closing: string };
+
+type HoursLabels = {
+  closed: string;
+  opensAt: (time: string) => string;
+  closesAt: (time: string) => string;
+  todayPrefix: string;
+  dayShort: Record<string, string>;
+};
 
 function readDayEntry(value: unknown): DayHours | null {
   if (!value || typeof value !== 'object') return null;
@@ -65,11 +64,11 @@ function readDayEntry(value: unknown): DayHours | null {
   return { day, isClosed, opening, closing };
 }
 
-function formatRange(entry: DayHours): string {
-  if (entry.isClosed) return 'Closed';
+function formatRange(entry: DayHours, labels: HoursLabels): string {
+  if (entry.isClosed) return labels.closed;
   if (entry.opening && entry.closing) return `${entry.opening} – ${entry.closing}`;
-  if (entry.opening) return `Opens ${entry.opening}`;
-  if (entry.closing) return `Closes ${entry.closing}`;
+  if (entry.opening) return labels.opensAt(entry.opening);
+  if (entry.closing) return labels.closesAt(entry.closing);
   return '';
 }
 
@@ -77,7 +76,7 @@ function formatRange(entry: DayHours): string {
 // (`[{ day, is_closed, opening, closing }, ...]`). `String(obj)` was rendering
 // "[object Object]" — this picks today's entry so the InfoRow shows the actual
 // open/close times. Falls back to the first non-closed day for older payloads.
-function formatOpeningHours(value: unknown): string | null {
+function formatOpeningHours(value: unknown, labels: HoursLabels): string | null {
   if (value == null) return null;
   if (typeof value === 'string') return value.trim() || null;
 
@@ -89,24 +88,24 @@ function formatOpeningHours(value: unknown): string | null {
     const todayKey = WEEKDAY_INDEX[new Date().getDay()];
     const today = entries.find((e) => e.day.toLowerCase() === todayKey);
     if (today) {
-      const range = formatRange(today);
-      return range ? `Today · ${range}` : null;
+      const range = formatRange(today, labels);
+      return range ? `${labels.todayPrefix} · ${range}` : null;
     }
 
     const firstOpen = entries.find((e) => !e.isClosed && (e.opening || e.closing));
     if (firstOpen) {
-      const range = formatRange(firstOpen);
-      const label = DAY_KEYS[firstOpen.day.toLowerCase()] ?? firstOpen.day;
+      const range = formatRange(firstOpen, labels);
+      const label = labels.dayShort[firstOpen.day.toLowerCase()] ?? firstOpen.day;
       return range ? `${label} · ${range}` : null;
     }
 
-    return 'Closed';
+    return labels.closed;
   }
 
   if (typeof value === 'object') {
     const obj = value as Record<string, unknown>;
 
-    if (obj.is_closed === true) return 'Closed';
+    if (obj.is_closed === true) return labels.closed;
 
     const opening = typeof obj.opening === 'string' ? obj.opening.trim() : '';
     const closing = typeof obj.closing === 'string' ? obj.closing.trim() : '';
@@ -115,11 +114,11 @@ function formatOpeningHours(value: unknown): string | null {
 
     // Per-day dict shape: { monday: '8-6', tuesday: '8-6', ... }
     const dayLines = Object.entries(obj)
-      .filter(([k]) => k.toLowerCase() in DAY_KEYS)
+      .filter(([k]) => k.toLowerCase() in labels.dayShort)
       .map(([k, v]) => {
-        const label = DAY_KEYS[k.toLowerCase()];
+        const label = labels.dayShort[k.toLowerCase()];
         const raw = typeof v === 'string' ? v : v && typeof v === 'object'
-          ? formatOpeningHours(v)
+          ? formatOpeningHours(v, labels)
           : null;
         return raw ? `${label}: ${raw}` : null;
       })
@@ -131,13 +130,30 @@ function formatOpeningHours(value: unknown): string | null {
 }
 
 export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
+  const t = useTranslations('markets');
+  const tNav = useTranslations('nav');
   const [isFavorite, setIsFavorite] = useState(false);
 
   const hasCoords =
     typeof marketData.latitude === 'number' &&
     typeof marketData.longitude === 'number';
 
-  const openingHoursText = formatOpeningHours(marketData.opening_hours);
+  const hoursLabels: HoursLabels = {
+    closed: t('closedLabel'),
+    opensAt: (time: string) => t('opensAt', { time }),
+    closesAt: (time: string) => t('closesAt', { time }),
+    todayPrefix: t('todayPrefix'),
+    dayShort: {
+      monday: t('dayMon'),
+      tuesday: t('dayTue'),
+      wednesday: t('dayWed'),
+      thursday: t('dayThu'),
+      friday: t('dayFri'),
+      saturday: t('daySat'),
+      sunday: t('daySun'),
+    },
+  };
+  const openingHoursText = formatOpeningHours(marketData.opening_hours, hoursLabels);
 
   return (
     <div className="pb-24">
@@ -148,20 +164,20 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
             className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            Markets
+            {tNav('markets')}
           </Link>
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={() => setIsFavorite(!isFavorite)}
-              aria-label="Favorite"
+              aria-label={t('favorite')}
               className="h-8 w-8 inline-flex items-center justify-center rounded-full hover:bg-muted/60"
             >
               <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
             </button>
             <button
               type="button"
-              aria-label="Share"
+              aria-label={t('share')}
               className="h-8 w-8 inline-flex items-center justify-center rounded-full hover:bg-muted/60"
             >
               <Share2 className="h-4 w-4" />
@@ -180,7 +196,7 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
                 : 'bg-muted text-muted-foreground'
             }`}
           >
-            {marketData.is_open ? 'Open' : 'Closed'}
+            {marketData.is_open ? t('openLabel') : t('closedLabel')}
           </span>
         </div>
         {marketData.zone && (
@@ -196,19 +212,19 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
       <section className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 mt-4">
         <div className="border-y lg:border lg:rounded-xl bg-card divide-y">
           {marketData.address && (
-            <InfoRow icon={<MapPin className="h-4 w-4" />} label="Address" value={marketData.address} />
+            <InfoRow icon={<MapPin className="h-4 w-4" />} label={t('address')} value={marketData.address} />
           )}
           {openingHoursText && (
             <InfoRow
               icon={<Clock className="h-4 w-4" />}
-              label="Hours"
+              label={t('hours')}
               value={openingHoursText}
             />
           )}
           {marketData.phone && (
             <InfoRow
               icon={<Phone className="h-4 w-4" />}
-              label="Phone"
+              label={t('phone')}
               value={marketData.phone}
               href={`tel:${marketData.phone}`}
             />
@@ -216,7 +232,7 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
           {marketData.email && (
             <InfoRow
               icon={<Mail className="h-4 w-4" />}
-              label="Email"
+              label={t('emailLabel')}
               value={marketData.email}
               href={`mailto:${marketData.email}`}
             />
@@ -224,7 +240,7 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
           {marketData.website && (
             <InfoRow
               icon={<Globe className="h-4 w-4" />}
-              label="Website"
+              label={t('website')}
               value={marketData.website}
               href={
                 marketData.website.startsWith('http')
@@ -237,8 +253,8 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
           {hasCoords && (
             <InfoRow
               icon={<Navigation className="h-4 w-4" />}
-              label="Directions"
-              value="Open in Google Maps"
+              label={t('directions')}
+              value={t('openInMaps')}
               href={`https://www.google.com/maps/dir/?api=1&destination=${marketData.latitude},${marketData.longitude}`}
               external
               accent
@@ -248,7 +264,7 @@ export function MarketDetailsClient({ marketData }: MarketDetailsClientProps) {
       </section>
 
       <section className="container mx-auto max-w-3xl lg:max-w-6xl px-0 lg:px-4 mt-6">
-        <h2 className="px-4 lg:px-0 text-base font-semibold mb-2">All items</h2>
+        <h2 className="px-4 lg:px-0 text-base font-semibold mb-2">{t('allItems')}</h2>
         <MarketItemsList marketId={String(marketData.id)} />
       </section>
     </div>

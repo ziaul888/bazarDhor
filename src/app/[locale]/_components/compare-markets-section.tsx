@@ -28,15 +28,15 @@ export function CompareMarketsSection() {
     const markets = apiMarkets || [];
 
     return (
-        <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-r from-primary/5 via-background to-secondary/5">
+        <section className="py-8 sm:py-12 lg:py-16 bg-linear-to-r from-primary/5 via-background to-secondary/5">
             <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center mb-8 sm:mb-10 lg:mb-12">
                     <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-3 mb-4 sm:mb-6">
-                        <div className="bg-gradient-to-r from-primary to-secondary p-3 sm:p-4 rounded-full shadow-lg">
+                        <div className="bg-linear-to-r from-primary to-secondary p-3 sm:p-4 rounded-full shadow-lg">
                             <Scale className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
                         </div>
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-center sm:text-left">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent text-center sm:text-left">
                             Compare Markets
                         </h2>
                     </div>
@@ -65,7 +65,7 @@ export function CompareMarketsSection() {
                                         setDropdown2Open(false);
                                     }}
                                     disabled={isLoadingMarkets}
-                                    className="w-full p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-2 sm:border-3 border-primary/20 rounded-xl sm:rounded-2xl hover:border-primary/40 hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-primary/20 group disabled:opacity-50"
+                                    className="w-full p-4 sm:p-5 lg:p-6 bg-linear-to-br from-primary/5 to-primary/10 border-2 sm:border-3 border-primary/20 rounded-xl sm:rounded-2xl hover:border-primary/40 hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-primary/20 group disabled:opacity-50"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="text-left flex-1 min-w-0">
@@ -74,15 +74,15 @@ export function CompareMarketsSection() {
                                                     <div className="font-bold text-base sm:text-lg text-gray-900 mb-1 sm:mb-2 truncate">{selectedMarket1.name}</div>
                                                     <div className="text-xs sm:text-sm text-gray-600 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 lg:space-x-3">
                                                         <div className="flex items-center space-x-1">
-                                                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                                                             <span className="truncate">{selectedMarket1.distance || 10} km</span>
                                                         </div>
                                                         <div className="hidden sm:flex items-center space-x-1">
-                                                            <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                            <Users className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                                                             <span className="whitespace-nowrap">{selectedMarket1.vendors || 0} vendors</span>
                                                         </div>
                                                         <div className="flex items-center space-x-1">
-                                                            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                                                            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 shrink-0" />
                                                             <span>{selectedMarket1.rating || 3.5}</span>
                                                         </div>
                                                     </div>
@@ -91,7 +91,7 @@ export function CompareMarketsSection() {
                                                 <div className="text-muted-foreground italic">Select a market</div>
                                             )}
                                         </div>
-                                        <ChevronDown className={`h-5 w-5 sm:h-6 sm:w-6 text-primary transition-transform group-hover:scale-110 flex-shrink-0 ml-2 ${dropdown1Open ? 'rotate-180' : ''}`} />
+                                        <ChevronDown className={`h-5 w-5 sm:h-6 sm:w-6 text-primary transition-transform group-hover:scale-110 shrink-0 ml-2 ${dropdown1Open ? 'rotate-180' : ''}`} />
                                     </div>
                                 </button>
 
@@ -138,7 +138,7 @@ export function CompareMarketsSection() {
                                         setDropdown1Open(false);
                                     }}
                                     disabled={isLoadingMarkets}
-                                    className="w-full p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-secondary/5 to-secondary/10 border-2 sm:border-3 border-secondary/20 rounded-xl sm:rounded-2xl hover:border-secondary/40 hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-secondary/20 group disabled:opacity-50"
+                                    className="w-full p-4 sm:p-5 lg:p-6 bg-linear-to-br from-secondary/5 to-secondary/10 border-2 sm:border-3 border-secondary/20 rounded-xl sm:rounded-2xl hover:border-secondary/40 hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-secondary/20 group disabled:opacity-50"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="text-left flex-1 min-w-0">
@@ -147,15 +147,15 @@ export function CompareMarketsSection() {
                                                     <div className="font-bold text-base sm:text-lg text-gray-900 mb-1 sm:mb-2 truncate">{selectedMarket2.name}</div>
                                                     <div className="text-xs sm:text-sm text-gray-600 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 lg:space-x-3">
                                                         <div className="flex items-center space-x-1">
-                                                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                                                             <span className="truncate">{selectedMarket2.distance || '7'} km</span>
                                                         </div>
                                                         <div className="hidden sm:flex items-center space-x-1">
-                                                            <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                            <Users className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                                                             <span className="whitespace-nowrap">{selectedMarket2.vendors || 0} vendors</span>
                                                         </div>
                                                         <div className="flex items-center space-x-1">
-                                                            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                                                            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 shrink-0" />
                                                             <span>{selectedMarket2.rating || '3.7'}</span>
                                                         </div>
                                                     </div>
@@ -164,7 +164,7 @@ export function CompareMarketsSection() {
                                                 <div className="text-muted-foreground italic">Select a market</div>
                                             )}
                                         </div>
-                                        <ChevronDown className={`h-5 w-5 sm:h-6 sm:w-6 text-secondary transition-transform group-hover:scale-110 flex-shrink-0 ml-2 ${dropdown2Open ? 'rotate-180' : ''}`} />
+                                        <ChevronDown className={`h-5 w-5 sm:h-6 sm:w-6 text-secondary transition-transform group-hover:scale-110 shrink-0 ml-2 ${dropdown2Open ? 'rotate-180' : ''}`} />
                                     </div>
                                 </button>
 
@@ -211,12 +211,12 @@ export function CompareMarketsSection() {
                             }}
                             size="lg"
                             disabled={!selectedMarket1 || !selectedMarket2 || isLoadingMarkets}
-                            className="w-full sm:w-auto px-6 sm:px-8 lg:px-12 py-4 sm:py-5 lg:py-6 text-base sm:text-lg lg:text-xl font-bold bg-gradient-to-r from-primary via-primary/90 to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg sm:shadow-xl lg:shadow-2xl hover:shadow-xl sm:hover:shadow-2xl lg:hover:shadow-3xl transition-all duration-300 transform hover:scale-105"
+                            className="w-full sm:w-auto px-6 sm:px-8 lg:px-12 py-4 sm:py-5 lg:py-6 text-base sm:text-lg lg:text-xl font-bold bg-linear-to-r from-primary via-primary/90 to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg sm:shadow-xl lg:shadow-2xl hover:shadow-xl sm:hover:shadow-2xl lg:hover:shadow-3xl transition-all duration-300 transform hover:scale-105"
                         >
                             <div className="flex items-center justify-center space-x-2 sm:space-x-3 lg:space-x-4">
-                                <Scale className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 flex-shrink-0" />
+                                <Scale className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 shrink-0" />
                                 <span className="truncate">Compare These Markets</span>
-                                <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 flex-shrink-0" />
+                                <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 shrink-0" />
                             </div>
                         </Button>
                         <p className="text-muted-foreground text-sm sm:text-base lg:text-lg mt-3 sm:mt-4 max-w-2xl mx-auto px-2 sm:px-0 leading-relaxed">

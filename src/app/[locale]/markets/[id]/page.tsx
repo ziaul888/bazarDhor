@@ -1,11 +1,12 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { marketServerApi } from '@/lib/api/services/server/market-server';
 import { cookies } from 'next/headers';
 import { MarketDetailsClient } from './_components/market-details-client';
 
 interface MarketDetailsProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; locale: string }>;
 }
 
 async function getMarketData(id: string) {
@@ -53,19 +54,21 @@ async function getMarketData(id: string) {
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: MarketDetailsProps): Promise<Metadata> {
-  const { id } = await params;
+  const { id, locale } = await params;
   const marketData = await getMarketData(id);
-  
+  const t = await getTranslations({ locale, namespace: 'markets' });
+
   if (!marketData) {
     return {
-      title: 'Market Not Found',
-      description: 'The requested market could not be found.',
+      title: t('notFoundTitle'),
+      description: t('notFoundDesc'),
     };
   }
-  
-  const title = `${marketData.name} - Fresh Market Finder`;
-  const description = marketData.description || `Find fresh groceries and products at ${marketData.name}. Compare prices and discover local vendors.`;
-  
+
+  const title = `${marketData.name} - ${t('seoSuffix')}`;
+  const description =
+    marketData.description || t('seoDefaultDesc', { name: marketData.name });
+
   return {
     title,
     description,
@@ -73,7 +76,7 @@ export async function generateMetadata({ params }: MarketDetailsProps): Promise<
       title,
       description,
       type: 'website',
-      locale: 'en_US',
+      locale: locale === 'bn' ? 'bn_BD' : 'en_US',
     },
     twitter: {
       card: 'summary',
@@ -86,7 +89,7 @@ export async function generateMetadata({ params }: MarketDetailsProps): Promise<
 export default async function MarketDetailsPage({ params }: MarketDetailsProps) {
   const { id } = await params;
   const marketData = await getMarketData(id);
-  
+
   if (!marketData) {
     notFound();
   }

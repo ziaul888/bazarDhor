@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { ChevronDown, MapPin, Star, Users } from 'lucide-react';
+import { ChevronDown, MapPin, Star, Store, Users } from 'lucide-react';
 import type { Market } from '@/lib/api/types';
 
 const DEFAULT_MARKET_IMAGE = "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=300&fit=crop";
@@ -36,7 +36,7 @@ export function MarketSelector({
       >
         <div className="flex items-center space-x-4">
           {selectedMarket ? (
-            <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+            <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
               <Image
                 src={selectedMarket.image || DEFAULT_MARKET_IMAGE}
                 alt={selectedMarket.name}
@@ -45,22 +45,26 @@ export function MarketSelector({
               />
             </div>
           ) : (
-            <div className="w-16 h-16 rounded-lg bg-muted flex-shrink-0" />
+            <div className="w-16 h-16 rounded-lg bg-muted shrink-0" />
           )}
           
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-lg truncate">{selectedMarket?.name ?? 'Select a market'}</h3>
             <p className="text-sm text-muted-foreground truncate">{selectedMarket?.type ?? 'Choose from the list'}</p>
             
-            <div className="flex items-center space-x-4 mt-1">
-              <div className="flex items-center space-x-1">
-                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                <span className="text-xs">{selectedMarket?.rating ?? 'N/A'}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <MapPin className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">{selectedMarket?.distance ?? 'N/A'}</span>
-              </div>
+            <div className="flex items-center gap-3 mt-1 min-w-0">
+              {selectedMarket?.type ? (
+                <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+                  <Store className="h-3 w-3" />
+                  <span className="truncate">{selectedMarket.type}</span>
+                </span>
+              ) : null}
+              {selectedMarket?.address ? (
+                <span className="flex items-center gap-1 text-xs text-muted-foreground min-w-0">
+                  <MapPin className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{selectedMarket.address}</span>
+                </span>
+              ) : null}
             </div>
           </div>
           
@@ -83,7 +87,7 @@ export function MarketSelector({
               className="w-full p-4 hover:bg-accent transition-colors text-left border-b border-border last:border-b-0"
             >
               <div className="flex items-center space-x-4">
-                <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
                   <Image
                     src={market.image || DEFAULT_MARKET_IMAGE}
                     alt={market.name}

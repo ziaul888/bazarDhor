@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { MapPin, Clock, Store, Check, ArrowRight, Tag, Activity } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
@@ -43,14 +44,15 @@ export function MarketCard({
   variant = 'default',
   className = '',
 }: MarketCardProps) {
+  const t = useTranslations('markets');
   const isCompact = variant === 'compact';
   const [imgError, setImgError] = useState(false);
 
   const locationLine = market.location || market.address;
   const distanceSuffix =
     market.distance && market.distance !== 'N/A' ? ` • ${market.distance}` : '';
-  const marketType = market.type && market.type.trim().length > 0 ? market.type : 'Market';
-  const statusLabel = market.isOpen ? 'Open' : 'Closed';
+  const marketType = market.type && market.type.trim().length > 0 ? market.type : t('cardMarket');
+  const statusLabel = market.isOpen ? t('openLabel') : t('closedLabel');
   void showCategoryItems;
 
   return (
@@ -84,7 +86,7 @@ export function MarketCard({
             }`}
           >
             {market.isOpen && <Check className="h-3 w-3 stroke-[3]" />}
-            {market.isOpen ? 'Open' : 'Closed'}
+            {market.isOpen ? t('openLabel') : t('closedLabel')}
           </span>
         </div>
       </div>
@@ -136,7 +138,7 @@ export function MarketCard({
                   {marketType}
                 </span>
               </div>
-              <p className="text-[11px] text-muted-foreground">Type</p>
+              <p className="text-[11px] text-muted-foreground">{t('cardType')}</p>
             </div>
 
             {/* Market Status */}
@@ -153,7 +155,7 @@ export function MarketCard({
                   {statusLabel}
                 </span>
               </div>
-              <p className="text-[11px] text-muted-foreground">Status</p>
+              <p className="text-[11px] text-muted-foreground">{t('cardStatus')}</p>
             </div>
 
             {/* Hours */}
@@ -164,7 +166,7 @@ export function MarketCard({
                   {market.openTime || '—'}
                 </span>
               </div>
-              <p className="text-[11px] text-muted-foreground">Hours</p>
+              <p className="text-[11px] text-muted-foreground">{t('cardHours')}</p>
             </div>
           </div>
         </div>
@@ -179,7 +181,9 @@ export function MarketListItem({
   showCategoryItems = false,
   className = '',
 }: MarketCardProps) {
+  const t = useTranslations('markets');
   const [imgError, setImgError] = useState(false);
+  void showCategoryItems;
 
   const locationLine = market.location || market.address;
   const distanceSuffix =
@@ -211,7 +215,7 @@ export function MarketListItem({
               }`}
             >
               {market.isOpen && <Check className="h-2.5 w-2.5 stroke-[3]" />}
-              {market.isOpen ? 'Open' : 'Closed'}
+              {market.isOpen ? t('openLabel') : t('closedLabel')}
             </span>
           </div>
         </div>
@@ -236,12 +240,12 @@ export function MarketListItem({
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-1">
               <Tag className="h-3.5 w-3.5 text-primary" />
-              <span className="text-xs font-semibold line-clamp-1">{market.type || 'Market'}</span>
+              <span className="text-xs font-semibold line-clamp-1">{market.type || t('cardMarket')}</span>
             </div>
             <div className="flex items-center gap-1">
               <Activity className={`h-3.5 w-3.5 ${market.isOpen ? 'text-green-500' : 'text-gray-400'}`} />
               <span className={`text-xs font-semibold ${market.isOpen ? 'text-green-600' : 'text-gray-500'}`}>
-                {market.isOpen ? 'Open' : 'Closed'}
+                {market.isOpen ? t('openLabel') : t('closedLabel')}
               </span>
             </div>
             <div className="flex items-center gap-1 text-muted-foreground">

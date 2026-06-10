@@ -1,3 +1,6 @@
+import { cookies } from 'next/headers';
+import { LOCALE_TO_HTTP, routing, type AppLocale } from '@/i18n/routing';
+
 export interface FetchOptions extends RequestInit {
     params?: Record<string, string | number | undefined>;
     throwOnError?: boolean;
@@ -5,6 +8,24 @@ export interface FetchOptions extends RequestInit {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.mainul.tech/api';
 const ZONE_OPTIONAL_ENDPOINTS = new Set(['/config/get-zone']);
+
+// Why: when the caller doesn't pre-set Accept-Language, fall back to the
+// NEXT_LOCALE cookie that next-intl writes during routing. The lookup is
+// wrapped in try/catch because `cookies()` throws when called outside of an
+// RSC/route-handler context (e.g. during static prerender).
+async function resolveAcceptLanguage(): Promise<string> {
+    try {
+        const store = await cookies();
+        const stored = store.get('NEXT_LOCALE')?.value;
+        const locale: AppLocale =
+            stored && (routing.locales as readonly string[]).includes(stored)
+                ? (stored as AppLocale)
+                : routing.defaultLocale;
+        return LOCALE_TO_HTTP[locale];
+    } catch {
+        return LOCALE_TO_HTTP[routing.defaultLocale];
+    }
+}
 
 function normalizeEndpoint(endpoint: string): string {
     if (!endpoint) return '';
@@ -66,6 +87,12 @@ export async function fetchClient<T>(endpoint: string, options: FetchOptions = {
         }
     }
 
+    const callerAcceptLanguage = getHeaderValue(
+        headers as HeadersInit | undefined,
+        'Accept-Language'
+    );
+    const acceptLanguage = callerAcceptLanguage ?? (await resolveAcceptLanguage());
+
     // 2. Perform fetch
     try {
         const response = await fetch(url, {
@@ -73,6 +100,7 @@ export async function fetchClient<T>(endpoint: string, options: FetchOptions = {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
+                'Accept-Language': acceptLanguage,
                 ...headers,
             },
         });

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from 'next-intl';
 import { CalendarDays, Car, Check, MapPin, Package, Store, Truck, X } from 'lucide-react';
 import type { ComparedMarket } from '@/lib/api/types';
 
@@ -8,23 +9,16 @@ interface ComparisonTableProps {
   market2: ComparedMarket;
 }
 
-const formatNumber = (value: number) => new Intl.NumberFormat().format(value);
-
-const formatDistanceKm = (value: number) => {
-  if (!Number.isFinite(value)) return 'N/A';
-  return `${value.toFixed(2)} km`;
-};
-
-const BooleanValue = ({ value }: { value: boolean }) => {
+const BooleanValue = ({ value, yes, no }: { value: boolean; yes: string; no: string }) => {
   return value ? (
     <div className="inline-flex items-center space-x-2 text-success">
       <Check className="h-4 w-4" />
-      <span className="font-medium">Yes</span>
+      <span className="font-medium">{yes}</span>
     </div>
   ) : (
     <div className="inline-flex items-center space-x-2 text-muted-foreground">
       <X className="h-4 w-4" />
-      <span className="font-medium">No</span>
+      <span className="font-medium">{no}</span>
     </div>
   );
 };
@@ -35,6 +29,15 @@ const BetterBadge = ({ show, label }: { show: boolean; label: string }) => {
 };
 
 export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
+  const t = useTranslations('compare.table');
+  const tCommon = useTranslations('common');
+  const locale = useLocale();
+  const nf = new Intl.NumberFormat(locale === 'bn' ? 'bn-BD' : 'en-IN');
+  const formatNumber = (value: number) => nf.format(value);
+  const formatDistanceKm = (value: number) => {
+    if (!Number.isFinite(value)) return tCommon('na');
+    return `${nf.format(Number(value.toFixed(2)))} km`;
+  };
   const distance1 = market1.distance_km;
   const distance2 = market2.distance_km;
   const m1Closer = Number.isFinite(distance1) && Number.isFinite(distance2) ? distance1 < distance2 : false;
@@ -50,86 +53,88 @@ export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
   const m1MoreOpenDays = Number.isFinite(openDays1) && Number.isFinite(openDays2) ? openDays1 > openDays2 : false;
   const m2MoreOpenDays = Number.isFinite(openDays1) && Number.isFinite(openDays2) ? openDays2 > openDays1 : false;
 
+  const yes = tCommon('yes');
+  const no = tCommon('no');
   const rows = [
     {
-      category: "Basic Information",
+      category: t('basicInfo'),
       items: [
         {
-          label: "Market Type",
+          label: t('marketType'),
           icon: Store,
           render1: () => market1.type,
           render2: () => market2.type,
         },
         {
-          label: "Distance",
+          label: t('distance'),
           icon: MapPin,
           render1: () => (
             <span className="font-medium">
               {formatDistanceKm(distance1)}
-              <BetterBadge show={m1Closer} label="Closer" />
+              <BetterBadge show={m1Closer} label={t('closer')} />
             </span>
           ),
           render2: () => (
             <span className="font-medium">
               {formatDistanceKm(distance2)}
-              <BetterBadge show={m2Closer} label="Closer" />
+              <BetterBadge show={m2Closer} label={t('closer')} />
             </span>
           ),
         },
         {
-          label: "Active Products",
+          label: t('activeProducts'),
           icon: Package,
           render1: () => (
             <span className="font-medium">
               {formatNumber(products1)}
-              <BetterBadge show={m1MoreProducts} label="More" />
+              <BetterBadge show={m1MoreProducts} label={t('more')} />
             </span>
           ),
           render2: () => (
             <span className="font-medium">
               {formatNumber(products2)}
-              <BetterBadge show={m2MoreProducts} label="More" />
+              <BetterBadge show={m2MoreProducts} label={t('more')} />
             </span>
           ),
         },
         {
-          label: "Open Days (per week)",
+          label: t('openDays'),
           icon: CalendarDays,
           render1: () => (
             <span className="font-medium">
               {formatNumber(openDays1)}
-              <BetterBadge show={m1MoreOpenDays} label="More" />
+              <BetterBadge show={m1MoreOpenDays} label={t('more')} />
             </span>
           ),
           render2: () => (
             <span className="font-medium">
               {formatNumber(openDays2)}
-              <BetterBadge show={m2MoreOpenDays} label="More" />
+              <BetterBadge show={m2MoreOpenDays} label={t('more')} />
             </span>
           ),
         },
       ],
     },
     {
-      category: "Features & Services",
+      category: t('featuresServices'),
       items: [
         {
-          label: "Parking Available",
+          label: t('parking'),
           icon: Car,
-          render1: () => <BooleanValue value={market1.features.parking_available} />,
-          render2: () => <BooleanValue value={market2.features.parking_available} />,
+          render1: () => <BooleanValue value={market1.features.parking_available} yes={yes} no={no} />,
+          render2: () => <BooleanValue value={market2.features.parking_available} yes={yes} no={no} />,
         },
         {
-          label: "Restroom Available",
+          label: t('restroom'),
           icon: Store,
-          render1: () => <BooleanValue value={market1.features.restroom_available} />,
-          render2: () => <BooleanValue value={market2.features.restroom_available} />,
+          render1: () => <BooleanValue value={market1.features.restroom_available} yes={yes} no={no} />,
+          render2: () => <BooleanValue value={market2.features.restroom_available} yes={yes} no={no} />,
         },
         {
-          label: "Home Delivery",
+          label: t('homeDelivery'),
           icon: Truck,
-          render1: () => <BooleanValue value={market1.features.home_delivery} />,
-          render2: () => <BooleanValue value={market2.features.home_delivery} />,
+          render1: () => <BooleanValue value={market1.features.home_delivery} yes={yes} no={no} />,
+          render2: () => <BooleanValue value={market2.features.home_delivery} yes={yes} no={no} />,
         },
       ],
     },
@@ -140,8 +145,8 @@ export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
       {/* Market Headers */}
       <div className="grid grid-cols-1 lg:grid-cols-3 border-b">
         <div className="p-6 border-b lg:border-b-0 lg:border-r">
-          <h3 className="text-lg font-semibold mb-1">Comparison</h3>
-          <p className="text-sm text-muted-foreground">Based on your current location</p>
+          <h3 className="text-lg font-semibold mb-1">{t('comparisonHeader')}</h3>
+          <p className="text-sm text-muted-foreground">{t('basedOnLocation')}</p>
         </div>
 
         <div className="p-6 border-b lg:border-b-0 lg:border-r">

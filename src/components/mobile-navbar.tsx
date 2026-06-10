@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/auth/auth-context";
 import { useConfig } from "@/hooks/use-config";
 
@@ -18,22 +18,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { getBrandInitial, resolveBrandImage } from "@/lib/branding";
 import { cn } from "@/lib/utils";
-
-const navigation = [
-  { name: "Home", href: "/", icon: Home },
-  { name: "Markets", href: "/markets", icon: Store },
-  { name: "Items", href: "/items", icon: Tag },
-  { name: "About", href: "/about", icon: Info },
-];
+import { LocaleSwitch } from "@/components/locale-switch";
 
 export function MobileNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const { openAuthModal, hasHydrated, isAuthenticated, user } = useAuth();
   const { getConfigValue } = useConfig();
+  const t = useTranslations("nav");
+
+  // Why: nav labels are translated so we build the list inside the component;
+  // hrefs stay locale-less because next-intl middleware prefixes them.
+  const navigation = [
+    { name: t("home"), href: "/", icon: Home },
+    { name: t("markets"), href: "/markets", icon: Store },
+    { name: t("items"), href: "/items", icon: Tag },
+    { name: t("about"), href: "/about", icon: Info },
+  ];
 
   const avatarUrl = typeof user?.avatar === "string" && user.avatar.trim() ? user.avatar : undefined;
-  const userDisplayName = user?.name?.trim() || "Account";
+  const userDisplayName = user?.name?.trim() || t("profile");
   const companyName = getConfigValue<string>("business_name", "MyApp") || "MyApp";
   const brandLogo = resolveBrandImage(getConfigValue<string | null>("logo", null));
   const brandInitial = getBrandInitial(companyName);
@@ -134,7 +138,7 @@ export function MobileNavbar() {
                         ) : (
                           <User className="h-4 w-4 mr-2" />
                         )}
-                        Profile
+                        {t("profile")}
                       </span>
                     </Link>
                   </Button>
@@ -142,11 +146,11 @@ export function MobileNavbar() {
                   <Button
                     variant="ghost"
                     className="hidden lg:flex h-9 px-3 text-sm font-medium"
-                    aria-label="Sign In"
+                    aria-label={t("signIn")}
                     onClick={() => openAuthModal("signin")}
                   >
                     <LogIn className="h-4 w-4 mr-2" />
-                    Sign In
+                    {t("signIn")}
                   </Button>
                 ))}
 
@@ -179,12 +183,14 @@ export function MobileNavbar() {
                   variant="ghost"
                   size="icon"
                   className="h-9 w-9 lg:hidden"
-                  aria-label="Sign In"
+                  aria-label={t("signIn")}
                   onClick={() => openAuthModal("signin")}
                 >
                   <LogIn className="h-4 w-4" />
                 </Button>
               )}
+
+              <LocaleSwitch className="ml-1" />
             </div>
           </div>
         </div>

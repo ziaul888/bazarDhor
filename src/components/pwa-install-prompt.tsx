@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { usePWA } from '@/hooks/use-pwa';
 
@@ -11,6 +12,7 @@ const FIRST_LOAD_DELAY_MS = 1500;
 // Renders nothing — the prompt surfaces as a Sonner toast so it lives in the
 // same top-center notification slot as the rest of the app.
 export function PWAInstallPrompt() {
+  const t = useTranslations('pwa');
   const { canInstall, isInstalled, install } = usePWA();
   const shownRef = useRef(false);
 
@@ -22,12 +24,12 @@ export function PWAInstallPrompt() {
 
     const timer = window.setTimeout(() => {
       shownRef.current = true;
-      toast('Install BazarDhor', {
+      toast(t('installTitle'), {
         id: TOAST_ID,
-        description: 'Add the app to your home screen for faster access.',
+        description: t('installHint'),
         duration: Infinity,
         action: {
-          label: 'Install',
+          label: t('install'),
           onClick: async () => {
             try {
               await install();
@@ -40,7 +42,7 @@ export function PWAInstallPrompt() {
           },
         },
         cancel: {
-          label: 'Not now',
+          label: t('dismiss'),
           onClick: () => {
             localStorage.setItem(DISMISS_KEY, 'dismissed');
             toast.dismiss(TOAST_ID);
@@ -53,7 +55,7 @@ export function PWAInstallPrompt() {
     }, FIRST_LOAD_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [canInstall, isInstalled, install]);
+  }, [canInstall, isInstalled, install, t]);
 
   return null;
 }

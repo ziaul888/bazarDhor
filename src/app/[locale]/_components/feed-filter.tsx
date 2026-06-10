@@ -1,19 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Check, SlidersHorizontal } from 'lucide-react';
 
 export type FeedFilter = 'random' | 'latest' | 'trending';
 
-export const FEED_FILTERS: { id: FeedFilter; label: string }[] = [
-  { id: 'random', label: 'Random' },
-  { id: 'latest', label: 'Latest' },
-  { id: 'trending', label: 'Trending' },
-];
+export const FEED_FILTERS: FeedFilter[] = ['random', 'latest', 'trending'];
 
 // Why: the home Today's prices, /items, and market details items lists need the
-// same Now / Latest / Trending filter affordance; sharing this component keeps
-// them in sync.
+// same Random / Latest / Trending filter affordance; sharing this component
+// keeps them in sync, and translations live in the `feedFilter` namespace.
 export function FeedFilterPopover({
   active,
   onChange,
@@ -23,9 +20,10 @@ export function FeedFilterPopover({
   onChange: (next: FeedFilter) => void;
   className?: string;
 }) {
+  const t = useTranslations('feedFilter');
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const activeLabel = FEED_FILTERS.find((f) => f.id === active)?.label ?? 'Random';
+  const activeLabel = t(active);
 
   useEffect(() => {
     if (!open) return;
@@ -62,23 +60,23 @@ export function FeedFilterPopover({
           role="menu"
           className="absolute right-0 top-full mt-2 z-50 w-40 rounded-lg border bg-card shadow-md py-1"
         >
-          {FEED_FILTERS.map((f) => {
-            const isActive = f.id === active;
+          {FEED_FILTERS.map((id) => {
+            const isActive = id === active;
             return (
               <button
-                key={f.id}
+                key={id}
                 role="menuitemradio"
                 aria-checked={isActive}
                 type="button"
                 onClick={() => {
-                  onChange(f.id);
+                  onChange(id);
                   setOpen(false);
                 }}
                 className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors ${
                   isActive ? 'text-primary font-medium' : 'hover:bg-muted/60'
                 }`}
               >
-                <span>{f.label}</span>
+                <span>{t(id)}</span>
                 {isActive ? <Check className="h-4 w-4" /> : null}
               </button>
             );

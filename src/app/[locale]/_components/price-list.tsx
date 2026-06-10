@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useInfiniteRandomProducts, useRandomProducts } from '@/lib/api/hooks/useMarkets';
 import { useCategories } from '@/lib/api/hooks/useCategories';
 import { PriceRow, type PriceRowItem } from './price-row';
@@ -22,7 +23,7 @@ function resolveImage(value?: string | null) {
   return `${IMAGE_BASE_URL}${trimmed}`;
 }
 
-function mapToRow(p: Product): PriceRowItem | null {
+function mapToRow(p: Product, fallbackMarketName: string): PriceRowItem | null {
   const lowest = p.market_prices?.[0];
   if (!lowest) return null;
   const hasDiscount = lowest.discount_price && lowest.discount_price > 0;
@@ -33,7 +34,7 @@ function mapToRow(p: Product): PriceRowItem | null {
     id: p.id,
     name: p.name,
     marketId: lowest.market?.id,
-    marketName: lowest.market?.name || 'Local market',
+    marketName: lowest.market?.name || fallbackMarketName,
     price: hasDiscount ? lowest.discount_price! : (lowest.price || 0),
     unit: p.unit?.symbol || p.unit?.name || undefined,
     image: resolveImage(p.image_path),
@@ -43,6 +44,8 @@ function mapToRow(p: Product): PriceRowItem | null {
 }
 
 export function PriceList() {
+  const t = useTranslations('home');
+  const tCommon = useTranslations('common');
   const [feedFilter, setFeedFilter] = useState<FeedFilter>('random');
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -73,8 +76,11 @@ export function PriceList() {
       seen.add(key);
       unique.push(p);
     }
-    return unique.map(mapToRow).filter((r): r is PriceRowItem => r !== null);
-  }, [data]);
+    const fallbackName = tCommon('na');
+    return unique
+      .map((p) => mapToRow(p, fallbackName))
+      .filter((r): r is PriceRowItem => r !== null);
+  }, [data, tCommon]);
 
   const handleSortChange = (next: FeedFilter) => {
     setFeedFilter(next);
@@ -106,7 +112,7 @@ export function PriceList() {
   return (
     <section>
       <div className="flex items-center justify-between px-4 pt-6 pb-3 lg:pb-0">
-        <h2 className="text-base font-semibold">Today&apos;s prices</h2>
+        <h2 className="text-base font-semibold">{t('todaysPrices')}</h2>
         <FeedFilterPopover active={feedFilter} onChange={handleSortChange} />
       </div>
 
@@ -114,7 +120,7 @@ export function PriceList() {
       <div className="px-4 pt-3 pb-2 sticky top-[55px] sm:top-16 z-20 bg-background border-b">
         <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
           <Chip
-            label="All"
+            label={tCommon('all')}
             active={activeCategory === 'all'}
             onClick={() => handleCategoryChange('all')}
           />
@@ -134,7 +140,7 @@ export function PriceList() {
         {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => <RowSkeleton key={i} />)
         ) : rows.length === 0 ? (
-          <EmptyState />
+          <EmptyState title={t('todaysPricesEmpty')} hint={t('todaysPricesEmptyHint')} />
         ) : (
           rows.map((r) => <PriceRow key={`${r.id}-${r.marketId ?? 'na'}`} item={r} />)
         )}
@@ -149,7 +155,7 @@ export function PriceList() {
         </div>
       ) : rows.length > 0 ? (
         <p className="px-4 py-6 text-center text-xs text-muted-foreground">
-          You&apos;ve reached the end.
+          {tCommon('reachedEnd')}
         </p>
       ) : null}
     </section>
@@ -193,13 +199,11 @@ function RowSkeleton() {
   );
 }
 
-function EmptyState() {
+function EmptyState({ title, hint }: { title: string; hint: string }) {
   return (
     <div className="px-4 py-16 text-center">
-      <p className="text-sm font-medium">No prices submitted in your zone yet.</p>
-      <p className="text-xs text-muted-foreground mt-1">
-        Tap the ＋ button to be the first.
-      </p>
+      <p className="text-sm font-medium">{title}</p>
+      <p className="text-xs text-muted-foreground mt-1">{hint}</p>
     </div>
   );
 }

@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Search, Loader2 } from 'lucide-react';
 import { useMarketItems } from '@/lib/api/hooks/useMarkets';
 import { Pagination } from '@/components/ui/pagination';
-import { PriceRow, type PriceRowItem } from '@/app/_components/price-row';
+import { PriceRow, type PriceRowItem } from '@/app/[locale]/_components/price-row';
 import {
   FeedFilterPopover,
   applyFeedFilter,
   parseTs,
   type FeedFilter,
-} from '@/app/_components/feed-filter';
+} from '@/app/[locale]/_components/feed-filter';
 
 type ItemRow = PriceRowItem & {
   rawPrice: number;
@@ -50,6 +51,9 @@ const toStringValue = (value: unknown, fallback = ''): string => {
 };
 
 export function MarketItemsList({ marketId }: MarketItemsListProps) {
+  const t = useTranslations('markets');
+  const tCommon = useTranslations('common');
+  const tToasts = useTranslations('toasts');
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -168,7 +172,7 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     return (
       <div className="px-4 py-8 text-center">
         <p className="text-sm text-destructive">
-          Error loading items: {error?.message || 'Something went wrong'}
+          {error?.message || tToasts('errorGeneric')}
         </p>
       </div>
     );
@@ -181,7 +185,7 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search items..."
+            placeholder={t('searchItemsPlaceholder')}
             value={searchInput}
             onChange={(e) => handleSearch(e.target.value)}
             className="w-full h-10 pl-9 pr-9 text-sm border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50"
@@ -203,7 +207,7 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
         <div className="px-4 pt-3">
           <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
             <CategoryChip
-              label="All"
+              label={tCommon('all')}
               active={activeCategory === ''}
               onClick={() => handleCategoryChange('')}
             />
@@ -224,8 +228,8 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
           Array.from({ length: 6 }).map((_, i) => <RowSkeleton key={i} />)
         ) : rows.length === 0 ? (
           <div className="px-4 py-16 text-center">
-            <p className="text-sm font-medium">No items found.</p>
-            <p className="text-xs text-muted-foreground mt-1">Try a different keyword.</p>
+            <p className="text-sm font-medium">{t('noItemsFound')}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('noItemsHint')}</p>
           </div>
         ) : (
           rows.map((r) => <PriceRow key={`${r.id}-${r.marketId ?? 'na'}`} item={r} />)

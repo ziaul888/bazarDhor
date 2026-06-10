@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { Search, MapPin, GitCompare, Loader2 } from 'lucide-react';
 import { MarketListItem } from '@/components/market-card';
 import { useMarketList, useSearchMarkets } from '@/lib/api/hooks/useMarkets';
 import type { Market } from '@/lib/api/types';
-import { NearestMarketSection } from '@/app/_components/nearest-market-section';
+import { NearestMarketSection } from '@/app/[locale]/_components/nearest-market-section';
 
 const fallbackMarkets: Market[] = [
     {
@@ -189,12 +190,13 @@ const mapMarketFromApi = (item: Record<string, unknown>, index: number): Market 
 type SortOption = 'distance' | 'rating' | 'name' | 'retails' | 'dealer';
 type ApiSort = 'distance' | 'rating' | 'name';
 
-const sortLabels: Record<SortOption, string> = {
-    distance: 'Distance',
-    rating: 'Rating',
-    name: 'Name',
-    retails: 'Retails',
-    dealer: 'Dealer',
+const SORT_KEYS: SortOption[] = ['distance', 'rating', 'name', 'retails', 'dealer'];
+const SORT_TO_KEY: Record<SortOption, string> = {
+    distance: 'sortDistance',
+    rating: 'sortRating',
+    name: 'sortName',
+    retails: 'sortRetails',
+    dealer: 'sortDealer',
 };
 
 const TYPE_FILTERS: SortOption[] = ['retails', 'dealer'];
@@ -202,6 +204,9 @@ const isTypeFilter = (value: SortOption): boolean => TYPE_FILTERS.includes(value
 const REAL_SORTS = new Set<SortOption>(['distance', 'rating', 'name']);
 
 export default function MarketsPage() {
+    const t = useTranslations('markets');
+    const tCommon = useTranslations('common');
+    const tNav = useTranslations('nav');
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
     const [marketSource, setMarketSource] = useState<Market[]>(fallbackMarkets);
@@ -303,13 +308,13 @@ export default function MarketsPage() {
                     <div className="lg:min-w-0">
                         <section>
                             <div className="px-4 pt-6 flex items-center justify-between gap-3">
-                                <h2 className="text-base font-semibold">Nearby markets</h2>
+                                <h2 className="text-base font-semibold">{t('nearby')}</h2>
                                 <Link
                                     href="/markets/compare"
                                     className="inline-flex items-center gap-1 text-xs text-primary font-medium hover:underline"
                                 >
                                     <GitCompare className="h-3.5 w-3.5" />
-                                    Compare
+                                    {t('compareShort')}
                                 </Link>
                             </div>
 
@@ -320,7 +325,7 @@ export default function MarketsPage() {
                                         type="text"
                                         value={searchQuery}
                                         onChange={(e) => handleSearch(e.target.value)}
-                                        placeholder="Search markets, areas, or specialties"
+                                        placeholder={t('searchPlaceholder')}
                                         className="w-full h-10 pl-9 pr-9 text-sm border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50"
                                     />
                                     {isSearchFetching && (
@@ -331,10 +336,10 @@ export default function MarketsPage() {
 
                             <div className="px-4 pt-3 pb-2 sticky top-0 z-10 bg-background">
                                 <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
-                                    {(Object.keys(sortLabels) as SortOption[]).map((key) => (
+                                    {SORT_KEYS.map((key) => (
                                         <Chip
                                             key={key}
-                                            label={sortLabels[key]}
+                                            label={t(SORT_TO_KEY[key] as 'sortDistance' | 'sortRating' | 'sortName' | 'sortRetails' | 'sortDealer')}
                                             active={sortBy === key}
                                             onClick={() => handleSort(key)}
                                         />
@@ -351,7 +356,7 @@ export default function MarketsPage() {
                                     ))
                                 ) : rows.length === 0 ? (
                                     <div className="rounded-xl border bg-card">
-                                        <EmptyState />
+                                        <EmptyState title={t('emptyTitle')} hint={t('emptyHint')} />
                                     </div>
                                 ) : (
                                     rows.map((m) => (
@@ -367,7 +372,7 @@ export default function MarketsPage() {
                                         onClick={() => setVisible(n => n + PAGE_SIZE)}
                                         className="text-sm text-primary font-medium hover:underline"
                                     >
-                                        Load more
+                                        {tCommon('loadMore')}
                                     </button>
                                 </div>
                             )}
@@ -376,18 +381,18 @@ export default function MarketsPage() {
 
                     <aside className="lg:pt-6 lg:sticky lg:top-4 lg:self-start lg:space-y-4">
                         <div className="hidden lg:block px-4 text-xs text-muted-foreground space-y-1.5">
-                            <Link className="block hover:text-foreground" href="/markets/compare">Compare two markets →</Link>
-                            <Link className="block hover:text-foreground" href="/items">Browse all items</Link>
-                            <Link className="block hover:text-foreground" href="/about">About BazarDhor</Link>
+                            <Link className="block hover:text-foreground" href="/markets/compare">{t('compareTwo')}</Link>
+                            <Link className="block hover:text-foreground" href="/items">{t('browseAllItems')}</Link>
+                            <Link className="block hover:text-foreground" href="/about">{t('aboutApp')}</Link>
                         </div>
                     </aside>
                 </div>
             </div>
 
             <div className="lg:hidden container mx-auto max-w-3xl px-4 pt-8 text-center text-xs text-muted-foreground">
-                <Link href="/markets/compare" className="hover:text-foreground">Compare markets</Link>
+                <Link href="/markets/compare" className="hover:text-foreground">{t('compareMarkets')}</Link>
                 <span className="mx-2">·</span>
-                <Link href="/items" className="hover:text-foreground">Items</Link>
+                <Link href="/items" className="hover:text-foreground">{tNav('items')}</Link>
             </div>
         </div>
     );
@@ -422,14 +427,14 @@ function RowSkeleton() {
     );
 }
 
-function EmptyState() {
+function EmptyState({ title, hint }: { title: string; hint: string }) {
     return (
         <div className="px-4 py-16 text-center">
             <div className="w-12 h-12 mx-auto bg-muted rounded-full flex items-center justify-center mb-3">
                 <MapPin className="h-5 w-5 text-muted-foreground" />
             </div>
-            <p className="text-sm font-medium">No markets match your search.</p>
-            <p className="text-xs text-muted-foreground mt-1">Try a different keyword or clear the filter.</p>
+            <p className="text-sm font-medium">{title}</p>
+            <p className="text-xs text-muted-foreground mt-1">{hint}</p>
         </div>
     );
 }

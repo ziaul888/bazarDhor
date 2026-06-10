@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { Activity, ImageIcon, MapPin, Sparkles, Store } from 'lucide-react';
 import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 import { useBanners } from '@/lib/api/hooks/useBanners';
@@ -21,6 +22,8 @@ function resolveImage(value?: string | null) {
 }
 
 export function HomeBento() {
+  const t = useTranslations('home');
+  const locale = useLocale();
   const { data: markets } = useRandomMarkets();
   const { data: bannersData, isLoading: isBannersLoading } = useBanners(10, 1);
   const { data: pulse } = usePulse();
@@ -39,13 +42,17 @@ export function HomeBento() {
   const [today, setToday] = useState<string | null>(null);
   useEffect(() => {
     setToday(
-      new Intl.DateTimeFormat('en-GB', {
+      new Intl.DateTimeFormat(locale === 'bn' ? 'bn-BD' : 'en-GB', {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
       }).format(new Date())
     );
-  }, []);
+  }, [locale]);
+
+  // Why: render numbers using the locale's native digits (Bengali in bn-BD).
+  const nf = useMemo(() => new Intl.NumberFormat(locale === 'bn' ? 'bn-BD' : 'en-IN'), [locale]);
+  const fmt = (n: number) => nf.format(n);
 
   const stats = {
     recentPrices: pulse?.recent_prices ?? 0,
@@ -67,8 +74,8 @@ export function HomeBento() {
       ) : (
         <EmptyTile
           icon={<Sparkles className="h-5 w-5 text-primary/60" />}
-          label="No banners yet"
-          hint="Promotions will show up here when they're live."
+          label={t('bannersEmpty')}
+          hint={t('bannersEmptyHint')}
           className="h-52 sm:h-64"
         />
       )}
@@ -78,17 +85,21 @@ export function HomeBento() {
         <div className="rounded-2xl border bg-card p-3">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
             <Activity className="h-3.5 w-3.5 text-primary" />
-            Today&apos;s pulse
+            {t('pulseTitle')}
           </div>
           <div className="flex items-baseline gap-1.5">
             <span className="text-xl sm:text-2xl font-bold tabular-nums">
-              {stats.recentPrices}
+              {fmt(stats.recentPrices)}
             </span>
-            <span className="text-[11px] text-muted-foreground">prices · {stats.window}</span>
+            <span className="text-[11px] text-muted-foreground">
+              {t('pulsePrices', { window: stats.window })}
+            </span>
           </div>
           <p className="text-[11px] text-muted-foreground mt-1">
-            {stats.markets} markets · {stats.items} items
-            {stats.contributors > 0 ? ` · ${stats.contributors} contributors` : ''}
+            {t('pulseSummary', { markets: fmt(stats.markets), items: fmt(stats.items) })}
+            {stats.contributors > 0
+              ? ` · ${t('pulseContributors', { count: fmt(stats.contributors) })}`
+              : ''}
           </p>
         </div>
 
@@ -99,14 +110,14 @@ export function HomeBento() {
           <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground mb-2">
             <span className="flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5 text-primary" />
-              Your zone
+              {t('zoneTitle')}
             </span>
             {today ? <span className="text-[11px]">{today}</span> : null}
           </div>
-          <p className="text-sm font-semibold truncate">{zone?.name || 'Detecting…'}</p>
+          <p className="text-sm font-semibold truncate">{zone?.name || t('zoneDetecting')}</p>
           <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
             <Store className="h-3 w-3" />
-            {markets?.length ?? 0} nearby markets →
+            {t('zoneNearby', { count: fmt(markets?.length ?? 0) })}
           </p>
         </Link>
       </div>

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { X, Upload, MapPin, Camera, Sparkles, Tag, DollarSign, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAddItem } from './add-item-context';
@@ -31,6 +32,7 @@ const addItemSchema = z.object({
 type AddItemFormValues = z.infer<typeof addItemSchema>;
 
 export function AddItemDrawer() {
+  const t = useTranslations('addItem');
   const { isAddDrawerOpen: isOpen, closeAddDrawer: onClose } = useAddItem();
 
   console.log('AddItemDrawer render - isOpen:', isOpen);
@@ -116,7 +118,7 @@ export function AddItemDrawer() {
         response = await mutateAsync(basePayload);
       }
 
-      toast.success(response?.message ?? 'Item added successfully.');
+      toast.success(response?.message ?? t('addSuccess'));
 
       reset();
       setImagePreview(null);
@@ -147,8 +149,8 @@ export function AddItemDrawer() {
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Add New Item</h2>
-              <p className="text-gray-600 text-sm">Share what you found!</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('addNewItemTitle')}</h2>
+              <p className="text-gray-600 text-sm">{t('tagline')}</p>
             </div>
           </div>
           <button
@@ -166,7 +168,7 @@ export function AddItemDrawer() {
             <div className="space-y-3">
               <label className="flex items-center space-x-2 text-sm font-semibold text-gray-800">
                 <Camera className="h-4 w-4 text-primary" />
-                <span>Item Photo</span>
+                <span>{t('itemPhoto')}</span>
               </label>
               <div className="relative group">
                 <Controller
@@ -198,7 +200,7 @@ export function AddItemDrawer() {
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <span className="text-white text-sm font-medium">Change Photo</span>
+                        <span className="text-white text-sm font-medium">{t('changePhoto')}</span>
                       </div>
                     </div>
                   ) : (
@@ -207,8 +209,8 @@ export function AddItemDrawer() {
                         <Upload className="h-8 w-8 text-primary-foreground" />
                       </div>
                       <div className="text-center">
-                        <span className="text-gray-700 font-medium">Upload a photo</span>
-                        <p className="text-gray-500 text-xs mt-1">Tap to select from gallery</p>
+                        <span className="text-gray-700 font-medium">{t('uploadPhoto')}</span>
+                        <p className="text-gray-500 text-xs mt-1">{t('uploadHint')}</p>
                       </div>
                     </div>
                   )}
@@ -220,14 +222,14 @@ export function AddItemDrawer() {
             <div className="space-y-3">
               <label className="flex items-center space-x-2 text-sm font-semibold text-gray-800">
                 <Package className="h-4 w-4 text-primary" />
-                <span>Item Name *</span>
+                <span>{t('itemName')} *</span>
               </label>
               <input
                 type="text"
                 {...register('name')}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
-                placeholder="e.g., Fresh Organic Tomatoes"
+                placeholder={t('itemNamePlaceholder')}
               />
               {errors.name ? (
                 <p className="text-xs text-destructive">{errors.name.message}</p>
@@ -240,7 +242,7 @@ export function AddItemDrawer() {
               <div className="space-y-3">
                 <label className="flex items-center space-x-2 text-sm font-semibold text-gray-800">
                   <DollarSign className="h-4 w-4 text-success" />
-                  <span>Price *</span>
+                  <span>{t('price')} *</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
@@ -263,7 +265,7 @@ export function AddItemDrawer() {
               <div className="space-y-3">
                 <label className="flex items-center space-x-2 text-sm font-semibold text-gray-800">
                   <Tag className="h-4 w-4 text-secondary" />
-                  <span>Category *</span>
+                  <span>{t('category')} *</span>
                 </label>
                 <select
                   {...register('category')}
@@ -273,10 +275,10 @@ export function AddItemDrawer() {
                 >
                   <option value="">
                     {isLoadingCategories
-                      ? 'Loading categories...'
+                      ? t('loadingCategories')
                       : categoryOptions.length > 0
-                        ? 'Select'
-                        : 'No categories available'}
+                        ? t('selectCategory')
+                        : t('noCategories')}
                   </option>
                   {categoryOptions.map((category) => (
                     <option key={category.id} value={category.id}>
@@ -287,7 +289,7 @@ export function AddItemDrawer() {
                 {errors.category ? (
                   <p className="text-xs text-destructive">{errors.category.message}</p>
                 ) : hasCategoryError ? (
-                  <p className="text-xs text-destructive">Could not load categories right now.</p>
+                  <p className="text-xs text-destructive">{t('categoryLoadError')}</p>
                 ) : null}
               </div>
 
@@ -295,14 +297,14 @@ export function AddItemDrawer() {
               <div className="space-y-3 sm:col-span-2">
                 <label className="flex items-center space-x-2 text-sm font-semibold text-gray-800">
                   <Package className="h-4 w-4 text-primary" />
-                  <span>Unit *</span>
+                  <span>{t('unit')} *</span>
                 </label>
                 <input
                   type="text"
                   {...register('unit')}
                   required
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
-                  placeholder="e.g., kg, liter, piece, dozen"
+                  placeholder={t('unitPlaceholder')}
                 />
                 {errors.unit ? (
                   <p className="text-xs text-destructive">{errors.unit.message}</p>
@@ -314,7 +316,7 @@ export function AddItemDrawer() {
             <div className="space-y-3">
               <label className="flex items-center space-x-2 text-sm font-semibold text-gray-800">
                 <MapPin className="h-4 w-4 text-destructive" />
-                <span>Market Location *</span>
+                <span>{t('marketLocation')} *</span>
               </label>
               <select
                 {...register('market')}
@@ -324,10 +326,10 @@ export function AddItemDrawer() {
               >
                 <option value="">
                   {isLoadingMarkets
-                    ? 'Loading markets...'
+                    ? t('loadingMarkets')
                     : marketOptions.length > 0
-                      ? 'Choose market'
-                      : 'No markets available'}
+                      ? t('chooseMarket')
+                      : t('noMarkets')}
                 </option>
                 {marketOptions.map((market) => (
                   <option key={market.id} value={market.id}>
@@ -338,21 +340,21 @@ export function AddItemDrawer() {
               {errors.market ? (
                 <p className="text-xs text-destructive">{errors.market.message}</p>
               ) : hasMarketError ? (
-                <p className="text-xs text-destructive">Could not load markets right now.</p>
+                <p className="text-xs text-destructive">{t('marketLoadError')}</p>
               ) : null}
             </div>
 
             {/* Description */}
             <div className="space-y-3">
               <label className="flex items-center space-x-2 text-sm font-semibold text-gray-800">
-                <span>Description</span>
-                <span className="text-xs text-gray-500">(Optional)</span>
+                <span>{t('description')}</span>
+                <span className="text-xs text-gray-500">{t('optional')}</span>
               </label>
               <textarea
                 {...register('description')}
                 rows={3}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 resize-none"
-                placeholder="Any additional details about quality, freshness, etc..."
+                placeholder={t('descriptionPlaceholder')}
               />
             </div>
 
@@ -367,20 +369,18 @@ export function AddItemDrawer() {
                 disabled={isSubmitting}
                 className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-medium"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className="flex-1 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                {isSubmitting ? 'Adding…' : 'Add Item ✨'}
+                {isSubmitting ? t('adding') : t('addItem')}
               </button>
             </div>
             {error ? (
-              <p className="mt-3 text-sm text-destructive">
-                Failed to add item. Please try again.
-              </p>
+              <p className="mt-3 text-sm text-destructive">{t('addFailed')}</p>
             ) : null}
           </div>
         </form>

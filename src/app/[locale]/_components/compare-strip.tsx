@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
 import {
   Select,
@@ -13,6 +14,7 @@ import {
 import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 
 export function CompareStrip() {
+  const t = useTranslations('compare');
   const router = useRouter();
   const { data: markets, isLoading } = useRandomMarkets();
 
@@ -41,16 +43,16 @@ export function CompareStrip() {
   const handleCompare = () => {
     if (!canCompare) return;
     const params = new URLSearchParams({ market_id_1: a, market_id_2: b });
-    router.push(`/markets/compare?${params.toString()}`);
+    router.push(`/markets/compare?${params.toString()}` as never);
   };
 
   return (
     <section className="px-4 mt-8 lg:mt-0">
-      <h2 className="text-sm font-semibold mb-2">Compare two markets</h2>
+      <h2 className="text-sm font-semibold mb-2">{t('stripTitle')}</h2>
       <div className="rounded-lg border bg-card p-3 space-y-2">
         <Select value={a} onValueChange={setA} disabled={isLoading}>
           <SelectTrigger className="w-full h-9 text-sm">
-            <SelectValue placeholder="First market" />
+            <SelectValue placeholder={t('firstMarket')} />
           </SelectTrigger>
           <SelectContent>
             {optionsA.map((m) => (
@@ -61,7 +63,7 @@ export function CompareStrip() {
 
         <Select value={b} onValueChange={setB} disabled={isLoading}>
           <SelectTrigger className="w-full h-9 text-sm">
-            <SelectValue placeholder="Second market" />
+            <SelectValue placeholder={t('secondMarket')} />
           </SelectTrigger>
           <SelectContent>
             {optionsB.map((m) => (
@@ -76,7 +78,7 @@ export function CompareStrip() {
           disabled={!canCompare}
           className="w-full h-9 mt-1 inline-flex items-center justify-center gap-1.5 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          Compare <ArrowRight className="h-3.5 w-3.5" />
+          {t('stripCta')} <ArrowRight className="h-3.5 w-3.5" />
         </button>
       </div>
     </section>

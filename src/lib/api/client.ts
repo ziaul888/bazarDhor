@@ -1,7 +1,21 @@
 import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
+import { LOCALE_TO_HTTP, routing, type AppLocale } from '@/i18n/routing';
 
 const ZONE_OPTIONAL_ENDPOINTS = new Set(['/config/get-zone']);
+
+// Why: next-intl writes the chosen locale to a NEXT_LOCALE cookie. The axios
+// interceptor reads it on every request and forwards the BCP-47 tag as
+// `Accept-Language`, so the backend can localize responses without each call
+// site having to thread the locale through.
+const getAcceptLanguageHeader = (): string => {
+  const stored = Cookies.get('NEXT_LOCALE');
+  const locale: AppLocale =
+    stored && (routing.locales as readonly string[]).includes(stored)
+      ? (stored as AppLocale)
+      : routing.defaultLocale;
+  return LOCALE_TO_HTTP[locale];
+};
 
 const getPathname = (url?: string, baseURL?: string): string => {
   if (!url) return '';
@@ -80,6 +94,9 @@ apiClient.interceptors.request.use(
 
     // Client-side only logic
     if (typeof window !== 'undefined') {
+      // 0. Forward the user's chosen locale on every request.
+      config.headers['Accept-Language'] = getAcceptLanguageHeader();
+
       // 1. Add auth token if available
       const token = localStorage.getItem('auth_token');
       if (token) {

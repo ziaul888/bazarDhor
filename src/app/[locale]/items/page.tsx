@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { Check, ChevronDown, Search, Store } from 'lucide-react';
-import { PriceRow, type PriceRowItem } from '@/app/_components/price-row';
+import { PriceRow, type PriceRowItem } from '@/app/[locale]/_components/price-row';
 import {
   FeedFilterPopover,
   applyFeedFilter,
   parseTs,
   type FeedFilter,
-} from '@/app/_components/feed-filter';
+} from '@/app/[locale]/_components/feed-filter';
 import { useRandomMarkets, useRandomProducts } from '@/lib/api/hooks/useMarkets';
 import { useCategories } from '@/lib/api/hooks/useCategories';
 
@@ -51,6 +52,10 @@ function mapToRow(p: Product): PriceRowItem | null {
 }
 
 export default function ItemsPage() {
+  const t = useTranslations('items');
+  const tCommon = useTranslations('common');
+  const tNav = useTranslations('nav');
+  const tMarkets = useTranslations('markets');
   const [activeCategory, setActiveCategory] = useState<string | 'all'>('all');
   const [activeMarket, setActiveMarket] = useState<SelectedMarket | null>(null);
   const [feedFilter, setFeedFilter] = useState<FeedFilter>('random');
@@ -107,7 +112,7 @@ export default function ItemsPage() {
           <div className="lg:min-w-0">
             <section>
               <div className="flex items-center justify-between gap-2 px-4 pt-6">
-                <h2 className="text-base font-semibold">All items</h2>
+                <h2 className="text-base font-semibold">{t('pageTitle')}</h2>
                 <div className="flex items-center gap-2">
                   <MarketPicker
                     markets={markets ?? []}
@@ -116,6 +121,12 @@ export default function ItemsPage() {
                     onSelect={(next) => {
                       setActiveMarket(next);
                       setVisible(PAGE_SIZE);
+                    }}
+                    labels={{
+                      all: t('marketAll'),
+                      title: t('marketFilter'),
+                      loading: t('marketLoading'),
+                      none: t('marketNone'),
                     }}
                   />
                   <FeedFilterPopover
@@ -138,7 +149,7 @@ export default function ItemsPage() {
                       setSearchQuery(e.target.value);
                       setVisible(PAGE_SIZE);
                     }}
-                    placeholder="Search items or markets"
+                    placeholder={t('searchPlaceholder')}
                     className="w-full h-10 pl-9 pr-3 text-sm border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50"
                   />
                 </div>
@@ -147,7 +158,7 @@ export default function ItemsPage() {
               <div className="px-4 pt-3 pb-2 sticky top-0 z-10 bg-background">
                 <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
                   <Chip
-                    label="All"
+                    label={tCommon('all')}
                     active={activeCategory === 'all'}
                     onClick={() => {
                       setActiveCategory('all');
@@ -172,7 +183,7 @@ export default function ItemsPage() {
                 {isLoading ? (
                   Array.from({ length: 6 }).map((_, i) => <RowSkeleton key={i} />)
                 ) : rows.length === 0 ? (
-                  <EmptyState />
+                  <EmptyState title={t('emptyTitle')} hint={t('emptyHint')} />
                 ) : (
                   rows.map((r) => <PriceRow key={`${r.id}-${r.marketId ?? 'na'}`} item={r} />)
                 )}
@@ -185,7 +196,7 @@ export default function ItemsPage() {
                     onClick={() => setVisible((n) => n + PAGE_SIZE)}
                     className="text-sm text-primary font-medium hover:underline"
                   >
-                    Load more
+                    {tCommon('loadMore')}
                   </button>
                 </div>
               )}
@@ -194,9 +205,15 @@ export default function ItemsPage() {
 
           <aside className="lg:pt-6 lg:sticky lg:top-4 lg:self-start lg:space-y-4">
             <div className="hidden lg:block px-4 text-xs text-muted-foreground space-y-1.5">
-              <Link className="block hover:text-foreground" href="/markets">Browse all markets →</Link>
-              <Link className="block hover:text-foreground" href="/markets/compare">Compare two markets</Link>
-              <Link className="block hover:text-foreground" href="/about">About BazarDhor</Link>
+              <Link className="block hover:text-foreground" href="/markets">
+                {tMarkets('browseAll')}
+              </Link>
+              <Link className="block hover:text-foreground" href="/markets/compare">
+                {tMarkets('compareTwo')}
+              </Link>
+              <Link className="block hover:text-foreground" href="/about">
+                {tNav('about')}
+              </Link>
             </div>
           </aside>
         </div>
@@ -226,11 +243,13 @@ function MarketPicker({
   isLoading,
   selected,
   onSelect,
+  labels,
 }: {
   markets: RawMarket[];
   isLoading: boolean;
   selected: SelectedMarket | null;
   onSelect: (next: SelectedMarket | null) => void;
+  labels: { all: string; title: string; loading: string; none: string };
 }) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -266,7 +285,7 @@ function MarketPicker({
         }`}
       >
         <Store className="h-3.5 w-3.5" />
-        <span className="truncate">{selected ? selected.name : 'All markets'}</span>
+        <span className="truncate">{selected ? selected.name : labels.all}</span>
         <ChevronDown className="h-3.5 w-3.5 flex-none" />
       </button>
 
@@ -276,7 +295,7 @@ function MarketPicker({
           className="absolute right-0 top-full mt-2 z-20 w-64 rounded-lg border bg-card shadow-md overflow-hidden"
         >
           <div className="px-3 pt-2 pb-1 text-[11px] uppercase tracking-wide text-muted-foreground">
-            Filter by market
+            {labels.title}
           </div>
           <div className="max-h-64 overflow-y-auto pb-1">
             <button
@@ -289,13 +308,13 @@ function MarketPicker({
                 selected ? 'hover:bg-muted/60' : 'text-primary font-medium'
               }`}
             >
-              <span>All markets</span>
+              <span>{labels.all}</span>
               {!selected ? <Check className="h-4 w-4 flex-none" /> : null}
             </button>
             {isLoading ? (
-              <div className="px-3 py-4 text-xs text-muted-foreground">Loading markets…</div>
+              <div className="px-3 py-4 text-xs text-muted-foreground">{labels.loading}</div>
             ) : markets.length === 0 ? (
-              <div className="px-3 py-4 text-xs text-muted-foreground">No markets in your zone yet.</div>
+              <div className="px-3 py-4 text-xs text-muted-foreground">{labels.none}</div>
             ) : (
               markets.map((m) => {
                 const isActive = selected?.id === m.id;
@@ -339,11 +358,11 @@ function RowSkeleton() {
   );
 }
 
-function EmptyState() {
+function EmptyState({ title, hint }: { title: string; hint: string }) {
   return (
     <div className="px-4 py-16 text-center">
-      <p className="text-sm font-medium">No items match your search.</p>
-      <p className="text-xs text-muted-foreground mt-1">Try a different keyword or category.</p>
+      <p className="text-sm font-medium">{title}</p>
+      <p className="text-xs text-muted-foreground mt-1">{hint}</p>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
 import { RefreshCw, Package, Store, TrendingUp, TrendingDown, Clock } from 'lucide-react';
 import { ProductPriceDialog } from '@/components/product-price-dialog';
 import { useSubmitProductPrice } from '@/lib/api/hooks/useUser';
@@ -20,13 +21,16 @@ export type PriceRowItem = {
   priceTrend?: 'up' | 'down' | 'stable';
 };
 
-const taka = new Intl.NumberFormat('en-IN');
-
 interface PriceRowProps {
   item: PriceRowItem;
 }
 
 export function PriceRow({ item }: PriceRowProps) {
+  const locale = useLocale();
+  const tToasts = useTranslations('toasts');
+  const tPriceRow = useTranslations('priceRow');
+  // Why: render prices in the user's locale digits (Bengali in bn-BD).
+  const taka = useMemo(() => new Intl.NumberFormat(locale === 'bn' ? 'bn-BD' : 'en-IN'), [locale]);
   const [open, setOpen] = useState(false);
   const [newPrice, setNewPrice] = useState(item.price.toString());
   const [imageError, setImageError] = useState(false);
@@ -41,12 +45,12 @@ export function PriceRow({ item }: PriceRowProps) {
 
   const handleSave = async () => {
     if (!item.marketId) {
-      toast.error('Market is missing for this item.');
+      toast.error(tToasts('marketMissing'));
       return;
     }
     const parsed = Number.parseFloat(newPrice);
     if (Number.isNaN(parsed) || parsed <= 0) {
-      toast.error('Enter a valid price.');
+      toast.error(tToasts('invalidPrice'));
       return;
     }
     const payload = new FormData();
@@ -56,7 +60,7 @@ export function PriceRow({ item }: PriceRowProps) {
     payload.append('proof_image', 'null');
     try {
       await submit.mutateAsync(payload);
-      toast.success('Price submitted.');
+      toast.success(tToasts('priceSubmitted'));
       setOpen(false);
     } catch (error) {
       toast.error(handleApiError(error));
@@ -118,8 +122,8 @@ export function PriceRow({ item }: PriceRowProps) {
           </span>
           <span className="group relative flex-none">
             <span
-              aria-label="Update price"
-              title="Update price"
+              aria-label={tPriceRow('updatePrice')}
+              title={tPriceRow('updatePrice')}
               className="flex w-8 h-8 rounded-full bg-primary/10 text-primary items-center justify-center"
             >
               <RefreshCw className="h-4 w-4" />
@@ -128,7 +132,7 @@ export function PriceRow({ item }: PriceRowProps) {
               role="tooltip"
               className="pointer-events-none absolute right-0 -top-8 whitespace-nowrap rounded-md bg-foreground text-background text-[11px] font-medium px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              Update price
+              {tPriceRow('updatePrice')}
             </span>
           </span>
         </span>

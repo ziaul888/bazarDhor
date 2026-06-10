@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, CheckCircle, AlertCircle, Calendar, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -13,6 +14,7 @@ import { registrationSchema, type RegistrationFormData } from '@/lib/validations
 import { useAppStore } from '@/store/app-store';
 
 export function AuthModal() {
+  const t = useTranslations('auth');
   const { isAuthModalOpen, authModalMode, closeAuthModal } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup'>(authModalMode);
 
@@ -60,13 +62,13 @@ export function AuthModal() {
     const newErrors: Record<string, string> = {};
 
     if (!loginFormData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('emailRequired');
     } else if (!/\S+@\S+\.\S+/.test(loginFormData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = t('emailInvalid');
     }
 
     if (!loginFormData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('passwordRequired');
     }
 
     setLoginErrors(newErrors);
@@ -87,8 +89,8 @@ export function AuthModal() {
         password: loginFormData.password,
       });
 
-      toast.success('Welcome back!', {
-        description: 'You have successfully signed in.',
+      toast.success(t('welcomeBack'), {
+        description: t('signedInDescription'),
         icon: <CheckCircle className="h-5 w-5" />,
       });
 
@@ -100,9 +102,9 @@ export function AuthModal() {
         password: ''
       });
     } catch (error: unknown) {
-      const errorMessage = (error as Error)?.message || 'An error occurred';
+      const errorMessage = (error as Error)?.message || t('genericError');
 
-      toast.error('Sign in failed', {
+      toast.error(t('signInFailed'), {
         description: errorMessage,
         icon: <AlertCircle className="h-5 w-5" />,
       });
@@ -129,8 +131,8 @@ export function AuthModal() {
         referred_by: data.referred_by,
       });
 
-      toast.success('Account created!', {
-        description: 'You are now signed in.',
+      toast.success(t('accountCreated'), {
+        description: t('accountCreatedDescription'),
         icon: <CheckCircle className="h-5 w-5" />,
       });
 
@@ -145,9 +147,9 @@ export function AuthModal() {
       setLoginErrors({});
       resetRegistrationForm();
     } catch (error: unknown) {
-      const errorMessage = (error as Error)?.message || 'An error occurred';
+      const errorMessage = (error as Error)?.message || t('genericError');
 
-      toast.error('Registration failed', {
+      toast.error(t('registrationFailed'), {
         description: errorMessage,
         icon: <AlertCircle className="h-5 w-5" />,
       });
@@ -177,13 +179,10 @@ export function AuthModal() {
         <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl font-bold text-center">
-              {mode === 'signin' ? 'Welcome Back!' : 'Join MyMarket'}
+              {mode === 'signin' ? t('signInTitle') : t('signUpTitle')}
             </DialogTitle>
             <p className="text-center text-primary-foreground/80 mt-2 text-sm sm:text-base px-2">
-              {mode === 'signin'
-                ? 'Sign in to access your account and discover local markets'
-                : 'Create an account to start exploring fresh local produce'
-              }
+              {mode === 'signin' ? t('signInSubtitle') : t('signUpSubtitle')}
             </p>
           </DialogHeader>
         </div>
@@ -196,12 +195,12 @@ export function AuthModal() {
               <>
                 {/* First Name */}
                 <div className="space-y-1 sm:space-y-2">
-                  <label className="text-sm font-medium">First Name</label>
+                  <label className="text-sm font-medium">{t('firstName')}</label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                       type="text"
-                      placeholder="Enter your first name"
+                      placeholder={t('firstNamePlaceholder')}
                       {...register('first_name')}
                       className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.first_name ? 'border-destructive' : 'border-border'
                         }`}
@@ -215,12 +214,12 @@ export function AuthModal() {
 
                 {/* Last Name */}
                 <div className="space-y-1 sm:space-y-2">
-                  <label className="text-sm font-medium">Last Name</label>
+                  <label className="text-sm font-medium">{t('lastName')}</label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                       type="text"
-                      placeholder="Enter your last name"
+                      placeholder={t('lastNamePlaceholder')}
                       {...register('last_name')}
                       className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.last_name ? 'border-destructive' : 'border-border'
                         }`}
@@ -236,14 +235,14 @@ export function AuthModal() {
 
             {/* Email Field */}
             <div className="space-y-1 sm:space-y-2">
-              <label className="text-sm font-medium">Email Address</label>
+              <label className="text-sm font-medium">{t('email')}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 {mode === 'signin' ? (
                   <input
                     key="signin-email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder={t('emailPlaceholder')}
                     value={loginFormData.email || ''}
                     onChange={(e) => handleLoginInputChange('email', e.target.value)}
                     className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${loginErrors.email ? 'border-destructive' : 'border-border'
@@ -255,7 +254,7 @@ export function AuthModal() {
                   <input
                     key="signup-email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder={t('emailPlaceholder')}
                     {...register('email')}
                     className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.email ? 'border-destructive' : 'border-border'
                       }`}
@@ -274,12 +273,12 @@ export function AuthModal() {
             {mode === 'signup' && (
               <>
                 <div className="space-y-1 sm:space-y-2">
-                  <label className="text-sm font-medium">Phone Number</label>
+                  <label className="text-sm font-medium">{t('phone')}</label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                       type="tel"
-                      placeholder="Enter your phone number"
+                      placeholder={t('phonePlaceholder')}
                       {...register('phone')}
                       className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.phone ? 'border-destructive' : 'border-border'
                         }`}
@@ -293,7 +292,7 @@ export function AuthModal() {
 
                 {/* Date of Birth */}
                 <div className="space-y-1 sm:space-y-2">
-                  <label className="text-sm font-medium">Date of Birth</label>
+                  <label className="text-sm font-medium">{t('dob')}</label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
@@ -312,17 +311,17 @@ export function AuthModal() {
 
                 {/* Gender */}
                 <div className="space-y-1 sm:space-y-2">
-                  <label className="text-sm font-medium">Gender</label>
+                  <label className="text-sm font-medium">{t('gender')}</label>
                   <select
                     {...register('gender')}
                     className={`w-full px-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.gender ? 'border-destructive' : 'border-border'
                       }`}
                     disabled={isLoading}
                   >
-                    <option value="">Select gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                    <option value="">{t('selectGender')}</option>
+                    <option value="male">{t('male')}</option>
+                    <option value="female">{t('female')}</option>
+                    <option value="other">{t('other')}</option>
                   </select>
                   {registrationErrors.gender && (
                     <p className="text-xs text-destructive mt-1">{registrationErrors.gender.message}</p>
@@ -331,14 +330,14 @@ export function AuthModal() {
 
                 {/* Division */}
                 <div className="space-y-1 sm:space-y-2">
-                  <label className="text-sm font-medium">Division</label>
+                  <label className="text-sm font-medium">{t('division')}</label>
                   <select
                     {...register('division')}
                     className={`w-full px-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.division ? 'border-destructive' : 'border-border'
                       }`}
                     disabled={isLoading}
                   >
-                    <option value="">Select division</option>
+                    <option value="">{t('selectDivision')}</option>
                     <option value="Dhaka">Dhaka</option>
                     <option value="Chittagong">Chittagong</option>
                     <option value="Rajshahi">Rajshahi</option>
@@ -355,12 +354,12 @@ export function AuthModal() {
 
                 {/* City */}
                 <div className="space-y-1 sm:space-y-2">
-                  <label className="text-sm font-medium">City</label>
+                  <label className="text-sm font-medium">{t('city')}</label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                       type="text"
-                      placeholder="Enter your city"
+                      placeholder={t('cityPlaceholder')}
                       {...register('city')}
                       className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.city ? 'border-destructive' : 'border-border'
                         }`}
@@ -376,14 +375,14 @@ export function AuthModal() {
 
             {/* Password Field */}
             <div className="space-y-1 sm:space-y-2">
-              <label className="text-sm font-medium">Password</label>
+              <label className="text-sm font-medium">{t('password')}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 {mode === 'signin' ? (
                   <input
                     key="signin-password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
+                    placeholder={t('passwordPlaceholder')}
                     value={loginFormData.password || ''}
                     onChange={(e) => handleLoginInputChange('password', e.target.value)}
                     className={`w-full pl-10 pr-12 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${loginErrors.password ? 'border-destructive' : 'border-border'
@@ -395,7 +394,7 @@ export function AuthModal() {
                   <input
                     key="signup-password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
+                    placeholder={t('passwordPlaceholder')}
                     {...register('password')}
                     className={`w-full pl-10 pr-12 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.password ? 'border-destructive' : 'border-border'
                       }`}
@@ -421,12 +420,12 @@ export function AuthModal() {
             {/* Confirm Password Field - Sign Up Only */}
             {mode === 'signup' && (
               <div className="space-y-1 sm:space-y-2">
-                <label className="text-sm font-medium">Confirm Password</label>
+                <label className="text-sm font-medium">{t('confirmPassword')}</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Confirm your password"
+                    placeholder={t('confirmPasswordPlaceholder')}
                     {...register('password_confirmation')}
                     className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.password_confirmation ? 'border-destructive' : 'border-border'
                       }`}
@@ -446,7 +445,7 @@ export function AuthModal() {
                   type="button"
                   className="text-sm text-primary hover:text-primary/80 transition-colors"
                 >
-                  Forgot Password?
+                  {t('forgotPassword')}
                 </button>
               </div>
             )}
@@ -461,10 +460,10 @@ export function AuthModal() {
                   required
                 />
                 <label htmlFor="terms" className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  I agree to the{' '}
-                  <a href="#" className="text-primary hover:text-primary/80 underline">Terms of Service</a>
-                  {' '}and{' '}
-                  <a href="#" className="text-primary hover:text-primary/80 underline">Privacy Policy</a>
+                  {t('agreeTo')}{' '}
+                  <a href="#" className="text-primary hover:text-primary/80 underline">{t('termsOfService')}</a>
+                  {' '}{t('and')}{' '}
+                  <a href="#" className="text-primary hover:text-primary/80 underline">{t('privacyPolicy')}</a>
                 </label>
               </div>
             )}
@@ -478,10 +477,10 @@ export function AuthModal() {
               {isLoading ? (
                 <>
                   <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  {mode === 'signin' ? 'Signing In...' : 'Creating Account...'}
+                  {mode === 'signin' ? t('signingIn') : t('creatingAccount')}
                 </>
               ) : (
-                mode === 'signin' ? 'Sign In' : 'Create Account'
+                mode === 'signin' ? t('submitSignIn') : t('submitSignUp')
               )}
             </Button>
           </form>
@@ -489,7 +488,7 @@ export function AuthModal() {
           {/* Divider */}
           <div className="flex items-center my-4 sm:my-6">
             <div className="flex-1 border-t border-border"></div>
-            <span className="px-3 sm:px-4 text-sm text-muted-foreground">or</span>
+            <span className="px-3 sm:px-4 text-sm text-muted-foreground">{t('or')}</span>
             <div className="flex-1 border-t border-border"></div>
           </div>
 
@@ -502,28 +501,28 @@ export function AuthModal() {
                 <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                 <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
-              Continue with Google
+              {t('continueWithGoogle')}
             </Button>
 
             <Button variant="outline" className="w-full py-2.5 sm:py-3 text-sm sm:text-base" type="button">
               <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
-              Continue with Facebook
+              {t('continueWithFacebook')}
             </Button>
           </div>
 
           {/* Switch Mode */}
           <div className="text-center mt-4 sm:mt-6">
             <p className="text-sm text-muted-foreground px-2">
-              {mode === 'signin' ? "Don't have an account?" : "Already have an account?"}
+              {mode === 'signin' ? t('signInPrompt') : t('signUpPrompt')}
               {' '}
               <button
                 type="button"
                 onClick={switchMode}
                 className="text-primary hover:text-primary/80 font-medium transition-colors"
               >
-                {mode === 'signin' ? 'Sign Up' : 'Sign In'}
+                {mode === 'signin' ? t('switchToSignUp') : t('switchToSignIn')}
               </button>
             </p>
           </div>

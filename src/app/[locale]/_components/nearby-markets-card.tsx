@@ -1,8 +1,9 @@
 "use client";
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { ArrowRight, Clock, MapPin, Star, Store, Tag } from 'lucide-react';
 import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 
@@ -27,18 +28,20 @@ function formatDistance(value: unknown): string | null {
 }
 
 export function NearbyMarketsCard() {
+  const t = useTranslations('home');
+  const tCommon = useTranslations('common');
   const { data: markets, isLoading } = useRandomMarkets();
   const rows = (markets ?? []).slice(0, 4);
 
   return (
     <section className="px-4">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-sm font-semibold">Nearby markets</h2>
+        <h2 className="text-sm font-semibold">{t('nearbyMarketsTitle')}</h2>
         <Link
           href="/markets"
           className="inline-flex items-center gap-0.5 text-xs text-primary font-medium hover:underline"
         >
-          See all <ArrowRight className="h-3 w-3" />
+          {tCommon('seeAll')} <ArrowRight className="h-3 w-3" />
         </Link>
       </div>
 
@@ -47,7 +50,7 @@ export function NearbyMarketsCard() {
           Array.from({ length: 3 }).map((_, i) => <RowSkeleton key={i} />)
         ) : rows.length === 0 ? (
           <div className="rounded-xl border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-            No markets in your zone yet.
+            {t('nearbyMarketsEmpty')}
           </div>
         ) : (
           rows.map((m) => <MarketRow key={m.id} market={m} />)
@@ -58,6 +61,7 @@ export function NearbyMarketsCard() {
 }
 
 function MarketRow({ market }: { market: RawMarket }) {
+  const tMarkets = useTranslations('markets');
   const [imgError, setImgError] = useState(false);
   const raw = market as unknown as Record<string, unknown>;
   const image = resolveImage(typeof raw.image_path === 'string' ? raw.image_path : undefined);
@@ -75,7 +79,7 @@ function MarketRow({ market }: { market: RawMarket }) {
     ? (raw.opening_hours as Record<string, unknown>)
     : null;
   const hours = openHours?.is_closed
-    ? 'Closed'
+    ? tMarkets('closedLabel')
     : typeof openHours?.opening === 'string'
       ? openHours.opening
       : typeof raw.openTime === 'string'
@@ -144,7 +148,7 @@ function MarketRow({ market }: { market: RawMarket }) {
                 : 'bg-muted text-muted-foreground'
             }`}
           >
-            {isOpen ? 'Open' : 'Closed'}
+            {isOpen ? tMarkets('openLabel') : tMarkets('closedLabel')}
           </span>
         </span>
 

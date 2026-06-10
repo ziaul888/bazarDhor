@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { ArrowDown, ArrowUp, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
@@ -108,6 +109,9 @@ const extractComparedProductRows = (payload: unknown): ComparedProductRow[] => {
 };
 
 export default function CompareMarketsPage() {
+  const t = useTranslations('compare');
+  const tCommon = useTranslations('common');
+  const tNav = useTranslations('nav');
   const searchParams = useSearchParams();
   const urlMarketId1 = searchParams.get('market_id_1') ?? searchParams.get('m1') ?? '';
   const urlMarketId2 = searchParams.get('market_id_2') ?? searchParams.get('m2') ?? '';
@@ -216,23 +220,21 @@ export default function CompareMarketsPage() {
           variant="ghost"
           size="sm"
           fallbackHref="/markets"
-          label="Markets"
+          label={tNav('markets')}
           className="-ml-2 h-8 px-2 text-sm text-muted-foreground hover:text-foreground"
         />
       </header>
 
       <section className="container mx-auto max-w-3xl lg:max-w-6xl px-4">
-        <h1 className="text-xl sm:text-2xl font-semibold leading-tight">Compare markets</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Pick two markets to see side-by-side prices and details.
-        </p>
+        <h1 className="text-xl sm:text-2xl font-semibold leading-tight">{t('pageTitle')}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{t('pageSubtitle')}</p>
       </section>
 
       <div className="container mx-auto max-w-3xl lg:max-w-6xl px-4 mt-6">
         {/* Market Selectors */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           <div>
-            <h2 className="text-sm font-semibold mb-2">First market</h2>
+            <h2 className="text-sm font-semibold mb-2">{t('firstMarket')}</h2>
             <MarketSelector
               markets={markets}
               selectedMarket={selectedMarket1}
@@ -243,7 +245,7 @@ export default function CompareMarketsPage() {
           </div>
 
           <div>
-            <h2 className="text-sm font-semibold mb-2">Second market</h2>
+            <h2 className="text-sm font-semibold mb-2">{t('secondMarket')}</h2>
             <MarketSelector
               markets={markets}
               selectedMarket={selectedMarket2}
@@ -254,217 +256,165 @@ export default function CompareMarketsPage() {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
 
-        <div className="rounded-xl border bg-card">
+        <div className="rounded-xl border bg-card h-full flex flex-col">
           <div className="flex flex-col gap-4 border-b px-4 py-3 sm:flex-row sm:items-end sm:justify-between sm:px-4">
             <div>
-              <h2 className="text-base font-semibold">Product comparison</h2>
-              <p className="text-xs text-muted-foreground">
-                Compare product prices between the selected markets by category.
-              </p>
+              <h2 className="text-base font-semibold">{t('productSection')}</h2>
+              <p className="text-xs text-muted-foreground">{t('productSectionHint')}</p>
             </div>
           </div>
 
           {!selectedMarket1 || !selectedMarket2 ? (
-            <div className="px-6 py-10 text-center text-muted-foreground">
-              Select two markets first to compare their products.
-            </div>
+            <div className="px-6 py-10 text-center text-muted-foreground">{t('selectTwoFirst')}</div>
           ) : isLoadingCategories ? (
             <div className="flex flex-col items-center justify-center px-6 py-12">
               <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" />
-              <p className="text-muted-foreground">Loading product categories…</p>
+              <p className="text-muted-foreground">{t('loadingCategories')}</p>
             </div>
           ) : !selectedCategoryId ? (
-            <div className="px-6 py-10 text-center text-muted-foreground">
-              No categories available to load product comparisons.
-            </div>
+            <div className="px-6 py-10 text-center text-muted-foreground">{t('noCategories')}</div>
           ) : compareProductsQuery.isLoading ? (
             <div className="flex flex-col items-center justify-center px-6 py-12">
               <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" />
-              <p className="text-muted-foreground">Loading product comparison…</p>
+              <p className="text-muted-foreground">{t('loadingProducts')}</p>
             </div>
           ) : compareProductsQuery.isError ? (
             <div className="px-6 py-10 text-center">
-              <p className="font-medium text-warning">Could not load product comparison right now.</p>
+              <p className="font-medium text-warning">{t('loadFailed')}</p>
             </div>
           ) : comparedProducts.length === 0 ? (
             <div className="px-6 py-10 text-center text-muted-foreground">
-              No compared products found for {selectedCategory?.name || 'this category'}.
+              {t('noProducts', { category: selectedCategory?.name || '—' })}
             </div>
           ) : (
-            <>
-            {/* Mobile card layout */}
-            <div className="flex flex-col divide-y sm:hidden">
+            <div className="flex flex-col divide-y">
               {comparedProducts.map((product) => {
-                const market1Price = product.market1Price;
-                const market2Price = product.market2Price;
-                const difference =
-                  market1Price !== null && market2Price !== null
-                    ? Math.abs(market1Price - market2Price)
+                const { market1Price, market2Price } = product;
+                const bothPresent = market1Price !== null && market2Price !== null;
+                const difference = bothPresent ? Math.abs(market1Price! - market2Price!) : null;
+                const higherPrice = bothPresent ? Math.max(market1Price!, market2Price!) : null;
+                const savingsPct =
+                  difference !== null && higherPrice && higherPrice > 0
+                    ? (difference / higherPrice) * 100
                     : null;
-                const cheaperMarket =
-                  market1Price !== null && market2Price !== null
-                    ? market1Price < market2Price
-                      ? selectedMarket1?.name
-                      : market2Price < market1Price
-                        ? selectedMarket2?.name
-                        : 'Same price'
-                    : null;
+                const cheaperSide =
+                  bothPresent && market1Price! < market2Price!
+                    ? 1
+                    : bothPresent && market2Price! < market1Price!
+                      ? 2
+                      : 0;
+                const fmtPrice = (v: number | null) =>
+                  v !== null ? `৳${v.toFixed(2)} / ${product.unit}` : 'N/A';
 
                 return (
-                  <div key={product.id} className="px-4 py-4 space-y-3">
-                    <div className="flex items-center gap-3">
+                  <div key={product.id} className="px-3 py-2.5 sm:px-4">
+                    {/* Header: thumb + name + savings badge */}
+                    <div className="flex items-center gap-2.5">
                       {product.image ? (
                         <Image
                           src={product.image}
                           alt={product.name}
-                          width={44}
-                          height={44}
-                          className="h-11 w-11 rounded-lg object-cover flex-shrink-0"
+                          width={36}
+                          height={36}
+                          className="h-9 w-9 rounded-md object-cover shrink-0"
                         />
                       ) : (
-                        <div className="h-11 w-11 rounded-lg bg-muted flex-shrink-0" />
+                        <div className="h-9 w-9 rounded-md bg-muted shrink-0" />
                       )}
-                      <div className="min-w-0">
-                        <p className="font-semibold text-sm truncate">{product.name}</p>
-                        <p className="text-xs text-muted-foreground">{product.category} · {product.unit}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium truncate leading-tight">{product.name}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {product.category}
+                        </p>
+                      </div>
+                      {savingsPct !== null && difference !== null && difference > 0 ? (
+                        <span className="flex-none inline-flex items-center gap-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-semibold px-2 py-0.5">
+                          {cheaperSide === 1 ? (
+                            <ArrowDown className="h-3 w-3" />
+                          ) : cheaperSide === 2 ? (
+                            <ArrowUp className="h-3 w-3" />
+                          ) : null}
+                          Save {savingsPct.toFixed(savingsPct >= 10 ? 0 : 1)}%
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {/* Prices: both on one line */}
+                    <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                      <div
+                        className={`rounded-md px-2.5 py-1.5 ${
+                          cheaperSide === 1
+                            ? 'bg-green-50 dark:bg-green-900/15'
+                            : 'bg-muted/40'
+                        }`}
+                      >
+                        <p className="text-[10px] text-muted-foreground truncate leading-none mb-0.5">
+                          {selectedMarket1?.name}
+                        </p>
+                        <p
+                          className={`font-semibold tabular-nums truncate ${
+                            cheaperSide === 1 ? 'text-green-700 dark:text-green-400' : ''
+                          }`}
+                        >
+                          {fmtPrice(market1Price)}
+                        </p>
+                      </div>
+                      <div
+                        className={`rounded-md px-2.5 py-1.5 ${
+                          cheaperSide === 2
+                            ? 'bg-green-50 dark:bg-green-900/15'
+                            : 'bg-muted/40'
+                        }`}
+                      >
+                        <p className="text-[10px] text-muted-foreground truncate leading-none mb-0.5">
+                          {selectedMarket2?.name}
+                        </p>
+                        <p
+                          className={`font-semibold tabular-nums truncate ${
+                            cheaperSide === 2 ? 'text-green-700 dark:text-green-400' : ''
+                          }`}
+                        >
+                          {fmtPrice(market2Price)}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="rounded-lg bg-muted/40 px-3 py-2">
-                        <p className="text-[10px] text-muted-foreground mb-0.5 truncate">{selectedMarket1?.name}</p>
-                        <p className="font-semibold text-sm">{market1Price !== null ? `৳${market1Price.toFixed(2)}` : 'N/A'}</p>
-                      </div>
-                      <div className="rounded-lg bg-muted/40 px-3 py-2">
-                        <p className="text-[10px] text-muted-foreground mb-0.5 truncate">{selectedMarket2?.name}</p>
-                        <p className="font-semibold text-sm">{market2Price !== null ? `৳${market2Price.toFixed(2)}` : 'N/A'}</p>
-                      </div>
-                    </div>
-
-                    {difference !== null && (
-                      <div className="flex items-center gap-1.5 text-xs">
-                        {cheaperMarket === selectedMarket1?.name ? (
-                          <ArrowDown className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
-                        ) : cheaperMarket === selectedMarket2?.name ? (
-                          <ArrowUp className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
-                        ) : null}
-                        <span className="font-medium">{cheaperMarket ?? 'Same price'}</span>
-                        <span className="text-muted-foreground">· diff ৳{difference.toFixed(2)}</span>
-                      </div>
-                    )}
+                    {difference !== null && difference > 0 ? (
+                      <p className="mt-1 text-[10px] text-muted-foreground">
+                        {t('differenceLabel')} ৳{difference.toFixed(2)}
+                      </p>
+                    ) : difference === 0 ? (
+                      <p className="mt-1 text-[10px] text-muted-foreground">{t('samePrice')}</p>
+                    ) : null}
                   </div>
                 );
               })}
             </div>
-
-            {/* Desktop table layout */}
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead className="bg-muted/40 text-left">
-                  <tr>
-                    <th className="px-4 py-3 font-semibold sm:px-6">Product</th>
-                    <th className="px-4 py-3 font-semibold">{selectedMarket1?.name}</th>
-                    <th className="px-4 py-3 font-semibold">{selectedMarket2?.name}</th>
-                    <th className="px-4 py-3 font-semibold sm:px-6">Difference</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {comparedProducts.map((product) => {
-                    const market1Price = product.market1Price;
-                    const market2Price = product.market2Price;
-                    const difference =
-                      market1Price !== null && market2Price !== null
-                        ? Math.abs(market1Price - market2Price)
-                        : null;
-                    const cheaperMarket =
-                      market1Price !== null && market2Price !== null
-                        ? market1Price < market2Price
-                          ? selectedMarket1?.name
-                          : market2Price < market1Price
-                            ? selectedMarket2?.name
-                            : 'Same price'
-                        : 'Unavailable';
-
-                    return (
-                      <tr key={product.id} className="border-t align-top">
-                        <td className="px-4 py-4 sm:px-6">
-                          <div className="flex min-w-[220px] items-center gap-3">
-                            {product.image ? (
-                              <Image
-                                src={product.image}
-                                alt={product.name}
-                                width={48}
-                                height={48}
-                                className="h-12 w-12 rounded-lg object-cover"
-                              />
-                            ) : (
-                              <div className="h-12 w-12 rounded-lg bg-muted" />
-                            )}
-                            <div>
-                              <p className="font-medium">{product.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {product.category} / {product.unit}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 font-medium">
-                          {market1Price !== null ? `৳${market1Price.toFixed(2)}` : 'N/A'}
-                        </td>
-                        <td className="px-4 py-4 font-medium">
-                          {market2Price !== null ? `৳${market2Price.toFixed(2)}` : 'N/A'}
-                        </td>
-                        <td className="px-4 py-4 sm:px-6">
-                          {difference !== null ? (
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2 font-medium">
-                                {cheaperMarket === selectedMarket1?.name ? (
-                                  <ArrowDown className="h-4 w-4 text-green-600" />
-                                ) : cheaperMarket === selectedMarket2?.name ? (
-                                  <ArrowUp className="h-4 w-4 text-blue-600" />
-                                ) : null}
-                                <span>{cheaperMarket}</span>
-                              </div>
-                              <p className="text-xs text-muted-foreground">
-                                Difference: ৳{difference.toFixed(2)}
-                              </p>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">N/A</span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            </>
           )}
         </div>
 
           {/* Comparison Results */}
-          <div className="rounded-xl border bg-card">
+          <div className="rounded-xl border bg-card h-full flex flex-col">
             <div className="border-b px-4 py-3 sm:px-4">
-              <h2 className="text-base font-semibold">Market comparison</h2>
-              <p className="text-xs text-muted-foreground">Side-by-side details for the selected markets.</p>
+              <h2 className="text-base font-semibold">{t('marketSection')}</h2>
+              <p className="text-xs text-muted-foreground">{t('marketSectionHint')}</p>
             </div>
             {compareQuery.isLoading ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-                <p className="text-muted-foreground">Loading comparison…</p>
+                <p className="text-muted-foreground">{t('loadingComparison')}</p>
               </div>
             ) : compareQuery.isError ? (
               <div className="px-6 py-10 text-center">
-                <p className="text-warning font-medium">Comparison failed. Please try again.</p>
+                <p className="text-warning font-medium">{t('comparisonFailed')}</p>
               </div>
             ) : comparison?.market_1 && comparison?.market_2 ? (
               <ComparisonTable market1={comparison.market_1} market2={comparison.market_2} />
             ) : (
               <div className="px-6 py-10 text-center text-muted-foreground">
-                Select two markets to view comparison.
+                {t('selectTwoForDetails')}
               </div>
             )}
           </div>
@@ -479,16 +429,20 @@ export default function CompareMarketsPage() {
             onClick={() => compareQuery.refetch()}
             disabled={!selectedMarket1 || !selectedMarket2 || compareQuery.isFetching}
           >
-            Refresh comparison
+            {t('refreshComparison')}
           </Button>
           {selectedMarket1 && (
             <Button size="sm" asChild>
-              <Link href={`/markets/${selectedMarket1.id}`}>View {selectedMarket1.name}</Link>
+              <Link href={`/markets/${selectedMarket1.id}` as never}>
+                {t('viewMarket', { name: selectedMarket1.name })}
+              </Link>
             </Button>
           )}
           {selectedMarket2 && (
             <Button size="sm" variant="outline" asChild>
-              <Link href={`/markets/${selectedMarket2.id}`}>View {selectedMarket2.name}</Link>
+              <Link href={`/markets/${selectedMarket2.id}` as never}>
+                {t('viewMarket', { name: selectedMarket2.name })}
+              </Link>
             </Button>
           )}
         </div>
