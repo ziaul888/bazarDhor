@@ -56,10 +56,10 @@ export function HomeBento() {
   };
 
   return (
-    <section className="px-4 pt-4 space-y-3">
+    <section className="sm:px-4 sm:pt-4 space-y-3">
       {/* Hero slider — banners curated by admin */}
       {isBannersLoading ? (
-        <div className="h-52 sm:h-64 rounded-2xl border bg-card overflow-hidden">
+        <div className="h-52 sm:h-64 sm:rounded-2xl border-y sm:border bg-card overflow-hidden">
           <div className="h-full w-full bg-muted/60 animate-pulse" />
         </div>
       ) : banners.length > 0 ? (
@@ -74,7 +74,7 @@ export function HomeBento() {
       )}
 
       {/* Stats + Zone — side-by-side */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 px-4 sm:px-0">
         <div className="rounded-2xl border bg-card p-3">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
             <Activity className="h-3.5 w-3.5 text-primary" />
@@ -160,7 +160,7 @@ function BannerSlider({ banners }: { banners: Banner[] }) {
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl"
+      className="relative overflow-hidden sm:rounded-2xl"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onTouchStart={handleTouchStart}
@@ -301,7 +301,7 @@ function EmptyTile({
 }) {
   return (
     <div
-      className={`rounded-2xl border bg-card flex flex-col items-center justify-center text-center px-4 ${className}`}
+      className={`sm:rounded-2xl border-y sm:border bg-card flex flex-col items-center justify-center text-center px-4 ${className}`}
     >
       <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
         {icon}

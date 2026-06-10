@@ -29,21 +29,23 @@ export const configApi = {
     },
 
     /**
-     * Get app configuration settings
+     * Get app configuration settings — backend consolidated /config/app and
+     * /config/settings into a single /config endpoint, so all three accessors
+     * now hit /config and React Query dedupes via the per-hook cache key.
      */
     getSettings: async (): Promise<unknown> => {
-        const response = await apiClient.get<ApiResponse<unknown>>(
-            API_ENDPOINTS.CONFIG.SETTINGS
+        const response = await apiClient.get<BackendApiResponse<GeneralConfig>>(
+            API_ENDPOINTS.CONFIG.GENERAL
         );
         return response.data.data;
     },
 
     /**
-     * Get app configuration
+     * Get app configuration (now served by /config)
      */
     getAppConfig: async (): Promise<unknown> => {
-        const response = await apiClient.get<ApiResponse<unknown>>(
-            API_ENDPOINTS.CONFIG.APP_CONFIG
+        const response = await apiClient.get<BackendApiResponse<GeneralConfig>>(
+            API_ENDPOINTS.CONFIG.GENERAL
         );
         return response.data.data;
     },

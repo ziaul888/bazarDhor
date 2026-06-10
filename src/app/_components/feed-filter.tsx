@@ -60,7 +60,7 @@ export function FeedFilterPopover({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full mt-2 z-20 w-40 rounded-lg border bg-card shadow-md py-1"
+          className="absolute right-0 top-full mt-2 z-50 w-40 rounded-lg border bg-card shadow-md py-1"
         >
           {FEED_FILTERS.map((f) => {
             const isActive = f.id === active;

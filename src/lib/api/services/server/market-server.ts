@@ -52,7 +52,7 @@ export const marketServerApi = {
 
     getMarketById: async (id: string, headers?: Record<string, string>): Promise<Market | null> => {
         try {
-            const market = await fetchClient<Market | ApiResponse<Market>>(`/market/details/${id}`, {
+            const market = await fetchClient<Market | ApiResponse<Market>>(`/markets/${id}`, {
                 headers,
                 throwOnError: false,
                 next: { revalidate: 900 } // 15 minutes

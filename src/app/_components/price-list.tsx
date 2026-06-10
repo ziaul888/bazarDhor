@@ -110,8 +110,8 @@ export function PriceList() {
         <FeedFilterPopover active={feedFilter} onChange={handleSortChange} />
       </div>
 
-      {/* Category chips — sticky below the top navbar (h-16) on all breakpoints */}
-      <div className="px-4 pt-3 pb-2 sticky top-16 z-20 bg-background border-b">
+      {/* Category chips — sticky below the navbar (h-14 mobile, h-16 sm+) */}
+      <div className="px-4 pt-3 pb-2 sticky top-[55px] sm:top-16 z-20 bg-background border-b">
         <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
           <Chip
             label="All"

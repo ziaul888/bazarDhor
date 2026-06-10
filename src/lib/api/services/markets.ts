@@ -32,7 +32,7 @@ export const marketsApi = {
 
   // Get single market by ID
   getMarket: async (id: string): Promise<ApiResponse<Market>> => {
-    const { data } = await apiClient.get(`/market/details/${id}`);
+    const { data } = await apiClient.get(`/markets/${id}`);
     return data;
   },
 
