@@ -24,7 +24,7 @@ import { cookies } from "next/headers";
 import { configServerApi } from "@/lib/api/services/server/config-server";
 import { ConfigBootstrap } from "@/providers/config-bootstrap";
 import { RouteTransition } from "@/components/route-transition";
-import { routing, LOCALE_TO_HTTP, type AppLocale } from "@/i18n/routing";
+import { routing, LOCALE_TO_HEADER, LOCALIZATION_HEADER, type AppLocale } from "@/i18n/routing";
 
 
 // Primary fonts - Modern and friendly
@@ -124,7 +124,7 @@ export default async function LocaleLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
 
-  const acceptLanguage = LOCALE_TO_HTTP[locale as AppLocale];
+  const localization = LOCALE_TO_HEADER[locale as AppLocale];
   const cookieStore = await cookies();
   const zoneId = cookieStore.get('zoneId')?.value;
 
@@ -132,7 +132,7 @@ export default async function LocaleLayout({
   // zone guard) and the active locale so the backend can pick a language.
   const serverHeaders = {
     ...(zoneId ? { zoneId } : {}),
-    'Accept-Language': acceptLanguage,
+    [LOCALIZATION_HEADER]: localization,
   };
 
   const [appConfig, settings, generalConfig] = zoneId

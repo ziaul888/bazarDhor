@@ -13,10 +13,12 @@ export const routing = defineRouting({
 
 export type AppLocale = (typeof routing.locales)[number];
 
-// Why: API clients need to translate the active locale into a BCP-47 tag
-// for the Accept-Language header. Kept here so the table stays in one place
-// alongside the locales list.
-export const LOCALE_TO_HTTP: Record<AppLocale, string> = {
-  en: 'en-US',
-  bn: 'bn-BD',
+// Why: the backend reads the active locale from an `X-localization` request
+// header containing the short locale code (`bn` or `en`). Centralized so the
+// header name lives in one place; if the backend ever expects BCP-47 tags
+// instead, change only the value side here.
+export const LOCALIZATION_HEADER = 'X-localization';
+export const LOCALE_TO_HEADER: Record<AppLocale, string> = {
+  en: 'en',
+  bn: 'bn',
 };
