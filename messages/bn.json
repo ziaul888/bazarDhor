@@ -188,6 +188,17 @@
     "updatePrice": "দাম আপডেট",
     "perUnit": "/ {unit}"
   },
+  "priceDialog": {
+    "title": "দাম আপডেট",
+    "confirm": "দাম আপডেট করুন",
+    "cancel": "বাতিল",
+    "current": "বর্তমান",
+    "quickAdjustments": "দ্রুত পরিবর্তন",
+    "newPriceLabel": "নতুন দাম ({prefix})",
+    "newPricePlaceholder": "নতুন দাম লিখুন",
+    "proofImage": "প্রমাণপত্র ছবি",
+    "proofSelected": "নির্বাচিত: {filename}"
+  },
   "about": {
     "heroTitle": "জানুন আপনার বাজার আসলে কত নেয়",
     "heroLead": "BazarDhor আপনার এলাকার স্থানীয় বাজারের কমিউনিটি-জমা দেওয়া দাম দেখায় — যাতে আপনি ট্রিপ পরিকল্পনা করতে, বিকল্প তুলনা করতে এবং অনুমানের পরিবর্তে আসল দাম নিয়ে কেনাকাটা করতে পারেন।",

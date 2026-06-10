@@ -188,6 +188,17 @@
     "updatePrice": "Update price",
     "perUnit": "/ {unit}"
   },
+  "priceDialog": {
+    "title": "Update Price",
+    "confirm": "Update Price",
+    "cancel": "Cancel",
+    "current": "Current",
+    "quickAdjustments": "Quick Adjustments",
+    "newPriceLabel": "New Price ({prefix})",
+    "newPricePlaceholder": "Enter new price",
+    "proofImage": "Proof Image",
+    "proofSelected": "Selected: {filename}"
+  },
   "about": {
     "heroTitle": "Know what your market actually charges",
     "heroLead": "BazarDhor shows you community-submitted prices from local markets in your zone — so you can plan the trip, compare options, and shop with real numbers instead of guesses.",

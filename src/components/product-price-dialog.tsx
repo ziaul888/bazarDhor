@@ -1,7 +1,8 @@
 "use client";
 
 import Image from 'next/image';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { Package } from 'lucide-react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -46,14 +47,17 @@ export function ProductPriceDialog({
   onQuickAdjust,
   quickAdjustments = [-5, 5],
   pricePrefix = '৳',
-  title = 'Update Price',
-  confirmLabel = 'Update Price',
+  title,
+  confirmLabel,
   disableSave = false,
   proofImage,
   onProofImageChange,
   saving = false,
   helperText,
 }: ProductPriceDialogProps) {
+  const t = useTranslations('priceDialog');
+  const resolvedTitle = title ?? t('title');
+  const resolvedConfirmLabel = confirmLabel ?? t('confirm');
   const [imageError, setImageError] = useState(false);
 
   const handleProofImageChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -71,14 +75,14 @@ export function ProductPriceDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-md" onOpenAutoFocus={(e) => e.preventDefault()}>
           <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
+            <DialogTitle>{resolvedTitle}</DialogTitle>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button onClick={onSave} disabled>
-              {confirmLabel}
+              {resolvedConfirmLabel}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -90,7 +94,7 @@ export function ProductPriceDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{resolvedTitle}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -124,7 +128,7 @@ export function ProductPriceDialog({
                 <p className="text-xs text-muted-foreground">@{item.marketName}</p>
               )}
               <p className="text-xs font-bold text-primary">
-                Current: {pricePrefix}
+                {t('current')}: {pricePrefix}
                 {item.currentPrice}
               </p>
             </div>
@@ -133,7 +137,7 @@ export function ProductPriceDialog({
           {/* Quick Adjustment Buttons */}
           {onQuickAdjust ? (
             <div className="space-y-3">
-              <label className="text-sm font-medium">Quick Adjustments</label>
+              <label className="text-sm font-medium">{t('quickAdjustments')}</label>
               <div className="grid grid-cols-2 gap-2">
                 {quickAdjustments.map((delta) => (
                   <Button
@@ -153,7 +157,7 @@ export function ProductPriceDialog({
           {/* Price Input */}
           <div className="space-y-2">
             <label htmlFor="price" className="text-sm font-medium">
-              New Price ({pricePrefix})
+              {t('newPriceLabel', { prefix: pricePrefix })}
             </label>
             <Input
               id="price"
@@ -162,14 +166,14 @@ export function ProductPriceDialog({
               min="0"
               value={newPrice}
               onChange={(e) => onNewPriceChange(e.target.value)}
-              placeholder="Enter new price"
+              placeholder={t('newPricePlaceholder')}
             />
           </div>
 
           {onProofImageChange ? (
             <div className="space-y-2">
               <label htmlFor="proof-image" className="text-sm font-medium">
-                Proof Image
+                {t('proofImage')}
               </label>
               <Input
                 id="proof-image"
@@ -179,7 +183,7 @@ export function ProductPriceDialog({
               />
               {proofImage ? (
                 <p className="text-xs text-muted-foreground">
-                  Selected: {proofImage.name}
+                  {t('proofSelected', { filename: proofImage.name })}
                 </p>
               ) : null}
             </div>
@@ -192,7 +196,7 @@ export function ProductPriceDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             onClick={onSave}
@@ -203,7 +207,7 @@ export function ProductPriceDialog({
               Number(newPrice) === item.currentPrice
             }
           >
-            {confirmLabel}
+            {resolvedConfirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>
