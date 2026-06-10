@@ -55,7 +55,7 @@ const openSans = Open_Sans({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#10b981",
+  themeColor: "#38bdf8",
 };
 
 export const metadata: Metadata = {
@@ -148,12 +148,12 @@ export default async function LocaleLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-        <meta name="theme-color" content="#10b981" />
+        <meta name="theme-color" content="#38bdf8" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Market Finder" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="msapplication-TileColor" content="#10b981" />
+        <meta name="msapplication-TileColor" content="#38bdf8" />
         <meta name="msapplication-tap-highlight" content="no" />
       </head>
       <body
