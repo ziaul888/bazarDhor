@@ -38,13 +38,14 @@ export function MobileNavbar() {
 
   const avatarUrl = typeof user?.avatar === "string" && user.avatar.trim() ? user.avatar : undefined;
   const userDisplayName = user?.name?.trim() || t("profile");
-  const companyName = getConfigValue<string>("business_name", "MyApp") || "MyApp";
+  const companyName = getConfigValue<string>("business_name", "BazarDhor") || "BazarDhor";
   const brandLogo = resolveBrandImage(getConfigValue<string | null>("logo", null));
   const brandInitial = getBrandInitial(companyName);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => setIsScrolled(window.scrollY > 4);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -52,44 +53,41 @@ export function MobileNavbar() {
     <>
       <nav
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-200",
+          "fixed top-0 left-0 right-0 z-50 transition-[box-shadow,background-color,border-color] duration-200",
+          "bg-background/90 backdrop-blur-md",
           isScrolled
-            ? "bg-background/80 backdrop-blur-md border-b shadow-sm"
-            : "bg-background border-b"
+            ? "border-b border-border shadow-[0_1px_0_0_rgba(0,0,0,0.02)]"
+            : "border-b border-border/40"
         )}
       >
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-3 items-center h-14 sm:h-16 lg:flex lg:justify-between">
-            {/* Mobile-only left spacer to balance the right actions and keep the logo centered. */}
-            <div aria-hidden className="lg:hidden" />
-
-            {/* Logo — centered on mobile, left-aligned on desktop */}
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
+            {/* Brand — left-aligned everywhere */}
             <Link
               href="/"
-              className="flex items-center space-x-2 justify-self-center lg:justify-self-auto"
+              aria-label={companyName}
+              className="flex items-center gap-2 min-w-0 -ml-1 px-1 py-1 rounded-lg hover:bg-muted/50 transition-colors"
             >
-              <div className="relative h-8 w-20 overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90 shadow-lg ring-1 ring-primary/20">
+              <span className="relative inline-flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-sm ring-1 ring-primary/10">
                 {brandLogo ? (
                   <Image
                     src={brandLogo}
                     alt={companyName}
                     fill
                     className="object-cover"
-                    sizes="32px"
+                    sizes="36px"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <span className="text-primary-foreground font-bold text-sm">{brandInitial}</span>
-                  </div>
+                  <span className="font-bold text-sm leading-none">{brandInitial}</span>
                 )}
-              </div>
-              <span className="font-bold text-lg sm:text-xl hidden lg:block bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              </span>
+              <span className="font-semibold text-base sm:text-lg truncate min-w-0">
                 {companyName}
               </span>
             </Link>
 
-            {/* Desktop navigation */}
-            <div className="hidden lg:flex items-center space-x-6">
+            {/* Desktop primary nav */}
+            <div className="hidden lg:flex items-center gap-1">
               {navigation.map((item) => {
                 const isActive = pathname === item.href;
                 return (
@@ -97,70 +95,29 @@ export function MobileNavbar() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "flex items-center space-x-2 px-2 py-1 text-sm font-medium transition-all duration-200 relative group",
-                      isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                      "relative inline-flex items-center gap-1.5 h-9 px-3 rounded-full text-sm font-medium transition-colors",
+                      isActive
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                     )}
                   >
-                    <item.icon
-                      className={cn(
-                        "h-4 w-4 transition-colors duration-200",
-                        isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                      )}
-                    />
+                    <item.icon className="h-4 w-4" />
                     <span>{item.name}</span>
-                    {isActive && (
-                      <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                    )}
-                    <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-muted-foreground/30 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
                   </Link>
                 );
               })}
             </div>
 
             {/* Right actions */}
-            <div className="flex items-center justify-end space-x-1 sm:space-x-2">
-              {hasHydrated &&
-                (isAuthenticated ? (
-                  <Button
-                    asChild
-                    variant="ghost"
-                    className="hidden lg:flex h-9 px-3 text-sm font-medium"
-                  >
-                    <Link href="/profile" aria-label={userDisplayName} title={userDisplayName}>
-                      <span className="flex items-center">
-                        {avatarUrl ? (
-                          <img
-                            src={avatarUrl}
-                            alt={userDisplayName}
-                            className="h-6 w-6 rounded-full object-cover mr-2"
-                            referrerPolicy="no-referrer"
-                          />
-                        ) : (
-                          <User className="h-4 w-4 mr-2" />
-                        )}
-                        {t("profile")}
-                      </span>
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    className="hidden lg:flex h-9 px-3 text-sm font-medium"
-                    aria-label={t("signIn")}
-                    onClick={() => openAuthModal("signin")}
-                  >
-                    <LogIn className="h-4 w-4 mr-2" />
-                    {t("signIn")}
-                  </Button>
-                ))}
+            <div className="flex items-center gap-1.5 flex-none">
+              <LocaleSwitch />
 
-              {/* Mobile avatar — shown only when signed in */}
               {hasHydrated && isAuthenticated && (
                 <Button
                   asChild
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 overflow-hidden rounded-full lg:hidden"
+                  className="h-9 w-9 overflow-hidden rounded-full p-0"
                 >
                   <Link href="/profile" aria-label={userDisplayName} title={userDisplayName}>
                     {avatarUrl ? (
@@ -177,27 +134,35 @@ export function MobileNavbar() {
                 </Button>
               )}
 
-              {/* Mobile sign-in — shown only when not signed in */}
               {hasHydrated && !isAuthenticated && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 lg:hidden"
-                  aria-label={t("signIn")}
-                  onClick={() => openAuthModal("signin")}
-                >
-                  <LogIn className="h-4 w-4" />
-                </Button>
+                <>
+                  {/* Compact icon on mobile, full button on lg+ */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 lg:hidden rounded-full"
+                    aria-label={t("signIn")}
+                    onClick={() => openAuthModal("signin")}
+                  >
+                    <LogIn className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="default"
+                    className="hidden lg:inline-flex h-9 px-3 text-sm font-medium rounded-full"
+                    onClick={() => openAuthModal("signin")}
+                  >
+                    <LogIn className="h-4 w-4 mr-1.5" />
+                    {t("signIn")}
+                  </Button>
+                </>
               )}
-
-              <LocaleSwitch className="ml-1" />
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Spacer to prevent content from hiding behind fixed navbar */}
-      <div className="h-14 sm:h-16" />
+      {/* Spacer so fixed nav doesn't overlay first content */}
+      <div className="h-14 sm:h-16" aria-hidden />
     </>
   );
 }
