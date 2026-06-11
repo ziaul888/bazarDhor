@@ -4,7 +4,7 @@
 export const env = {
   // App Configuration
   app: {
-    name: process.env.NEXT_PUBLIC_APP_NAME || 'Fresh Market Finder',
+    name: process.env.NEXT_PUBLIC_APP_NAME || 'BazarDhor',
     url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     env: process.env.NODE_ENV || 'development',
     isDevelopment: process.env.NODE_ENV === 'development',
@@ -105,7 +105,7 @@ export const env = {
 
   // Contact
   contact: {
-    email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@freshmarketfinder.com',
+    email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || '',
     phone: process.env.NEXT_PUBLIC_CONTACT_PHONE || '',
   },
 } as const;

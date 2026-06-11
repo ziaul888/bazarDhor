@@ -199,6 +199,29 @@
     "proofImage": "Proof Image",
     "proofSelected": "Selected: {filename}"
   },
+  "seo": {
+    "brand": "BazarDhor",
+    "titleDefault": "BazarDhor — Today's Local Market Prices",
+    "titleTemplate": "%s | BazarDhor",
+    "description": "BazarDhor tracks today's prices at local markets across Bangladesh — community-submitted, verified, and easy to compare so you shop with real numbers.",
+    "shortName": "BazarDhor",
+    "keywords": "bazardor, bazar dor, local market prices, daily market prices, vegetable prices, Bangladesh markets, price comparison, fresh produce, aajker bazar dor"
+  },
+  "footer": {
+    "tagline": "Today's local market prices, community-verified.",
+    "quickLinks": "Quick Links",
+    "findMarkets": "Find markets",
+    "comparePrices": "Compare prices",
+    "browseItems": "Browse items",
+    "about": "About",
+    "signIn": "Sign in",
+    "connect": "Connect",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
+    "rights": "© {year} {brand}. All rights reserved.",
+    "madeWith": "Made with",
+    "forCommunities": "for local communities"
+  },
   "about": {
     "heroTitle": "Know what your market actually charges",
     "heroLead": "BazarDhor shows you community-submitted prices from local markets in your zone — so you can plan the trip, compare options, and shop with real numbers instead of guesses.",

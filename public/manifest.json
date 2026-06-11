@@ -1,14 +1,14 @@
 {
-  "name": "Fresh Market Finder",
-  "short_name": "MarketFinder",
-  "description": "Find fresh groceries from local markets and farmers",
-  "start_url": "/",
+  "name": "BazarDhor — Today's Market Prices",
+  "short_name": "BazarDhor",
+  "description": "Today's local market prices for Bangladesh — community-submitted, verified, and easy to compare.",
+  "start_url": "/bn",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#38bdf8",
   "orientation": "portrait-primary",
   "categories": ["food", "shopping", "lifestyle"],
-  "lang": "en",
+  "lang": "bn",
   "dir": "ltr",
   "icons": [
     {

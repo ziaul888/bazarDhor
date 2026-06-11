@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Poppins, Source_Code_Pro, Playfair_Display, Open_Sans } from "next/font/google";
 import "../globals.css";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { MobileNavbar } from "@/components/mobile-navbar";
 import { BottomNav } from "@/components/bottom-nav";
@@ -58,54 +58,84 @@ export const viewport: Viewport = {
   themeColor: "#38bdf8",
 };
 
-export const metadata: Metadata = {
-  title: {
-    template: '%s | Fresh Market Finder',
-    default: 'Fresh Market Finder - Find Local Groceries'
-  },
-  description: "Discover fresh groceries from local markets and farmers. Compare prices, find the best deals, and support your community.",
-  manifest: "/manifest.json",
-  alternates: {
-    canonical: 'https://freshmarketfinder.com',
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Market Finder",
-  },
-  formatDetection: {
-    telephone: false,
-  },
-  openGraph: {
-    type: "website",
-    siteName: "Fresh Market Finder",
-    title: "Fresh Market Finder - Find Local Groceries",
-    description: "Discover fresh groceries from local markets and farmers. Compare prices, find the best deals, and support your community.",
-    locale: 'en_US',
-    url: 'https://freshmarketfinder.com',
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Fresh Market Finder - Find Local Groceries",
-    description: "Discover fresh groceries from local markets and farmers. Compare prices, find the best deals, and support your community.",
-    creator: '@freshmarketfinder',
-  },
-  keywords: ['market finder', 'local markets', 'grocery prices', 'farmers market', 'price comparison', 'fresh produce'],
-  authors: [{ name: 'Fresh Market Finder Team' }],
-  creator: 'Fresh Market Finder',
-  publisher: 'Fresh Market Finder',
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+// Why: keep the canonical site origin in one constant so metadata, OG URLs,
+// sitemap, and robots.ts all agree. Override with NEXT_PUBLIC_SITE_URL once
+// the production domain is set.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bazardhor.com';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  const t = await getTranslations({ locale, namespace: 'seo' });
+
+  const brand = t('brand');
+  const titleDefault = t('titleDefault');
+  const titleTemplate = t('titleTemplate');
+  const description = t('description');
+  const keywords = t('keywords').split(',').map((k) => k.trim()).filter(Boolean);
+  const ogLocale = locale === 'bn' ? 'bn_BD' : 'en_US';
+
+  // Build language alternates with absolute URLs so hreflang is valid.
+  const languages: Record<string, string> = {};
+  for (const lng of routing.locales) {
+    languages[lng === 'bn' ? 'bn-BD' : 'en-US'] = `${SITE_URL}/${lng}`;
+  }
+  languages['x-default'] = `${SITE_URL}/${routing.defaultLocale}`;
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      template: titleTemplate,
+      default: titleDefault,
+    },
+    description,
+    manifest: '/manifest.json',
+    alternates: {
+      canonical: `/${locale}`,
+      languages,
+    },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'default',
+      title: brand,
+    },
+    formatDetection: {
+      telephone: false,
+    },
+    openGraph: {
+      type: 'website',
+      siteName: brand,
+      title: titleDefault,
+      description,
+      locale: ogLocale,
+      url: `${SITE_URL}/${locale}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: titleDefault,
+      description,
+    },
+    keywords,
+    authors: [{ name: brand }],
+    creator: brand,
+    publisher: brand,
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
-  },
-};
+  };
+}
 
 // Why: enables static rendering for every locale at build time. Without this
 // next-intl will fall back to dynamic rendering for everything under [locale].
@@ -151,7 +181,7 @@ export default async function LocaleLayout({
         <meta name="theme-color" content="#38bdf8" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Market Finder" />
+        <meta name="apple-mobile-web-app-title" content="BazarDhor" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-TileColor" content="#38bdf8" />
         <meta name="msapplication-tap-highlight" content="no" />
