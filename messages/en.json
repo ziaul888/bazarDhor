@@ -331,6 +331,8 @@
     "changePhoto": "Change Photo",
     "uploadPhoto": "Upload a photo",
     "uploadHint": "Tap to select from gallery",
+    "takePhoto": "Take Photo",
+    "fromGallery": "From Gallery",
     "itemName": "Item Name",
     "itemNamePlaceholder": "e.g., Fresh Organic Tomatoes",
     "price": "Price",

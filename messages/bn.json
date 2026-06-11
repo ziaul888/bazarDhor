@@ -331,6 +331,8 @@
     "changePhoto": "ছবি পরিবর্তন",
     "uploadPhoto": "ছবি আপলোড করুন",
     "uploadHint": "গ্যালারি থেকে নির্বাচন করতে ট্যাপ করুন",
+    "takePhoto": "ছবি তুলুন",
+    "fromGallery": "গ্যালারি থেকে",
     "itemName": "পণ্যের নাম",
     "itemNamePlaceholder": "যেমন, তাজা অর্গানিক টমেটো",
     "price": "দাম",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -60,7 +60,7 @@ export function AddItemDrawer() {
 
   const {
     register,
-    control,
+    setValue,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting: isFormSubmitting },
@@ -198,28 +198,38 @@ export function AddItemDrawer() {
                 <span>{t('itemPhoto')}</span>
               </label>
               <div className="relative group">
-                <Controller
-                  control={control}
-                  name="image"
-                  render={({ field }) => (
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(event) => {
-                        const file = event.target.files?.[0] ?? null;
-                        field.onChange(file ?? undefined);
-                        handleImageChange(file);
-                      }}
-                      className="hidden"
-                      id="image-upload"
-                    />
-                  )}
+                {/* Two hidden inputs share the same `image` form field. The
+                    camera one carries `capture="environment"` so iOS/Android
+                    open the rear camera directly; the gallery one falls back
+                    to the OS file picker. Desktop browsers ignore `capture`. */}
+                <input
+                  id="image-camera"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    setValue('image', file, { shouldDirty: true });
+                    handleImageChange(file);
+                  }}
                 />
-                <label
-                  htmlFor="image-upload"
-                  className="relative flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-primary/30 rounded-2xl cursor-pointer hover:border-primary/50 transition-all duration-300 bg-gradient-to-br from-accent/50 to-accent/30 group-hover:from-accent/70 group-hover:to-accent/50"
-                >
-                  {imagePreview ? (
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    setValue('image', file, { shouldDirty: true });
+                    handleImageChange(file);
+                  }}
+                />
+                {imagePreview ? (
+                  <label
+                    htmlFor="image-upload"
+                    className="relative flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-primary/30 rounded-2xl cursor-pointer hover:border-primary/50 transition-all duration-300 bg-gradient-to-br from-accent/50 to-accent/30 group-hover:from-accent/70 group-hover:to-accent/50"
+                  >
                     <div className="relative w-full h-full rounded-2xl overflow-hidden">
                       <img
                         src={imagePreview}
@@ -230,18 +240,30 @@ export function AddItemDrawer() {
                         <span className="text-white text-sm font-medium">{t('changePhoto')}</span>
                       </div>
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="p-4 bg-primary rounded-full">
-                        <Upload className="h-8 w-8 text-primary-foreground" />
-                      </div>
-                      <div className="text-center">
-                        <span className="text-gray-700 font-medium">{t('uploadPhoto')}</span>
-                        <p className="text-gray-500 text-xs mt-1">{t('uploadHint')}</p>
-                      </div>
+                  </label>
+                ) : (
+                  <div className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-primary/30 rounded-2xl bg-gradient-to-br from-accent/50 to-accent/30 px-4">
+                    <div className="flex flex-col items-center gap-2 mb-3 text-center">
+                      <div className="text-gray-700 font-medium text-sm">{t('uploadPhoto')}</div>
                     </div>
-                  )}
-                </label>
+                    <div className="grid grid-cols-2 gap-3 w-full max-w-xs">
+                      <label
+                        htmlFor="image-camera"
+                        className="flex flex-col items-center justify-center gap-1.5 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm shadow-sm hover:shadow-md cursor-pointer transition active:scale-95"
+                      >
+                        <Camera className="h-5 w-5" />
+                        <span>{t('takePhoto')}</span>
+                      </label>
+                      <label
+                        htmlFor="image-upload"
+                        className="flex flex-col items-center justify-center gap-1.5 py-2.5 rounded-xl bg-white text-gray-700 border border-gray-200 font-medium text-sm shadow-sm hover:shadow-md cursor-pointer transition active:scale-95"
+                      >
+                        <Upload className="h-5 w-5 text-primary" />
+                        <span>{t('fromGallery')}</span>
+                      </label>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
