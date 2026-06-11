@@ -4,7 +4,7 @@ import type { Market, ApiResponse, MarketListParams } from '../../types';
 export const marketServerApi = {
     getMarketsByCategory: async (categoryId: string, limit: number = 50, headers?: Record<string, string>): Promise<unknown> => {
         try {
-            const markets = await fetchClient<unknown>('/markets/list', {
+            const markets = await fetchClient<unknown>('/markets', {
                 params: {
                     user_lat: 23.832619866576376,
                     user_lng: 90.4348316383023,
@@ -36,7 +36,7 @@ export const marketServerApi = {
                 category_id: params.category_id,
             };
 
-            const markets = await fetchClient<unknown>('/markets/list', {
+            const markets = await fetchClient<unknown>('/markets', {
                 params: queryParams,
                 headers,
                 throwOnError: false,
