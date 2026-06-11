@@ -5,6 +5,7 @@ import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { marketServerApi } from '@/lib/api/services/server/market-server';
 import { LOCALE_TO_HEADER, LOCALIZATION_HEADER, routing, type AppLocale } from '@/i18n/routing';
+import { getBackendBrand } from '@/lib/server/branding';
 import { MarketsPageClient } from './_components/markets-page-client';
 import { MARKET_LIST_PARAMS, mapMarketsFromApi } from './_lib/market-mapper';
 
@@ -20,7 +21,9 @@ export async function generateMetadata({ params }: MarketsPageProps): Promise<Me
   const t = await getTranslations({ locale, namespace: 'markets' });
   const tSeo = await getTranslations({ locale, namespace: 'seo' });
 
-  const title = t('pageTitle');
+  const backendBrand = await getBackendBrand(locale as AppLocale);
+  const brand = backendBrand ?? tSeo('brand');
+  const title = `${t('pageTitle')} | ${brand}`;
   const description = tSeo('description');
   const path = `/${locale}/markets`;
 

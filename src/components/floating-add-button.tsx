@@ -29,7 +29,13 @@ export function FloatingAddButton({ onClick, className = "" }: FloatingAddButton
   };
 
   return (
-    <div onClick={handleClick} className="fixed bottom-20 right-4 z-50">
+    <div
+      onClick={handleClick}
+      // Why: stay above the mobile bottom-nav even on phones with a home-
+      // indicator safe-area (env(safe-area-inset-bottom)). Z-[60] beats the
+      // navbar (z-50) so the FAB never gets hidden behind other floating UI.
+      className="fixed right-4 z-[60] bottom-[calc(env(safe-area-inset-bottom)+5rem)] md:right-40 md:bottom-6"
+    >
       {/* Enhanced glow effect */}
       <div className="absolute inset-0 bg-primary rounded-full blur-xl opacity-40 animate-pulse scale-125" />
       <div className="absolute inset-0 bg-primary rounded-full blur-md opacity-60 animate-ping" />

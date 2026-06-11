@@ -201,8 +201,7 @@
   },
   "seo": {
     "brand": "বাজারদর",
-    "titleDefault": "বাজারদর — আজকের বাজারের দাম | BazarDhor",
-    "titleTemplate": "%s | বাজারদর",
+    "tagline": "আজকের বাজারের দাম",
     "description": "বাজারদর — আপনার এলাকার বাজারে আজকের পণ্যের দাম দেখুন, তুলনা করুন এবং সঠিক দামে কেনাকাটা করুন। কমিউনিটি-জমা দেওয়া, যাচাইকৃত দাম।",
     "shortName": "বাজারদর",
     "keywords": "আজকের বাজার দর, সবজির দাম আজ, চাল ডাল তেলের দাম, ঢাকার বাজার দর, কাঁচা বাজার, aajker bazar dor, bazar dor, rice price bd today"
@@ -342,6 +341,11 @@
     "categoryLoadError": "এই মুহূর্তে বিভাগ লোড করা যাচ্ছে না।",
     "unit": "একক",
     "unitPlaceholder": "যেমন, কেজি, লিটার, পিস, ডজন",
+    "loadingUnits": "একক লোড হচ্ছে...",
+    "selectUnit": "নির্বাচন করুন",
+    "noUnits": "কোন একক উপলব্ধ নেই",
+    "unitLoadError": "এই মুহূর্তে একক লোড করা যাচ্ছে না।",
+    "priceSymbol": "৳",
     "marketLocation": "বাজার অবস্থান",
     "loadingMarkets": "বাজার লোড হচ্ছে...",
     "chooseMarket": "বাজার নির্বাচন করুন",

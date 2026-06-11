@@ -25,6 +25,7 @@ import { configServerApi } from "@/lib/api/services/server/config-server";
 import { ConfigBootstrap } from "@/providers/config-bootstrap";
 import { RouteTransition } from "@/components/route-transition";
 import { routing, LOCALE_TO_HEADER, LOCALIZATION_HEADER, type AppLocale } from "@/i18n/routing";
+import { getBackendBrand } from "@/lib/server/branding";
 
 
 // Primary fonts - Modern and friendly
@@ -72,9 +73,15 @@ export async function generateMetadata({
   if (!hasLocale(routing.locales, locale)) notFound();
   const t = await getTranslations({ locale, namespace: 'seo' });
 
-  const brand = t('brand');
-  const titleDefault = t('titleDefault');
-  const titleTemplate = t('titleTemplate');
+  // Why: prefer the admin-configured business name from /config and fall back
+  // to the localized brand only when the backend has nothing set. The title
+  // is rebuilt as `${brand} — ${tagline}` so per-page titles flow as
+  // "Markets | <backend brand>" without baking the brand into translations.
+  const backendBrand = await getBackendBrand(locale as AppLocale);
+  const brand = backendBrand ?? t('brand');
+  const tagline = t('tagline');
+  const titleDefault = `${brand} — ${tagline}`;
+  const titleTemplate = `%s | ${brand}`;
   const description = t('description');
   const keywords = t('keywords').split(',').map((k) => k.trim()).filter(Boolean);
   const ogLocale = locale === 'bn' ? 'bn_BD' : 'en_US';

@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { marketServerApi } from '@/lib/api/services/server/market-server';
 import { cookies } from 'next/headers';
+import { getBackendBrand } from '@/lib/server/branding';
+import type { AppLocale } from '@/i18n/routing';
 import { MarketDetailsClient } from './_components/market-details-client';
 
 interface MarketDetailsProps {
@@ -57,15 +59,19 @@ export async function generateMetadata({ params }: MarketDetailsProps): Promise<
   const { id, locale } = await params;
   const marketData = await getMarketData(id);
   const t = await getTranslations({ locale, namespace: 'markets' });
+  const tSeo = await getTranslations({ locale, namespace: 'seo' });
+
+  const backendBrand = await getBackendBrand(locale as AppLocale);
+  const brand = backendBrand ?? tSeo('brand');
 
   if (!marketData) {
     return {
-      title: t('notFoundTitle'),
+      title: `${t('notFoundTitle')} | ${brand}`,
       description: t('notFoundDesc'),
     };
   }
 
-  const title = `${marketData.name} - ${t('seoSuffix')}`;
+  const title = `${marketData.name} | ${brand}`;
   const description =
     marketData.description || t('seoDefaultDesc', { name: marketData.name });
 

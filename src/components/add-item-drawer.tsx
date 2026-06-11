@@ -5,12 +5,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
-import { X, Upload, MapPin, Camera, Sparkles, Tag, DollarSign, Package } from 'lucide-react';
+import { X, Upload, MapPin, Camera, Sparkles, Tag, Banknote, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAddItem } from './add-item-context';
 import { useCreateUserProduct } from '@/lib/api/hooks';
 import { useCategories } from '@/lib/api/hooks/useCategories';
 import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
+import { useUnits } from '@/lib/api/hooks/useUnits';
 import { handleApiError } from '@/lib/api';
 
 // Why: schema messages need to be translated, so the schema is built per-locale
@@ -35,6 +36,7 @@ export function AddItemDrawer() {
   const { mutateAsync, isPending, error } = useCreateUserProduct();
   const { data: categories = [], isLoading: isLoadingCategories, isError: hasCategoryError } = useCategories();
   const { data: markets = [], isLoading: isLoadingMarkets, isError: hasMarketError } = useRandomMarkets();
+  const { data: units = [], isLoading: isLoadingUnits, isError: hasUnitError } = useUnits();
 
   const addItemSchema = useMemo(
     () =>
@@ -90,6 +92,16 @@ export function AddItemDrawer() {
       })),
     [markets]
   );
+  const unitOptions = useMemo(
+    () =>
+      units
+        .filter((u) => u.is_active !== false)
+        .map((u) => ({
+          id: String(u.id),
+          label: u.symbol ? `${u.name} (${u.symbol})` : u.name,
+        })),
+    [units],
+  );
 
   const handleImageChange = (file?: File | null) => {
     if (file) {
@@ -111,7 +123,7 @@ export function AddItemDrawer() {
       category_id: values.category || undefined,
       market_id: values.market || undefined,
       base_price: Number.isFinite(basePrice as number) ? (basePrice as number) : undefined,
-      unit_id: "4823e3d0-1534-4fd6-9947-ea2a44cad339",
+      unit_id: values.unit || undefined,
       description: values.description || undefined,
       status: "draft",
     };
@@ -256,11 +268,13 @@ export function AddItemDrawer() {
               {/* Price */}
               <div className="space-y-3">
                 <label className="flex items-center space-x-2 text-sm font-semibold text-gray-800">
-                  <DollarSign className="h-4 w-4 text-success" />
+                  <Banknote className="h-4 w-4 text-success" />
                   <span>{t('price')} *</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                    {t('priceSymbol')}
+                  </span>
                   <input
                     type="number"
                     {...register('price')}
@@ -314,15 +328,29 @@ export function AddItemDrawer() {
                   <Package className="h-4 w-4 text-primary" />
                   <span>{t('unit')} *</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   {...register('unit')}
                   required
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
-                  placeholder={t('unitPlaceholder')}
-                />
+                  disabled={isLoadingUnits || unitOptions.length === 0}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 appearance-none"
+                >
+                  <option value="">
+                    {isLoadingUnits
+                      ? t('loadingUnits')
+                      : unitOptions.length > 0
+                        ? t('selectUnit')
+                        : t('noUnits')}
+                  </option>
+                  {unitOptions.map((unit) => (
+                    <option key={unit.id} value={unit.id}>
+                      {unit.label}
+                    </option>
+                  ))}
+                </select>
                 {errors.unit ? (
                   <p className="text-xs text-destructive">{errors.unit.message}</p>
+                ) : hasUnitError ? (
+                  <p className="text-xs text-destructive">{t('unitLoadError')}</p>
                 ) : null}
               </div>
             </div>

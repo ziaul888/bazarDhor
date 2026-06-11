@@ -201,8 +201,7 @@
   },
   "seo": {
     "brand": "BazarDhor",
-    "titleDefault": "BazarDhor — Today's Local Market Prices",
-    "titleTemplate": "%s | BazarDhor",
+    "tagline": "Today's Local Market Prices",
     "description": "BazarDhor tracks today's prices at local markets across Bangladesh — community-submitted, verified, and easy to compare so you shop with real numbers.",
     "shortName": "BazarDhor",
     "keywords": "bazardor, bazar dor, local market prices, daily market prices, vegetable prices, Bangladesh markets, price comparison, fresh produce, aajker bazar dor"
@@ -342,6 +341,11 @@
     "categoryLoadError": "Could not load categories right now.",
     "unit": "Unit",
     "unitPlaceholder": "e.g., kg, liter, piece, dozen",
+    "loadingUnits": "Loading units...",
+    "selectUnit": "Select",
+    "noUnits": "No units available",
+    "unitLoadError": "Could not load units right now.",
+    "priceSymbol": "৳",
     "marketLocation": "Market Location",
     "loadingMarkets": "Loading markets...",
     "chooseMarket": "Choose market",
