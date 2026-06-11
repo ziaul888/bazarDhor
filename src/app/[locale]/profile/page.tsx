@@ -8,7 +8,6 @@ import {
   MapPin,
   Bell,
   Shield,
-  Heart,
   ShoppingCart,
   TrendingUp,
   Settings,
@@ -20,7 +19,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { ProfileSettings } from './_components/profile-settings';
 import { ActivityHistory } from './_components/activity-history';
-import { FavoriteMarkets } from './_components/favorite-markets';
 import { useAuth } from '@/components/auth/auth-context';
 
 const getUserInitial = (name?: string | null, email?: string | null): string => {
@@ -44,7 +42,6 @@ const tabs = [
   { id: 'overview', label: 'Overview', icon: User },
   { id: 'settings', label: 'Settings', icon: Settings },
   { id: 'activity', label: 'Activity', icon: Clock },
-  { id: 'favorites', label: 'Favorites', icon: Heart },
 ];
 
 interface UserData {
@@ -157,8 +154,6 @@ export default function ProfilePage() {
         return <ProfileSettings userData={userData} />;
       case 'activity':
         return <ActivityHistory />;
-      case 'favorites':
-        return <FavoriteMarkets />;
       default:
         return <OverviewTab userData={userData} />;
     }

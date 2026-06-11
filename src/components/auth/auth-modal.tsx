@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, CheckCircle, AlertCircle, Calendar, MapPin } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, CheckCircle, AlertCircle, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from './auth-context';
@@ -123,10 +123,7 @@ export function AuthModal() {
         password: data.password,
         password_confirmation: data.password_confirmation,
         phone: data.phone,
-        dob: data.dob,
-        gender: data.gender,
         city: data.city,
-        division: data.division,
         image: data.image || null,
         referred_by: data.referred_by,
       });
@@ -290,68 +287,6 @@ export function AuthModal() {
                   )}
                 </div>
 
-                {/* Date of Birth */}
-                <div className="space-y-1 sm:space-y-2">
-                  <label className="text-sm font-medium">{t('dob')}</label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <input
-                      type="date"
-                      {...register('dob')}
-                      className={`w-full pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.dob ? 'border-destructive' : 'border-border'
-                        }`}
-                      disabled={isLoading}
-                      max={new Date().toISOString().split('T')[0]}
-                    />
-                  </div>
-                  {registrationErrors.dob && (
-                    <p className="text-xs text-destructive mt-1">{registrationErrors.dob.message}</p>
-                  )}
-                </div>
-
-                {/* Gender */}
-                <div className="space-y-1 sm:space-y-2">
-                  <label className="text-sm font-medium">{t('gender')}</label>
-                  <select
-                    {...register('gender')}
-                    className={`w-full px-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.gender ? 'border-destructive' : 'border-border'
-                      }`}
-                    disabled={isLoading}
-                  >
-                    <option value="">{t('selectGender')}</option>
-                    <option value="male">{t('male')}</option>
-                    <option value="female">{t('female')}</option>
-                    <option value="other">{t('other')}</option>
-                  </select>
-                  {registrationErrors.gender && (
-                    <p className="text-xs text-destructive mt-1">{registrationErrors.gender.message}</p>
-                  )}
-                </div>
-
-                {/* Division */}
-                <div className="space-y-1 sm:space-y-2">
-                  <label className="text-sm font-medium">{t('division')}</label>
-                  <select
-                    {...register('division')}
-                    className={`w-full px-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 bg-background text-sm sm:text-base ${registrationErrors.division ? 'border-destructive' : 'border-border'
-                      }`}
-                    disabled={isLoading}
-                  >
-                    <option value="">{t('selectDivision')}</option>
-                    <option value="Dhaka">Dhaka</option>
-                    <option value="Chittagong">Chittagong</option>
-                    <option value="Rajshahi">Rajshahi</option>
-                    <option value="Khulna">Khulna</option>
-                    <option value="Barisal">Barisal</option>
-                    <option value="Sylhet">Sylhet</option>
-                    <option value="Rangpur">Rangpur</option>
-                    <option value="Mymensingh">Mymensingh</option>
-                  </select>
-                  {registrationErrors.division && (
-                    <p className="text-xs text-destructive mt-1">{registrationErrors.division.message}</p>
-                  )}
-                </div>
-
                 {/* City */}
                 <div className="space-y-1 sm:space-y-2">
                   <label className="text-sm font-medium">{t('city')}</label>
@@ -504,12 +439,6 @@ export function AuthModal() {
               {t('continueWithGoogle')}
             </Button>
 
-            <Button variant="outline" className="w-full py-2.5 sm:py-3 text-sm sm:text-base" type="button">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              {t('continueWithFacebook')}
-            </Button>
           </div>
 
           {/* Switch Mode */}

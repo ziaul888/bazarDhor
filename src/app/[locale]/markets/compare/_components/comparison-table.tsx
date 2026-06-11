@@ -1,7 +1,18 @@
 "use client";
 
+import type { ComponentType, ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { CalendarDays, Car, Check, MapPin, Package, Store, Truck, X } from 'lucide-react';
+import {
+  CalendarDays,
+  Car,
+  Check,
+  MapPin,
+  Package,
+  Store,
+  Truck,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import type { ComparedMarket } from '@/lib/api/types';
 
 interface ComparisonTableProps {
@@ -9,53 +20,74 @@ interface ComparisonTableProps {
   market2: ComparedMarket;
 }
 
+type Side = 'm1' | 'm2' | null;
+
+interface MetricItem {
+  label: string;
+  icon: LucideIcon;
+  render1: () => ReactNode;
+  render2: () => ReactNode;
+  winner: Side;
+}
+
+interface MetricSection {
+  category: string;
+  items: MetricItem[];
+}
+
 const BooleanValue = ({ value, yes, no }: { value: boolean; yes: string; no: string }) => {
   return value ? (
-    <div className="inline-flex items-center space-x-2 text-success">
-      <Check className="h-4 w-4" />
+    <span className="inline-flex items-center gap-1.5 text-success">
+      <Check className="h-3.5 w-3.5" />
       <span className="font-medium">{yes}</span>
-    </div>
+    </span>
   ) : (
-    <div className="inline-flex items-center space-x-2 text-muted-foreground">
-      <X className="h-4 w-4" />
+    <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+      <X className="h-3.5 w-3.5" />
       <span className="font-medium">{no}</span>
-    </div>
+    </span>
   );
-};
-
-const BetterBadge = ({ show, label }: { show: boolean; label: string }) => {
-  if (!show) return null;
-  return <span className="ml-2 inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-xs font-semibold text-success">{label}</span>;
 };
 
 export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
   const t = useTranslations('compare.table');
   const tCommon = useTranslations('common');
   const locale = useLocale();
+
   const nf = new Intl.NumberFormat(locale === 'bn' ? 'bn-BD' : 'en-IN');
   const formatNumber = (value: number) => nf.format(value);
   const formatDistanceKm = (value: number) => {
     if (!Number.isFinite(value)) return tCommon('na');
     return `${nf.format(Number(value.toFixed(2)))} km`;
   };
+
   const distance1 = market1.distance_km;
   const distance2 = market2.distance_km;
-  const m1Closer = Number.isFinite(distance1) && Number.isFinite(distance2) ? distance1 < distance2 : false;
-  const m2Closer = Number.isFinite(distance1) && Number.isFinite(distance2) ? distance2 < distance1 : false;
-
   const products1 = market1.active_products_count;
   const products2 = market2.active_products_count;
-  const m1MoreProducts = Number.isFinite(products1) && Number.isFinite(products2) ? products1 > products2 : false;
-  const m2MoreProducts = Number.isFinite(products1) && Number.isFinite(products2) ? products2 > products1 : false;
-
   const openDays1 = market1.open_days_count;
   const openDays2 = market2.open_days_count;
-  const m1MoreOpenDays = Number.isFinite(openDays1) && Number.isFinite(openDays2) ? openDays1 > openDays2 : false;
-  const m2MoreOpenDays = Number.isFinite(openDays1) && Number.isFinite(openDays2) ? openDays2 > openDays1 : false;
+
+  // Why: compute the winner per metric so the row-level tint can carry the
+  // "Closer / More / Available" signal — replaces the easy-to-miss inline
+  // badge with a strong visual cue.
+  const lowerWins = (a: number, b: number): Side => {
+    if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return null;
+    return a < b ? 'm1' : 'm2';
+  };
+  const higherWins = (a: number, b: number): Side => {
+    if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return null;
+    return a > b ? 'm1' : 'm2';
+  };
+  const presenceWins = (a: boolean, b: boolean): Side => {
+    if (a === b) return null;
+    return a ? 'm1' : 'm2';
+  };
 
   const yes = tCommon('yes');
   const no = tCommon('no');
-  const rows = [
+
+  const sections: MetricSection[] = [
     {
       category: t('basicInfo'),
       items: [
@@ -64,54 +96,28 @@ export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
           icon: Store,
           render1: () => market1.type,
           render2: () => market2.type,
+          winner: null,
         },
         {
           label: t('distance'),
           icon: MapPin,
-          render1: () => (
-            <span className="font-medium">
-              {formatDistanceKm(distance1)}
-              <BetterBadge show={m1Closer} label={t('closer')} />
-            </span>
-          ),
-          render2: () => (
-            <span className="font-medium">
-              {formatDistanceKm(distance2)}
-              <BetterBadge show={m2Closer} label={t('closer')} />
-            </span>
-          ),
+          render1: () => formatDistanceKm(distance1),
+          render2: () => formatDistanceKm(distance2),
+          winner: lowerWins(distance1, distance2),
         },
         {
           label: t('activeProducts'),
           icon: Package,
-          render1: () => (
-            <span className="font-medium">
-              {formatNumber(products1)}
-              <BetterBadge show={m1MoreProducts} label={t('more')} />
-            </span>
-          ),
-          render2: () => (
-            <span className="font-medium">
-              {formatNumber(products2)}
-              <BetterBadge show={m2MoreProducts} label={t('more')} />
-            </span>
-          ),
+          render1: () => formatNumber(products1),
+          render2: () => formatNumber(products2),
+          winner: higherWins(products1, products2),
         },
         {
           label: t('openDays'),
           icon: CalendarDays,
-          render1: () => (
-            <span className="font-medium">
-              {formatNumber(openDays1)}
-              <BetterBadge show={m1MoreOpenDays} label={t('more')} />
-            </span>
-          ),
-          render2: () => (
-            <span className="font-medium">
-              {formatNumber(openDays2)}
-              <BetterBadge show={m2MoreOpenDays} label={t('more')} />
-            </span>
-          ),
+          render1: () => formatNumber(openDays1),
+          render2: () => formatNumber(openDays2),
+          winner: higherWins(openDays1, openDays2),
         },
       ],
     },
@@ -123,68 +129,136 @@ export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
           icon: Car,
           render1: () => <BooleanValue value={market1.features.parking_available} yes={yes} no={no} />,
           render2: () => <BooleanValue value={market2.features.parking_available} yes={yes} no={no} />,
+          winner: presenceWins(market1.features.parking_available, market2.features.parking_available),
         },
         {
           label: t('restroom'),
           icon: Store,
           render1: () => <BooleanValue value={market1.features.restroom_available} yes={yes} no={no} />,
           render2: () => <BooleanValue value={market2.features.restroom_available} yes={yes} no={no} />,
+          winner: presenceWins(market1.features.restroom_available, market2.features.restroom_available),
         },
         {
           label: t('homeDelivery'),
           icon: Truck,
           render1: () => <BooleanValue value={market1.features.home_delivery} yes={yes} no={no} />,
           render2: () => <BooleanValue value={market2.features.home_delivery} yes={yes} no={no} />,
+          winner: presenceWins(market1.features.home_delivery, market2.features.home_delivery),
         },
       ],
     },
-  ] as const;
+  ];
 
   return (
-    <div className="bg-card  border overflow-hidden">
-      {/* Market Headers */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 border-b">
-        <div className="p-6 border-b lg:border-b-0 lg:border-r">
-          <h3 className="text-lg font-semibold mb-1">{t('comparisonHeader')}</h3>
-          <p className="text-sm text-muted-foreground">{t('basedOnLocation')}</p>
-        </div>
-
-        <div className="p-6 border-b lg:border-b-0 lg:border-r">
-          <h3 className="font-semibold text-lg truncate">{market1.name}</h3>
-          <p className="text-sm text-muted-foreground truncate">{market1.address}</p>
-        </div>
-
-        <div className="p-6">
-          <h3 className="font-semibold text-lg truncate">{market2.name}</h3>
-          <p className="text-sm text-muted-foreground truncate">{market2.address}</p>
-        </div>
+    <div className="overflow-hidden">
+      {/* Legend — the two market names + truncated addresses, side by side */}
+      <div className="grid grid-cols-2 divide-x border-b bg-muted/20">
+        <MarketLegend name={market1.name} address={market1.address} />
+        <MarketLegend name={market2.name} address={market2.address} />
       </div>
 
-      {/* Comparison Rows */}
-      {rows.map((section) => (
+      {sections.map((section) => (
         <div key={section.category}>
-          <div className="bg-muted/30 px-6 py-3 border-b">
-            <h4 className="font-medium text-sm uppercase tracking-wide text-muted-foreground">
+          <div className="px-4 py-2 bg-muted/30 border-b">
+            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               {section.category}
             </h4>
           </div>
 
-          {section.items.map((item) => (
-            <div key={item.label} className="grid grid-cols-1 lg:grid-cols-3 border-b last:border-b-0">
-              <div className="p-4 lg:border-r bg-muted/10">
-                <div className="flex items-center space-x-2">
-                  <item.icon className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium text-sm">{item.label}</span>
-                </div>
-              </div>
-
-              <div className="p-4 lg:border-r">{item.render1()}</div>
-              <div className="p-4">{item.render2()}</div>
-            </div>
-          ))}
+          <div className="p-3 space-y-2.5">
+            {section.items.map((item) => (
+              <MetricCard
+                key={item.label}
+                icon={item.icon}
+                label={item.label}
+                market1Name={market1.name}
+                market2Name={market2.name}
+                value1={item.render1()}
+                value2={item.render2()}
+                winner={item.winner}
+              />
+            ))}
+          </div>
         </div>
       ))}
     </div>
   );
 }
 
+function MarketLegend({ name, address }: { name: string; address: string }) {
+  return (
+    <div className="p-3 min-w-0">
+      <h3 className="font-semibold text-sm sm:text-base truncate">{name}</h3>
+      {address ? (
+        <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
+          <MapPin className="h-3 w-3 flex-none" />
+          <span className="truncate">{address}</span>
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function MetricCard({
+  icon: Icon,
+  label,
+  market1Name,
+  market2Name,
+  value1,
+  value2,
+  winner,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  market1Name: string;
+  market2Name: string;
+  value1: ReactNode;
+  value2: ReactNode;
+  winner: Side;
+}) {
+  return (
+    <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/20 border-b">
+        <Icon className="h-3.5 w-3.5 text-muted-foreground flex-none" />
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {label}
+        </span>
+      </div>
+      <div className="divide-y">
+        <ValueRow name={market1Name} value={value1} isWinner={winner === 'm1'} />
+        <ValueRow name={market2Name} value={value2} isWinner={winner === 'm2'} />
+      </div>
+    </div>
+  );
+}
+
+function ValueRow({
+  name,
+  value,
+  isWinner,
+}: {
+  name: string;
+  value: ReactNode;
+  isWinner: boolean;
+}) {
+  return (
+    <div
+      className={`flex items-center justify-between gap-3 px-3 py-2 text-sm transition-colors ${
+        isWinner ? 'bg-green-50 dark:bg-green-900/15' : ''
+      }`}
+    >
+      <span
+        className={`truncate text-xs ${
+          isWinner
+            ? 'font-medium text-green-700 dark:text-green-400'
+            : 'text-muted-foreground'
+        }`}
+      >
+        {name}
+      </span>
+      <span className={`font-medium tabular-nums flex-none ${isWinner ? 'text-green-700 dark:text-green-400' : ''}`}>
+        {value}
+      </span>
+    </div>
+  );
+}

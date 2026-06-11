@@ -299,10 +299,7 @@ export interface RegisterData {
   password: string;
   password_confirmation: string;
   phone: string;
-  dob: string;
-  gender: string;
   city: string;
-  division: string;
   image?: File | string | null;
   referred_by?: string;
 }
