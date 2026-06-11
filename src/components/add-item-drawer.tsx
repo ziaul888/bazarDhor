@@ -13,34 +13,49 @@ import { useCategories } from '@/lib/api/hooks/useCategories';
 import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 import { handleApiError } from '@/lib/api';
 
-const addItemSchema = z.object({
-  name: z.string().min(1, 'Item name is required'),
-  price: z
-    .string()
-    .min(1, 'Price is required')
-    .refine((value) => {
-      const parsed = Number.parseFloat(value);
-      return Number.isFinite(parsed) && parsed >= 0;
-    }, 'Price must be a valid number'),
-  category: z.string().min(1, 'Category is required'),
-  unit: z.string().min(1, 'Unit is required'),
-  market: z.string().min(1, 'Market is required'),
-  description: z.string().optional(),
-  image: z.any().optional(),
-});
-
-type AddItemFormValues = z.infer<typeof addItemSchema>;
+// Why: schema messages need to be translated, so the schema is built per-locale
+// inside the component (see `addItemSchema`). The form-values type is declared
+// directly so the rest of the component (`useForm`/`Controller`) has a stable,
+// locale-independent shape.
+type AddItemFormValues = {
+  name: string;
+  price: string;
+  category: string;
+  unit: string;
+  market: string;
+  description?: string;
+  image?: File | null;
+};
 
 export function AddItemDrawer() {
   const t = useTranslations('addItem');
   const { isAddDrawerOpen: isOpen, closeAddDrawer: onClose } = useAddItem();
 
-  console.log('AddItemDrawer render - isOpen:', isOpen);
-
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { mutateAsync, isPending, error } = useCreateUserProduct();
   const { data: categories = [], isLoading: isLoadingCategories, isError: hasCategoryError } = useCategories();
   const { data: markets = [], isLoading: isLoadingMarkets, isError: hasMarketError } = useRandomMarkets();
+
+  const addItemSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, t('errorNameRequired')),
+        price: z
+          .string()
+          .min(1, t('errorPriceRequired'))
+          .refine((value) => {
+            const parsed = Number.parseFloat(value);
+            return Number.isFinite(parsed) && parsed >= 0;
+          }, t('errorPriceInvalid')),
+        category: z.string().min(1, t('errorCategoryRequired')),
+        unit: z.string().min(1, t('errorUnitRequired')),
+        market: z.string().min(1, t('errorMarketRequired')),
+        description: z.string().optional(),
+        image: z.any().optional(),
+      }),
+    [t],
+  );
+
   const {
     register,
     control,
