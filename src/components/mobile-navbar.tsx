@@ -26,6 +26,7 @@ export function MobileNavbar() {
   const { openAuthModal, hasHydrated, isAuthenticated, user } = useAuth();
   const { getConfigValue } = useConfig();
   const t = useTranslations("nav");
+  const tSeo = useTranslations("seo");
 
   // Why: nav labels are translated so we build the list inside the component;
   // hrefs stay locale-less because next-intl middleware prefixes them.
@@ -38,7 +39,10 @@ export function MobileNavbar() {
 
   const avatarUrl = typeof user?.avatar === "string" && user.avatar.trim() ? user.avatar : undefined;
   const userDisplayName = user?.name?.trim() || t("profile");
-  const companyName = getConfigValue<string>("business_name", "BazarDhor") || "BazarDhor";
+  // Why: prefer the admin-configured brand from /config, falling back to the
+  // localized SEO brand so the navbar matches the footer and page titles.
+  const localizedBrand = tSeo("brand");
+  const companyName = getConfigValue<string>("business_name", localizedBrand) || localizedBrand;
   const brandLogo = resolveBrandImage(getConfigValue<string | null>("logo", null));
   const brandInitial = getBrandInitial(companyName);
 

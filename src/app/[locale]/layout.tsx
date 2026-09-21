@@ -63,7 +63,7 @@ export const viewport: Viewport = {
 // Why: keep the canonical site origin in one constant so metadata, OG URLs,
 // sitemap, and robots.ts all agree. Override with NEXT_PUBLIC_SITE_URL once
 // the production domain is set.
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bazardhor.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://dordam.app';
 
 export async function generateMetadata({
   params,
@@ -189,7 +189,7 @@ export default async function LocaleLayout({
         <meta name="theme-color" content="#38bdf8" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="BazarDhor" />
+        <meta name="apple-mobile-web-app-title" content="দরদাম" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-TileColor" content="#38bdf8" />
         <meta name="msapplication-tap-highlight" content="no" />

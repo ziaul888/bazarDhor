@@ -14,7 +14,7 @@ import { routing } from '@/i18n/routing';
 export const runtime = 'edge';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
-export const alt = 'BazarDhor — Today\'s local market prices';
+export const alt = 'DorDam — Today\'s local market prices';
 
 export default async function OpengraphImage({
   params,

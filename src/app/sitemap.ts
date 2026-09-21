@@ -3,7 +3,7 @@ import { routing } from '@/i18n/routing';
 import { marketServerApi } from '@/lib/api/services/server/market-server';
 import { mapMarketsFromApi, MARKET_LIST_PARAMS } from './[locale]/markets/_lib/market-mapper';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bazardhor.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://dordam.app';
 
 // Why: routes that exist for every locale and should be indexed. Per-market
 // dynamic entries are appended at the bottom — per-item routes will join once

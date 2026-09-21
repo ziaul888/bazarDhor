@@ -1,5 +1,5 @@
 {
-  "platformName": "BazarDhor Marketplace",
+  "platformName": "DorDam Marketplace",
   "platformFeatures": [
     "Real-time market comparison",
     "Smart price tracking", 
@@ -14,11 +14,11 @@
     "vendors": "2500+"
   },
   "seo": {
-    "title": "BazarDhor - Bangladesh's Leading Marketplace",
+    "title": "DorDam - Bangladesh's Leading Marketplace",
     "description": "Discover the best prices across local markets in Bangladesh. Compare, save, and shop smart with our real-time marketplace platform.",
     "keywords": ["marketplace", "price comparison", "bangladesh markets", "local vendors", "smart shopping"]
   },
-  "appName": "BazarDhor",
+  "appName": "DorDam",
   "version": "2.1.0",
   "maintenanceMode": false,
   "supportedLanguages": ["en", "bn"],

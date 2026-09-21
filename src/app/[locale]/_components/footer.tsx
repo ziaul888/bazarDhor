@@ -8,8 +8,6 @@ import { useAuth } from '@/components/auth/auth-context';
 import { useConfig } from '@/hooks/use-config';
 import { getBrandInitial, resolveBrandImage } from '@/lib/branding';
 
-const BRAND_FALLBACK = 'BazarDhor';
-
 export function Footer() {
     const t = useTranslations('footer');
     const tSeo = useTranslations('seo');
@@ -20,7 +18,7 @@ export function Footer() {
     // localized SEO brand so the footer reads the same as the rest of the site.
     const localizedBrand = tSeo('brand');
     const companyName =
-        getConfigValue<string>('business_name', BRAND_FALLBACK) || localizedBrand;
+        getConfigValue<string>('business_name', localizedBrand) || localizedBrand;
     const companyLogo = resolveBrandImage(getConfigValue<string | null>('logo', null));
     const companyInitial = getBrandInitial(companyName);
     const companyPhone = getConfigValue<string | null>('phone', null);

@@ -1,6 +1,6 @@
 {
-  "name": "BazarDhor — Today's Market Prices",
-  "short_name": "BazarDhor",
+  "name": "দরদাম — আজকের বাজারের দাম",
+  "short_name": "দরদাম",
   "description": "Today's local market prices for Bangladesh — community-submitted, verified, and easy to compare.",
   "start_url": "/bn",
   "display": "standalone",

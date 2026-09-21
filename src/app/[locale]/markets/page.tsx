@@ -13,7 +13,7 @@ interface MarketsPageProps {
   params: Promise<{ locale: string }>;
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bazardhor.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://dordam.app';
 
 export async function generateMetadata({ params }: MarketsPageProps): Promise<Metadata> {
   const { locale } = await params;

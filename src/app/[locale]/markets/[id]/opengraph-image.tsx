@@ -11,7 +11,7 @@ import { marketServerApi } from '@/lib/api/services/server/market-server';
 export const runtime = 'nodejs';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
-export const alt = 'BazarDhor market page';
+export const alt = 'DorDam market page';
 
 async function fetchMarket(id: string, locale: AppLocale) {
   try {

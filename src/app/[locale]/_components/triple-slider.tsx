@@ -71,7 +71,7 @@ const systemInfo = {
 
 // SEO-optimized static data as fallback
 const seoOptimizedDefaults = {
-  platformName: env.app.name || "BazarDor Marketplace",
+  platformName: env.app.name || "DorDam Marketplace",
   platformFeatures: [
     "Real-time market comparison",
     "Smart price tracking", 

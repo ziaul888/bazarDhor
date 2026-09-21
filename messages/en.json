@@ -71,7 +71,7 @@
     "emptyHint": "Try a different keyword or clear the filter.",
     "browseAll": "Browse all markets →",
     "browseAllItems": "Browse all items",
-    "aboutApp": "About BazarDhor",
+    "aboutApp": "About DorDam",
     "compareTwo": "Compare two markets →",
     "compareShort": "Compare",
     "compareMarkets": "Compare markets",
@@ -204,11 +204,11 @@
     "proofSelected": "Selected: {filename}"
   },
   "seo": {
-    "brand": "BazarDhor",
+    "brand": "DorDam",
     "tagline": "Today's Local Market Prices",
-    "description": "BazarDhor tracks today's prices at local markets across Bangladesh — community-submitted, verified, and easy to compare so you shop with real numbers.",
-    "shortName": "BazarDhor",
-    "keywords": "bazardor, bazar dor, local market prices, daily market prices, vegetable prices, Bangladesh markets, price comparison, fresh produce, aajker bazar dor"
+    "description": "DorDam tracks today's prices at local markets across Bangladesh — community-submitted, verified, and easy to compare so you shop with real numbers.",
+    "shortName": "DorDam",
+    "keywords": "dordam, dordam app, bazar dor, local market prices, daily market prices, vegetable prices, Bangladesh markets, price comparison, fresh produce, aajker bazar dor"
   },
   "footer": {
     "tagline": "Today's local market prices, community-verified.",
@@ -227,12 +227,12 @@
   },
   "about": {
     "heroTitle": "Know what your market actually charges",
-    "heroLead": "BazarDhor shows you community-submitted prices from local markets in your zone — so you can plan the trip, compare options, and shop with real numbers instead of guesses.",
+    "heroLead": "DorDam shows you community-submitted prices from local markets in your zone — so you can plan the trip, compare options, and shop with real numbers instead of guesses.",
     "ctaExplore": "Explore markets",
     "ctaCompare": "Compare two markets",
     "whyTitle": "Why we built this",
     "whyParagraph1": "Prices at local markets shift constantly and rarely show up online. The same item can swing 20–30% between two shops a few minutes apart, and the only way to know is to walk in and ask.",
-    "whyParagraph2": "BazarDhor turns that legwork into something the community shares. Shoppers submit what they paid, our team verifies it, and the next person looking for the same item gets a real price instead of a guess.",
+    "whyParagraph2": "DorDam turns that legwork into something the community shares. Shoppers submit what they paid, our team verifies it, and the next person looking for the same item gets a real price instead of a guess.",
     "featuresTitle": "What you can do here",
     "feature1Title": "Discover local markets",
     "feature1Desc": "Browse markets in your zone, filter by category, and see ratings, opening hours, and what each market is known for.",
@@ -321,7 +321,7 @@
     "logoutSuccess": "Signed out."
   },
   "pwa": {
-    "installTitle": "Install BazarDhor",
+    "installTitle": "Install DorDam",
     "installHint": "Add the app to your home screen for faster access.",
     "install": "Install",
     "dismiss": "Not now"

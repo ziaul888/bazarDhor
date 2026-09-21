@@ -4,7 +4,7 @@
 export const env = {
   // App Configuration
   app: {
-    name: process.env.NEXT_PUBLIC_APP_NAME || 'BazarDhor',
+    name: process.env.NEXT_PUBLIC_APP_NAME || 'DorDam',
     url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     env: process.env.NODE_ENV || 'development',
     isDevelopment: process.env.NODE_ENV === 'development',
