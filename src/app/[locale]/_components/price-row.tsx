@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { RefreshCw, Package, Store, TrendingUp, TrendingDown, Clock } from 'lucide-react';
 import { ProductPriceDialog } from '@/components/product-price-dialog';
 import { useSubmitProductPrice } from '@/lib/api/hooks/useUser';
@@ -35,6 +36,11 @@ export function PriceRow({ item }: PriceRowProps) {
   const [newPrice, setNewPrice] = useState(item.price.toString());
   const [imageError, setImageError] = useState(false);
   const submit = useSubmitProductPrice();
+  // Why: when NEXT_PUBLIC_RECAPTCHA_SITE_KEY is unset, executeRecaptcha is
+  // undefined and we ship the request without a token. With a key configured,
+  // we fetch an action-scoped v3 token and attach it as recaptcha_token so
+  // the backend can verify with Google before accepting the submission.
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const hasImage = Boolean(item.image && item.image.trim().length > 0) && !imageError;
 
@@ -59,6 +65,10 @@ export function PriceRow({ item }: PriceRowProps) {
     payload.append('submitted_price', parsed.toFixed(2));
     payload.append('proof_image', 'null');
     try {
+      if (executeRecaptcha) {
+        const token = await executeRecaptcha('update_price');
+        if (token) payload.append('recaptcha_token', token);
+      }
       await submit.mutateAsync(payload);
       toast.success(tToasts('priceSubmitted'));
       setOpen(false);

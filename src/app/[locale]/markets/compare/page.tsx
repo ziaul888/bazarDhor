@@ -5,8 +5,16 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { ArrowDown, ArrowUp, Loader2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Loader2, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { BackButton } from '@/components/ui/back-button';
 import { MarketSelector } from './_components/market-selector';
 import { ComparisonTable } from './_components/comparison-table';
@@ -125,6 +133,7 @@ export default function CompareMarketsPage() {
   const [selectedMarket1, setSelectedMarket1] = useState<Market | null>(null);
   const [selectedMarket2, setSelectedMarket2] = useState<Market | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [productQuery, setProductQuery] = useState('');
 
   const appliedUrlKeyRef = useRef<string>('');
 
@@ -213,6 +222,23 @@ export default function CompareMarketsPage() {
     [compareProductsQuery.data]
   );
 
+  const trimmedQuery = productQuery.trim();
+
+  const visibleProducts = useMemo(() => {
+    const needle = trimmedQuery.toLowerCase();
+    if (!needle) return comparedProducts;
+    return comparedProducts.filter(
+      (product) =>
+        product.name.toLowerCase().includes(needle) ||
+        product.category.toLowerCase().includes(needle)
+    );
+  }, [comparedProducts, trimmedQuery]);
+
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+    setProductQuery('');
+  };
+
   return (
     <div className="pb-24">
       <header className="container mx-auto max-w-3xl lg:max-w-6xl px-4 pt-5 pb-3">
@@ -259,10 +285,53 @@ export default function CompareMarketsPage() {
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
 
         <div className="rounded-xl border bg-card h-full flex flex-col">
-          <div className="flex flex-col gap-4 border-b px-4 py-3 sm:flex-row sm:items-end sm:justify-between sm:px-4">
+          <div className="flex flex-col gap-3 border-b px-4 py-3">
             <div>
               <h2 className="text-base font-semibold">{t('productSection')}</h2>
               <p className="text-xs text-muted-foreground">{t('productSectionHint')}</p>
+            </div>
+
+            {/* Pickers: choose the category to compare, then narrow to a product */}
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <Select
+                value={selectedCategoryId}
+                onValueChange={handleCategoryChange}
+                disabled={isLoadingCategories || categories.length === 0}
+              >
+                <SelectTrigger className="h-9 w-full text-sm">
+                  <SelectValue placeholder={t('selectCategory')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={String(category.id)}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="search"
+                  value={productQuery}
+                  onChange={(event) => setProductQuery(event.target.value)}
+                  placeholder={t('searchProductPlaceholder')}
+                  aria-label={t('searchProductPlaceholder')}
+                  disabled={comparedProducts.length === 0}
+                  className="h-9 pl-8 pr-8 text-sm"
+                />
+                {trimmedQuery ? (
+                  <button
+                    type="button"
+                    onClick={() => setProductQuery('')}
+                    aria-label={tCommon('clear')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
+              </div>
             </div>
           </div>
 
@@ -288,9 +357,21 @@ export default function CompareMarketsPage() {
             <div className="px-6 py-10 text-center text-muted-foreground">
               {t('noProducts', { category: selectedCategory?.name || '—' })}
             </div>
+          ) : visibleProducts.length === 0 ? (
+            <div className="px-6 py-10 text-center">
+              <p className="text-muted-foreground">{t('noProductMatches', { query: trimmedQuery })}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={() => setProductQuery('')}
+              >
+                {tCommon('clear')}
+              </Button>
+            </div>
           ) : (
             <div className="flex flex-col divide-y">
-              {comparedProducts.map((product) => {
+              {visibleProducts.map((product) => {
                 const { market1Price, market2Price } = product;
                 const bothPresent = market1Price !== null && market2Price !== null;
                 const difference = bothPresent ? Math.abs(market1Price! - market2Price!) : null;

@@ -26,6 +26,7 @@ import { ConfigBootstrap } from "@/providers/config-bootstrap";
 import { RouteTransition } from "@/components/route-transition";
 import { routing, LOCALE_TO_HEADER, LOCALIZATION_HEADER, type AppLocale } from "@/i18n/routing";
 import { getBackendBrand } from "@/lib/server/branding";
+import { RecaptchaProvider } from "@/providers/recaptcha-provider";
 
 
 // Primary fonts - Modern and friendly
@@ -198,33 +199,35 @@ export default async function LocaleLayout({
         suppressHydrationWarning
       >
         <NextIntlClientProvider>
-          <QueryProvider>
-            <ConfigBootstrap appConfig={appConfig} settings={settings} generalConfig={generalConfig} />
-            <ZoneProvider>
-              <SearchProvider>
-                <AuthProvider>
-                  <AddItemProvider>
-                    <MobileNavbar />
-                    <main className="min-h-screen pb-20 md:pb-0">
-                      <RouteTransition>{children}</RouteTransition>
-                    </main>
-                    <div className="hidden md:block">
-                      <Footer />
-                    </div>
-                    <BottomNav />
-                    <AuthModal />
-                    <AddItemDrawer />
-                    <GlobalFloatingAddButton />
-                    <PWAInstallPrompt />
-                    <OfflineIndicator />
-                    <PWAStatus />
-                    <Notifications />
-                    <Toaster position="top-center" richColors closeButton />
-                  </AddItemProvider>
-                </AuthProvider>
-              </SearchProvider>
-            </ZoneProvider>
-          </QueryProvider>
+          <RecaptchaProvider>
+            <QueryProvider>
+              <ConfigBootstrap appConfig={appConfig} settings={settings} generalConfig={generalConfig} />
+              <ZoneProvider>
+                <SearchProvider>
+                  <AuthProvider>
+                    <AddItemProvider>
+                      <MobileNavbar />
+                      <main className="min-h-screen pb-20 md:pb-0">
+                        <RouteTransition>{children}</RouteTransition>
+                      </main>
+                      <div className="hidden md:block">
+                        <Footer />
+                      </div>
+                      <BottomNav />
+                      <AuthModal />
+                      <AddItemDrawer />
+                      <GlobalFloatingAddButton />
+                      <PWAInstallPrompt />
+                      <OfflineIndicator />
+                      <PWAStatus />
+                      <Notifications />
+                      <Toaster position="top-center" richColors closeButton />
+                    </AddItemProvider>
+                  </AuthProvider>
+                </SearchProvider>
+              </ZoneProvider>
+            </QueryProvider>
+          </RecaptchaProvider>
         </NextIntlClientProvider>
       </body>
     </html>

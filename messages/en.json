@@ -17,7 +17,8 @@
     "searchPlaceholder": "Search",
     "yes": "Yes",
     "no": "No",
-    "na": "N/A"
+    "na": "N/A",
+    "clear": "Clear"
   },
   "nav": {
     "home": "Home",
@@ -182,7 +183,10 @@
       "more": "More",
       "comparisonHeader": "Comparison",
       "basedOnLocation": "Based on your current location"
-    }
+    },
+    "selectCategory": "Select a category",
+    "searchProductPlaceholder": "Search a product to compare",
+    "noProductMatches": "No product matches “{query}”."
   },
   "priceRow": {
     "updatePrice": "Update price",

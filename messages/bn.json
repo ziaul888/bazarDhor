@@ -17,7 +17,8 @@
     "searchPlaceholder": "খুঁজুন",
     "yes": "হ্যাঁ",
     "no": "না",
-    "na": "প্রযোজ্য নয়"
+    "na": "প্রযোজ্য নয়",
+    "clear": "সাফ করুন"
   },
   "nav": {
     "home": "হোম",
@@ -182,7 +183,10 @@
       "more": "বেশি",
       "comparisonHeader": "তুলনা",
       "basedOnLocation": "আপনার বর্তমান অবস্থানের ভিত্তিতে"
-    }
+    },
+    "selectCategory": "বিভাগ নির্বাচন করুন",
+    "searchProductPlaceholder": "তুলনার জন্য পণ্য খুঁজুন",
+    "noProductMatches": "“{query}” এর সাথে মিলে এমন কোন পণ্য নেই।"
   },
   "priceRow": {
     "updatePrice": "দাম আপডেট",
