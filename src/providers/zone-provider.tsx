@@ -5,11 +5,20 @@ import { useGetZoneMutation } from '@/lib/api';
 import type { GetZoneResponse, Zone } from '@/lib/api/types';
 import Cookies from 'js-cookie';
 
+// Where the coordinates behind the current zone came from. 'gps' and 'manual'
+// mean the user actually told us where they are; 'ip' and 'default' are
+// guesses the app made on their behalf. null means detection hasn't settled.
+export type LocationSource = 'gps' | 'manual' | 'ip' | 'default' | null;
+
 interface ZoneContextType {
     zone: Zone | null;
     zoneData: GetZoneResponse | null;
     isLoading: boolean;
     error: Error | null;
+    /** Null until zone bootstrap finishes — lets callers avoid a UI flash. */
+    locationSource: LocationSource;
+    /** True while a manual `usePreciseLocation()` GPS prompt is outstanding. */
+    isLocating: boolean;
     refetchZone: () => void;
     updateLocation: (lat: number, lng: number) => void;
     usePreciseLocation: () => void;
@@ -85,6 +94,16 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
     const [zoneData, setZoneData] = useState<GetZoneResponse | null>(null);
     const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
     const [geoError, setGeoError] = useState<Error | null>(null);
+    const [locationSource, setLocationSource] = useState<LocationSource>(null);
+    const [isLocating, setIsLocating] = useState(false);
+
+    // Why: localStorage is the single source of truth for how the coordinates
+    // were obtained, but components can't react to it. Mirroring every write
+    // into state lets the UI offer "use my location" only when we're guessing.
+    const rememberSource = (source: Exclude<LocationSource, null>) => {
+        localStorage.setItem('location_source', source);
+        setLocationSource(source);
+    };
 
     const { mutate, data, isPending, error } = useGetZoneMutation();
 
@@ -179,6 +198,12 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
                 // Reuse a previously-resolved precise location if it's still valid.
                 const parsedStoredCoordinates = parseCoordinates(storedLat, storedLng);
                 if (parsedStoredCoordinates) {
+                    const stored = localStorage.getItem('location_source');
+                    setLocationSource(
+                        stored === 'gps' || stored === 'manual' || stored === 'ip' || stored === 'default'
+                            ? stored
+                            : 'default'
+                    );
                     setCoordinates(parsedStoredCoordinates);
                     mutate(parsedStoredCoordinates);
                     return;
@@ -195,7 +220,7 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
             if (gpsLocation) {
                 localStorage.setItem('user_lat', gpsLocation.lat.toString());
                 localStorage.setItem('user_lng', gpsLocation.lng.toString());
-                localStorage.setItem('location_source', 'gps');
+                rememberSource('gps');
 
                 setCoordinates(gpsLocation);
                 mutate(gpsLocation);
@@ -209,7 +234,7 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
                 // Save and use IP-based location
                 localStorage.setItem('user_lat', ipLocation.lat.toString());
                 localStorage.setItem('user_lng', ipLocation.lng.toString());
-                localStorage.setItem('location_source', 'ip');
+                rememberSource('ip');
 
                 setCoordinates(ipLocation);
                 mutate(ipLocation);
@@ -217,7 +242,7 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
                 // Last resort: hardcoded default
                 localStorage.setItem('user_lat', DEFAULT_LOCATION.lat.toString());
                 localStorage.setItem('user_lng', DEFAULT_LOCATION.lng.toString());
-                localStorage.setItem('location_source', 'default');
+                rememberSource('default');
 
                 setCoordinates(DEFAULT_LOCATION);
                 mutate(DEFAULT_LOCATION);
@@ -237,6 +262,7 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
             return;
         }
 
+        setIsLocating(true);
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const lat = position.coords.latitude;
@@ -245,15 +271,17 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
                 // Store precise coordinates
                 localStorage.setItem('user_lat', lat.toString());
                 localStorage.setItem('user_lng', lng.toString());
-                localStorage.setItem('location_source', 'gps');
+                rememberSource('gps');
 
                 setCoordinates({ lat, lng });
                 mutate({ lat, lng });
                 setGeoError(null);
+                setIsLocating(false);
             },
             (error) => {
                 console.error('Geolocation error:', error.message);
                 setGeoError(new Error(error.message));
+                setIsLocating(false);
             },
             {
                 enableHighAccuracy: true,
@@ -286,7 +314,7 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
     const updateLocation = (lat: number, lng: number) => {
         localStorage.setItem('user_lat', lat.toString());
         localStorage.setItem('user_lng', lng.toString());
-        localStorage.setItem('location_source', 'manual');
+        rememberSource('manual');
         setCoordinates({ lat, lng });
         mutate({ lat, lng });
     };
@@ -296,6 +324,8 @@ export function ZoneProvider({ children }: ZoneProviderProps) {
         zoneData,
         isLoading: isPending,
         error: (error as Error) || geoError,
+        locationSource,
+        isLocating,
         refetchZone,
         updateLocation,
         usePreciseLocation,

@@ -45,6 +45,8 @@
     "zoneTitle": "আপনার এলাকা",
     "zoneDetecting": "শনাক্ত করা হচ্ছে…",
     "zoneNearby": "{count} কাছের বাজার →",
+    "zoneUseCurrent": "বর্তমান অবস্থান দিন",
+    "zoneLocating": "অবস্থান নেওয়া হচ্ছে…",
     "bannersEmpty": "এখনো কোন ব্যানার নেই",
     "bannersEmptyHint": "প্রচার লাইভ হলে এখানে দেখা যাবে।",
     "todaysPrices": "আজকের দাম",

@@ -1,11 +1,13 @@
-<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="64" fill="#10b981"/>
-  <path d="M128 192C128 174.327 142.327 160 160 160H352C369.673 160 384 174.327 384 192V352C384 369.673 369.673 384 352 384H160C142.327 384 128 369.673 128 352V192Z" fill="white"/>
-  <path d="M160 192H352V224H160V192Z" fill="#10b981"/>
-  <circle cx="192" cy="272" r="16" fill="#10b981"/>
-  <circle cx="256" cy="272" r="16" fill="#10b981"/>
-  <circle cx="320" cy="272" r="16" fill="#10b981"/>
-  <path d="M176 320H336V336H176V320Z" fill="#10b981"/>
-  <path d="M200 128L256 96L312 128L256 160L200 128Z" fill="white"/>
-  <path d="M240 128H272V160H240V128Z" fill="#10b981"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="50%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#7dd3fc"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="0" ry="0" fill="url(#g)"/>
+  <text x="256" y="368.64" text-anchor="middle"
+        font-family="'Kohinoor Bangla','Noto Sans Bengali','Bangla MN','Bangla Sangam MN',sans-serif" font-size="307.2" font-weight="700"
+        fill="#ffffff">দ</text>
 </svg>

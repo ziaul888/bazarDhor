@@ -45,6 +45,8 @@
     "zoneTitle": "Your zone",
     "zoneDetecting": "Detecting…",
     "zoneNearby": "{count} nearby markets →",
+    "zoneUseCurrent": "Use my location",
+    "zoneLocating": "Locating…",
     "bannersEmpty": "No banners yet",
     "bannersEmptyHint": "Promotions will show up here when they're live.",
     "todaysPrices": "Today's prices",

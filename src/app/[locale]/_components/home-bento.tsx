@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { Activity, ImageIcon, MapPin, Sparkles, Store } from 'lucide-react';
+import { Activity, ImageIcon, Loader2, LocateFixed, MapPin, Sparkles, Store } from 'lucide-react';
 import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 import { useBanners } from '@/lib/api/hooks/useBanners';
 import { usePulse } from '@/lib/api/hooks/useStats';
@@ -27,7 +27,12 @@ export function HomeBento() {
   const { data: markets } = useRandomMarkets();
   const { data: bannersData, isLoading: isBannersLoading } = useBanners(10, 1);
   const { data: pulse } = usePulse();
-  const { zone } = useZone();
+  const { zone, locationSource, isLocating, usePreciseLocation } = useZone();
+
+  // Why: only nag when the app is guessing. 'gps'/'manual' mean the user has
+  // already told us where they are, and null means detection is still running
+  // — showing the button then would flash it away a moment later.
+  const showLocationPrompt = locationSource === 'ip' || locationSource === 'default';
 
   const banners = useMemo<Banner[]>(() => {
     if (!bannersData) return [];
@@ -103,10 +108,10 @@ export function HomeBento() {
           </p>
         </div>
 
-        <Link
-          href="/markets"
-          className="rounded-2xl border bg-card p-3 hover:bg-muted/40 transition-colors"
-        >
+        {/* Not a single <Link> wrapper: the "use my location" button below has
+            to sit outside the anchor, since a button nested in a link is
+            invalid markup and its click would also navigate to /markets. */}
+        <div className="rounded-2xl border bg-card p-3 flex flex-col">
           <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground mb-2">
             <span className="flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5 text-primary" />
@@ -115,11 +120,32 @@ export function HomeBento() {
             {today ? <span className="text-[11px]">{today}</span> : null}
           </div>
           <p className="text-sm font-semibold truncate">{zone?.name || t('zoneDetecting')}</p>
-          <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-            <Store className="h-3 w-3" />
+          <Link
+            href="/markets"
+            className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1 hover:text-foreground transition-colors"
+          >
+            <Store className="h-3 w-3 flex-none" />
             {t('zoneNearby', { count: fmt(markets?.length ?? 0) })}
-          </p>
-        </Link>
+          </Link>
+
+          {showLocationPrompt ? (
+            <button
+              type="button"
+              onClick={usePreciseLocation}
+              disabled={isLocating}
+              className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/30 bg-primary/5 px-2 py-1.5 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-60"
+            >
+              {isLocating ? (
+                <Loader2 className="h-3 w-3 animate-spin flex-none" />
+              ) : (
+                <LocateFixed className="h-3 w-3 flex-none" />
+              )}
+              <span className="truncate">
+                {isLocating ? t('zoneLocating') : t('zoneUseCurrent')}
+              </span>
+            </button>
+          ) : null}
+        </div>
       </div>
     </section>
   );
