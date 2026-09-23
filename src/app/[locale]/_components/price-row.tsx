@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { RefreshCw, Package, Store, TrendingUp, TrendingDown, Clock } from 'lucide-react';
 import { ProductPriceDialog } from '@/components/product-price-dialog';
+import { RECAPTCHA_SITE_KEY } from '@/providers/recaptcha-provider';
 import { useSubmitProductPrice } from '@/lib/api/hooks/useUser';
 import { handleApiError } from '@/lib/api/client';
 import { toast } from 'sonner';
@@ -36,10 +37,12 @@ export function PriceRow({ item }: PriceRowProps) {
   const [newPrice, setNewPrice] = useState(item.price.toString());
   const [imageError, setImageError] = useState(false);
   const submit = useSubmitProductPrice();
-  // Why: when NEXT_PUBLIC_RECAPTCHA_SITE_KEY is unset, executeRecaptcha is
-  // undefined and we ship the request without a token. With a key configured,
-  // we fetch an action-scoped v3 token and attach it as recaptcha_token so
-  // the backend can verify with Google before accepting the submission.
+  // Why: with NEXT_PUBLIC_RECAPTCHA_SITE_KEY unset the RecaptchaProvider is not
+  // mounted, and this library's default context returns a *throwing*
+  // executeRecaptcha (truthy!), so we gate on the config flag — truthiness
+  // alone would crash every submit with "An unexpected error occurred". With a
+  // key configured, we fetch an action-scoped v3 token and attach it as
+  // recaptcha_token for backend verification.
   const { executeRecaptcha } = useGoogleReCaptcha();
 
   const hasImage = Boolean(item.image && item.image.trim().length > 0) && !imageError;
@@ -63,9 +66,11 @@ export function PriceRow({ item }: PriceRowProps) {
     payload.append('product_id', String(item.id));
     payload.append('market_id', String(item.marketId));
     payload.append('submitted_price', parsed.toFixed(2));
-    payload.append('proof_image', 'null');
+    // Why: no proof_image here — the backend validates any present proof_image
+    // as a real image file, and sending the string "null" fails that check.
+    // Omitting the field entirely passes validation.
     try {
-      if (executeRecaptcha) {
+      if (RECAPTCHA_SITE_KEY && executeRecaptcha) {
         const token = await executeRecaptcha('update_price');
         if (token) payload.append('recaptcha_token', token);
       }

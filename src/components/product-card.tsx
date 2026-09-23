@@ -69,7 +69,9 @@ export function ProductCard({
     payload.append('product_id', String(item.id));
     payload.append('market_id', String(item.marketId));
     payload.append('submitted_price', parsedPrice.toFixed(2));
-    payload.append('proof_image', 'null');
+    // Why: no proof_image here — the backend validates any present proof_image
+    // as a real image file, and sending the string "null" fails that check.
+    // Omitting the field entirely passes validation.
 
     try {
       await submitProductPrice.mutateAsync(payload);

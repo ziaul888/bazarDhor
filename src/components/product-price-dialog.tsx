@@ -200,12 +200,10 @@ export function ProductPriceDialog({
           </Button>
           <Button
             onClick={onSave}
-            disabled={
-              disableSave ||
-              saving ||
-              newPrice === '' ||
-              Number(newPrice) === item.currentPrice
-            }
+            // Why: the input opens pre-filled with the current price, so blocking
+            // "equal to current" would disable submit on open. Only block when
+            // there is nothing to submit; re-submitting the same price is allowed.
+            disabled={disableSave || saving || newPrice === ''}
           >
             {resolvedConfirmLabel}
           </Button>
