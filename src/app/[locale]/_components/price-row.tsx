@@ -62,6 +62,13 @@ export function PriceRow({ item }: PriceRowProps) {
       toast.error(tToasts('invalidPrice'));
       return;
     }
+    // Why: submitting the displayed price is a no-op — tell the user instead
+    // of sending it to the backend, which stores a redundant pending entry.
+    if (parsed === item.price) {
+      toast.info(tToasts('samePrice'));
+      setOpen(false);
+      return;
+    }
     const payload = new FormData();
     payload.append('product_id', String(item.id));
     payload.append('market_id', String(item.marketId));

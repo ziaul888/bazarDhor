@@ -64,6 +64,13 @@ export function ProductCard({
       toast.error('Enter a valid price.');
       return;
     }
+    // Why: submitting the displayed price is a no-op — tell the user instead
+    // of sending it to the backend, which stores a redundant pending entry.
+    if (parsedPrice === item.currentPrice) {
+      toast.info('This price is already being shown.');
+      setIsPriceDialogOpen(false);
+      return;
+    }
 
     const payload = new FormData();
     payload.append('product_id', String(item.id));

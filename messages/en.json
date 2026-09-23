@@ -317,6 +317,7 @@
     "priceUpdated": "Price updated.",
     "marketMissing": "Market is missing for this item.",
     "invalidPrice": "Enter a valid price.",
+    "samePrice": "This price is already being shown.",
     "errorGeneric": "Something went wrong. Please try again.",
     "loginRequired": "Please sign in to continue.",
     "loginSuccess": "Welcome back!",
