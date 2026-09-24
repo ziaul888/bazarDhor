@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
 import { TrendingUp, TrendingDown, Clock, Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ProductPriceDialog } from '@/components/product-price-dialog';
@@ -16,6 +17,9 @@ type ProductCardItem = {
   marketName: string;
   marketId?: number | string;
   currentPrice: number;
+  // Range is secondary text under the main figure; absent (null/undefined) → not shown.
+  priceRange?: { min: number; max: number };
+  isVerified?: boolean;
   image: string;
   category: string;
   priceChange: 'up' | 'down' | 'stable' | string;
@@ -43,6 +47,10 @@ export function ProductCard({
   const [newPrice, setNewPrice] = useState(item.currentPrice.toString());
   const submitProductPrice = useSubmitProductPrice();
   const hasImage = item.image.trim().length > 0;
+  const locale = useLocale();
+  const tPriceRow = useTranslations('priceRow');
+  // Why: render the price range in the user's locale digits (Bengali in bn-BD).
+  const taka = useMemo(() => new Intl.NumberFormat(locale === 'bn' ? 'bn-BD' : 'en-IN'), [locale]);
 
   const handleOpenPriceDialog = () => {
     setNewPrice(item.currentPrice.toString());
@@ -155,11 +163,19 @@ export function ProductCard({
             </p>
           )}
 
-          {/* Current Price */}
+          {/* Current Price — range shown in the price slot when present, price otherwise */}
           <div className="mb-1">
-            <span className="text-sm sm:text-base font-bold text-primary">
-              {pricePrefix}
-              {item.currentPrice}
+            <span
+              className={`font-bold text-primary ${
+                item.priceRange ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'
+              }`}
+            >
+              {item.priceRange
+                ? tPriceRow('priceRange', {
+                    min: taka.format(item.priceRange.min),
+                    max: taka.format(item.priceRange.max),
+                  })
+                : `${pricePrefix}${item.currentPrice}`}
             </span>
             {item.unit ? (
               <span className="text-[10px] text-muted-foreground ml-1">/ {item.unit}</span>

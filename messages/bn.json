@@ -18,6 +18,7 @@
     "yes": "হ্যাঁ",
     "no": "না",
     "na": "প্রযোজ্য নয়",
+    "kmUnit": "কিমি",
     "clear": "সাফ করুন"
   },
   "nav": {
@@ -39,12 +40,12 @@
   },
   "home": {
     "pulseTitle": "আজকের সারাংশ",
-    "pulsePrices": "দাম · {window}",
+    "pulsePrices": "দাম আপডেট হয়েছে · {window}",
     "pulseSummary": "{markets} বাজার · {items} পণ্য",
     "pulseContributors": "{count} অবদানকারী",
     "zoneTitle": "আপনার এলাকা",
     "zoneDetecting": "শনাক্ত করা হচ্ছে…",
-    "zoneNearby": "{count} কাছের বাজার →",
+    "zoneNearby": "কাছাকাছি {count} টি বাজার আছে",
     "zoneUseCurrent": "বর্তমান অবস্থান দিন",
     "zoneLocating": "অবস্থান নেওয়া হচ্ছে…",
     "bannersEmpty": "এখনো কোন ব্যানার নেই",
@@ -100,10 +101,17 @@
     "distance": "দূরত্ব",
     "sortBy": "সাজান",
     "sortDistance": "দূরত্ব",
-    "sortRating": "রেটিং",
-    "sortName": "নাম",
-    "sortRetails": "খুচরা",
-    "sortDealer": "ডিলার",
+    "filterAll": "সব",
+    "filterWholesale": "পাইকারি",
+    "filterRetail": "খুচরা",
+    "marketTypes": {
+      "retail": "খুচরা বাজার",
+      "wholesale": "পাইকারি বাজার",
+      "farmers": "কৃষকের বাজার",
+      "supermarket": "সুপারশপ",
+      "localShop": "লোকাল দোকান",
+      "other": "অন্যান্য"
+    },
     "verified": "যাচাইকৃত",
     "featured": "ফিচার্ড",
     "parking": "পার্কিং",
@@ -165,6 +173,10 @@
     "viewMarket": "{name} দেখুন",
     "samePrice": "একই দাম",
     "differenceLabel": "পার্থক্য",
+    "verdictCheaper": "{market} বেশি সস্তা — {total}টি পণ্যের মধ্যে {count}টিতে দাম কম",
+    "verdictTie": "প্রায় সমান — দুই বাজারেই দাম একই রকম",
+    "verdictDetail": "{total}টি পণ্য তুলনা করা হয়েছে · {count}টিতে দামে পার্থক্য",
+    "totalSavingLabel": "সম্ভাব্য মোট সাশ্রয়",
     "saveBadge": "{percent}% সাশ্রয়",
     "diffShort": "পার্থক্য ৳{amount}",
     "headers": {
@@ -187,12 +199,14 @@
       "basedOnLocation": "আপনার বর্তমান অবস্থানের ভিত্তিতে"
     },
     "selectCategory": "বিভাগ নির্বাচন করুন",
+    "searchCategory": "ক্যাটাগরি খুঁজুন…",
     "searchProductPlaceholder": "তুলনার জন্য পণ্য খুঁজুন",
     "noProductMatches": "“{query}” এর সাথে মিলে এমন কোন পণ্য নেই।"
   },
   "priceRow": {
     "updatePrice": "দাম আপডেট",
-    "perUnit": "/ {unit}"
+    "perUnit": "/ {unit}",
+    "priceRange": "৳{min}–{max}"
   },
   "priceDialog": {
     "title": "দাম আপডেট",

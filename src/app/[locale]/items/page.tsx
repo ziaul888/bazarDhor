@@ -12,7 +12,9 @@ import {
   type FeedFilter,
 } from '@/app/[locale]/_components/feed-filter';
 import { useRandomMarkets, useRandomProducts } from '@/lib/api/hooks/useMarkets';
+import { useTrendingItems } from '@/lib/api/hooks/useItems';
 import { useCategories } from '@/lib/api/hooks/useCategories';
+// import type { MarketItem } from '@/lib/api/types'; // Unused after trending API change
 
 type Product = NonNullable<ReturnType<typeof useRandomProducts>['data']>[number];
 type RawMarket = NonNullable<ReturnType<typeof useRandomMarkets>['data']>[number];
@@ -48,6 +50,8 @@ function mapToRow(p: Product): PriceRowItem | null {
     image: resolveImage(p.image_path),
     lastUpdate: lowest.last_update || undefined,
     priceTrend: normalizedTrend,
+    priceRange: lowest.price_range ?? undefined,
+    isVerified: lowest.is_verified,
   };
 }
 
@@ -63,13 +67,31 @@ export default function ItemsPage() {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const { data: categories } = useCategories();
   const { data: markets, isLoading: isMarketsLoading } = useRandomMarkets();
+  const isTrending = feedFilter === 'trending';
   const { data: products, isLoading } = useRandomProducts({
     sort_by: feedFilter,
     ...(activeCategory !== 'all' ? { category_id: activeCategory } : {}),
     ...(activeMarket ? { market_id: activeMarket.id } : {}),
   });
+  const { data: trendingItems, isLoading: isTrendingLoading } = useTrendingItems(10, isTrending);
 
   const allRows = useMemo(() => {
+    // Trending tab: use the dedicated /items/trending API directly instead of
+    // the discount-based filter applied to the random-products feed.
+    if (isTrending) {
+      if (!trendingItems) return [];
+      const rows = trendingItems
+        .map(mapToRow)
+        .filter((r): r is PriceRowItem => r !== null);
+
+      if (!searchQuery.trim()) return rows;
+      const q = searchQuery.toLowerCase();
+      return rows.filter((r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.marketName.toLowerCase().includes(q)
+      );
+    }
+
     if (!products) return [];
     const filteredByCategory: Product[] = activeCategory === 'all'
       ? products
@@ -100,7 +122,7 @@ export default function ItemsPage() {
       r.name.toLowerCase().includes(q) ||
       r.marketName.toLowerCase().includes(q)
     );
-  }, [products, activeCategory, activeMarket, feedFilter, searchQuery]);
+  }, [products, trendingItems, activeCategory, activeMarket, feedFilter, searchQuery, isTrending]);
 
   const rows = allRows.slice(0, visible);
   const hasMore = allRows.length > rows.length;
@@ -180,7 +202,7 @@ export default function ItemsPage() {
               </div>
 
               <div className="divide-y border-y bg-card">
-                {isLoading ? (
+                {isLoading || isTrendingLoading ? (
                   Array.from({ length: 6 }).map((_, i) => <RowSkeleton key={i} />)
                 ) : rows.length === 0 ? (
                   <EmptyState title={t('emptyTitle')} hint={t('emptyHint')} />

@@ -69,6 +69,12 @@ export interface ProductPrice {
   discount_price: number | null;
   price_date: string;
   last_update: string;
+  // Backend ProductMarketPriceResource fields — optional so prod responses
+  // that don't send them yet still typecheck.
+  price_range?: { min: number; max: number } | null;
+  is_verified?: boolean;
+  confidence?: number | null; // 0–1, null for admin-entered prices
+  contributors_count?: number;
   market: {
     id: string;
     name: string;
@@ -175,6 +181,9 @@ export interface MarketListParams {
   category_id?: string;
   sort_by?: 'distance' | 'rating' | 'name' | 'vendors';
   sort_order?: 'asc' | 'desc';
+  // Why: forwarded to the backend `where('type', $type)` filter, which expects
+  // the exact MarketType enum value (e.g. "Wholesale Market", "Retail Market").
+  type?: string;
 }
 
 export interface ItemFilters {

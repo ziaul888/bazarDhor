@@ -40,6 +40,8 @@ function mapToRow(p: Product, fallbackMarketName: string): PriceRowItem | null {
     image: resolveImage(p.image_path),
     lastUpdate: lowest.last_update || undefined,
     priceTrend: normalizedTrend,
+    priceRange: lowest.price_range ?? undefined,
+    isVerified: lowest.is_verified,
   };
 }
 

@@ -3,20 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { ArrowDown, ArrowUp, Loader2, Search, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Loader2, Search, Trophy, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { BackButton } from '@/components/ui/back-button';
 import { MarketSelector } from './_components/market-selector';
+import { CategorySelect } from './_components/category-select';
 import { ComparisonTable } from './_components/comparison-table';
 import { useCompareMarketProducts, useCompareMarkets, useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 import { useCategories } from '@/lib/api/hooks/useCategories';
@@ -32,6 +26,14 @@ type ComparedProductRow = {
   unit: string;
   market1Price: number | null;
   market2Price: number | null;
+  // Present when the API attaches price_range {min,max} to a market side —
+  // displayed instead of the single figure, and savings use the midpoint.
+  market1Range: { min: number; max: number } | null;
+  market2Range: { min: number; max: number } | null;
+  // From the backend's price_difference when present; client-side math as fallback.
+  difference: number | null;
+  savingsPct: number | null;
+  cheaperSide: 1 | 2 | 0;
 };
 
 const IMAGE_BASE_URL = 'https://bazardor.mainul.tech/storage/';
@@ -103,6 +105,53 @@ const extractComparedProductRows = (payload: unknown): ComparedProductRow[] => {
         getNumber(market2?.discount_price) ??
         getNumber(market2?.price);
 
+      // Range-aware: a market side may carry price_range {min,max} like the
+      // market_prices payload does elsewhere. The chip then shows the band,
+      // and savings math uses the midpoint as the "typical" price until the
+      // backend sends a range-aware price_difference.
+      const toRange = (source: Record<string, unknown> | null): { min: number; max: number } | null => {
+        const raw = isRecord(source?.price_range) ? source!.price_range : null;
+        if (!raw) return null;
+        const min = getNumber(raw.min);
+        const max = getNumber(raw.max);
+        return min !== null && max !== null && min <= max ? { min, max } : null;
+      };
+      const market1Range = toRange(market1);
+      const market2Range = toRange(market2);
+      const rangeMid = (range: { min: number; max: number } | null) =>
+        range ? (range.min + range.max) / 2 : null;
+      const m1Effective = rangeMid(market1Range) ?? market1Price;
+      const m2Effective = rangeMid(market2Range) ?? market2Price;
+
+      // Prefer the backend's own price_difference; only recompute when absent.
+      // Its amount/percentage are SIGNED — negative means market_1 is cheaper —
+      // so normalize both to a positive magnitude and take the side from
+      // cheaper_market instead of the sign.
+      const rawDiff = isRecord(entry.price_difference) ? entry.price_difference : null;
+      const rawAmount = getNumber(rawDiff?.amount);
+      const rawPct = getNumber(rawDiff?.percentage);
+      const cheaperRaw = getString(rawDiff?.cheaper_market);
+      const bothPresent = m1Effective !== null && m2Effective !== null;
+      const higherPrice = bothPresent ? Math.max(m1Effective!, m2Effective!) : null;
+      const difference =
+        (rawAmount !== null ? Math.abs(rawAmount) : null) ??
+        (bothPresent ? Math.abs(m1Effective! - m2Effective!) : null);
+      const savingsPct =
+        (rawPct !== null ? Math.abs(rawPct) : null) ??
+        (difference !== null && higherPrice && higherPrice > 0
+          ? (difference / higherPrice) * 100
+          : null);
+      const cheaperSide: 1 | 2 | 0 =
+        cheaperRaw === 'market_1'
+          ? 1
+          : cheaperRaw === 'market_2'
+            ? 2
+            : bothPresent && m1Effective! < m2Effective!
+              ? 1
+              : bothPresent && m2Effective! < m1Effective!
+                ? 2
+                : 0;
+
       return {
         id: getString(entry.id || entry.product_id || product?.id) || `product-${index + 1}`,
         name: getString(entry.name || entry.product_name || entry.title || product?.name) || 'Unnamed Product',
@@ -111,15 +160,57 @@ const extractComparedProductRows = (payload: unknown): ComparedProductRow[] => {
         unit: getString(unit?.symbol || unit?.name || entry.unit_name || entry.unit) || 'unit',
         market1Price,
         market2Price,
+        market1Range,
+        market2Range,
+        difference,
+        savingsPct,
+        cheaperSide,
       };
     })
     .filter((row): row is ComparedProductRow => row !== null);
 };
 
+// Half-width price cell under its market's column. Presentational only: the
+// winner side gets the success tint, and the ১/২ chip (same style as the
+// sticky selectors) tells which market the price belongs to.
+// Sticky list header — pairs the ১/২ chip with the market name so the price
+// columns always read against the right market while scrolling.
+function PriceColumn({
+  chip,
+  price,
+  winner,
+}: {
+  chip: string;
+  price: string;
+  winner: boolean;
+}) {
+  return (
+    <div
+      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-2 ${
+        winner ? 'bg-success/10' : 'bg-muted/40'
+      }`}
+    >
+      <span className="w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center flex-none">
+        {chip}
+      </span>
+      <span
+        className={`text-sm font-semibold tabular-nums truncate ${
+          winner ? 'text-success' : ''
+        }`}
+      >
+        {price}
+      </span>
+    </div>
+  );
+}
+
 export default function CompareMarketsPage() {
   const t = useTranslations('compare');
   const tCommon = useTranslations('common');
   const tNav = useTranslations('nav');
+  const locale = useLocale();
+  // Why: render prices/differences in the user's locale digits (Bengali in bn-BD).
+  const nf = useMemo(() => new Intl.NumberFormat(locale === 'bn' ? 'bn-BD' : 'en-IN'), [locale]);
   const searchParams = useSearchParams();
   const urlMarketId1 = searchParams.get('market_id_1') ?? searchParams.get('m1') ?? '';
   const urlMarketId2 = searchParams.get('market_id_2') ?? searchParams.get('m2') ?? '';
@@ -134,6 +225,25 @@ export default function CompareMarketsPage() {
   const [selectedMarket2, setSelectedMarket2] = useState<Market | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [productQuery, setProductQuery] = useState('');
+
+  // Why: the VS bar animates in when it transitions from "in flow" to "stuck",
+  // so the user sees the two market names slide in while scrolling the products
+  // (their explicit ask) instead of the bar just freezing in place.
+  // How: while stuck, the bar's rect.top equals its sticky offset (~55-64px);
+  // anything below 80px therefore means it is pinned.
+  const [isBarStuck, setIsBarStuck] = useState(false);
+  const vsBarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const bar = vsBarRef.current;
+      if (!bar) return;
+      setIsBarStuck(bar.getBoundingClientRect().top < 80);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const appliedUrlKeyRef = useRef<string>('');
 
@@ -222,6 +332,30 @@ export default function CompareMarketsPage() {
     [compareProductsQuery.data]
   );
 
+  // Overall verdict: which market wins on more rows, plus the combined saving
+  // across all compared products — shown in the strip under the sticky bar.
+  const m1Wins = comparedProducts.filter((p) => p.cheaperSide === 1).length;
+  const m2Wins = comparedProducts.filter((p) => p.cheaperSide === 2).length;
+  const totalSaving = comparedProducts.reduce((sum, p) => sum + (p.difference ?? 0), 0);
+  const verdict =
+    comparedProducts.length === 0
+      ? null
+      : {
+          totalSaving,
+          title:
+            m1Wins === m2Wins
+              ? t('verdictTie')
+              : t('verdictCheaper', {
+                  market: (m1Wins > m2Wins ? selectedMarket1?.name : selectedMarket2?.name) ?? '—',
+                  count: nf.format(Math.max(m1Wins, m2Wins)),
+                  total: nf.format(comparedProducts.length),
+                }),
+          detail: t('verdictDetail', {
+            total: nf.format(comparedProducts.length),
+            count: nf.format(m1Wins + m2Wins),
+          }),
+        };
+
   const trimmedQuery = productQuery.trim();
 
   const visibleProducts = useMemo(() => {
@@ -257,32 +391,75 @@ export default function CompareMarketsPage() {
       </section>
 
       <div className="container mx-auto max-w-3xl lg:max-w-6xl px-4 mt-6">
-        {/* Market Selectors */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-          <div>
-            <h2 className="text-sm font-semibold mb-2">{t('firstMarket')}</h2>
+        {/* Sticky VS bar — both markets stay visible while scrolling products.
+            When it pins, it slides in (slideInDown) and gains a shadow so the
+            entrance reads as an animation, not a sudden freeze. */}
+        <div
+          ref={vsBarRef}
+          className={`sticky top-[55px] sm:top-16 z-20 -mx-4 px-4 bg-background/95 backdrop-blur border-b mt-4 transition-shadow ${
+            isBarStuck ? 'animate-[slideInDown_0.25s_ease-out] shadow-md shadow-black/5' : ''
+          }`}
+        >
+          <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-1.5 sm:gap-3 py-2">
             <MarketSelector
               markets={markets}
               selectedMarket={selectedMarket1}
               onMarketSelect={setSelectedMarket1}
               excludeMarketId={selectedMarket2?.id}
               disabled={isLoadingRandomMarkets}
+              badgeLabel={nf.format(1)}
             />
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold mb-2">{t('secondMarket')}</h2>
+            <div className="flex items-center">
+              <span
+                aria-hidden
+                className="w-6 h-6 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center flex-none"
+              >
+                VS
+              </span>
+            </div>
             <MarketSelector
               markets={markets}
               selectedMarket={selectedMarket2}
               onMarketSelect={setSelectedMarket2}
               excludeMarketId={selectedMarket1?.id}
               disabled={isLoadingRandomMarkets}
+              badgeLabel={nf.format(2)}
+              align="right"
             />
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+        {/* Verdict strip — instant overall answer from the compared data.
+            Mobile: text gets the full width, saving drops to its own tinted row
+            so the sentence never gets squeezed. sm+: single row as before. */}
+        {verdict ? (
+          <section className="mt-4 rounded-2xl border bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-start gap-3 min-w-0">
+              <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center flex-none">
+                <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] sm:text-sm font-bold leading-snug">{verdict.title}</p>
+                <p className="text-xs text-muted-foreground mt-1">{verdict.detail}</p>
+              </div>
+            </div>
+            {verdict.totalSaving > 0 ? (
+              <div className="flex items-center justify-between gap-3 rounded-xl bg-success/10 px-3 py-2 flex-none sm:ml-auto sm:block sm:bg-transparent sm:px-0 sm:py-0 sm:text-right">
+                <p className="text-xs sm:text-[10px] text-muted-foreground">
+                  {t('totalSavingLabel')}
+                </p>
+                <p className="text-base sm:text-sm font-bold text-success tabular-nums">
+                  ৳{nf.format(Number(verdict.totalSaving.toFixed(2)))}
+                </p>
+              </div>
+            ) : null}
+          </section>
+        ) : null}
+
+        {/* Products (left) and market details table (right) sit side by side on
+            large screens — with many products the metrics would otherwise sit
+            below a long scroll. Stacks on mobile. */}
+        <div className="mt-4 grid gap-4 lg:grid-cols-2 items-start">
 
         <div className="rounded-xl border bg-card h-full flex flex-col">
           <div className="flex flex-col gap-3 border-b px-4 py-3">
@@ -293,22 +470,12 @@ export default function CompareMarketsPage() {
 
             {/* Pickers: choose the category to compare, then narrow to a product */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <Select
+              <CategorySelect
+                categories={categories}
                 value={selectedCategoryId}
-                onValueChange={handleCategoryChange}
+                onChange={handleCategoryChange}
                 disabled={isLoadingCategories || categories.length === 0}
-              >
-                <SelectTrigger className="h-9 w-full text-sm">
-                  <SelectValue placeholder={t('selectCategory')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={String(category.id)}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
 
               <div className="relative">
                 <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -372,102 +539,88 @@ export default function CompareMarketsPage() {
           ) : (
             <div className="flex flex-col divide-y">
               {visibleProducts.map((product) => {
-                const { market1Price, market2Price } = product;
-                const bothPresent = market1Price !== null && market2Price !== null;
-                const difference = bothPresent ? Math.abs(market1Price! - market2Price!) : null;
-                const higherPrice = bothPresent ? Math.max(market1Price!, market2Price!) : null;
-                const savingsPct =
-                  difference !== null && higherPrice && higherPrice > 0
-                    ? (difference / higherPrice) * 100
-                    : null;
-                const cheaperSide =
-                  bothPresent && market1Price! < market2Price!
-                    ? 1
-                    : bothPresent && market2Price! < market1Price!
-                      ? 2
-                      : 0;
-                const fmtPrice = (v: number | null) =>
-                  v !== null ? `৳${v.toFixed(2)} / ${product.unit}` : 'N/A';
+                const {
+                  market1Price,
+                  market2Price,
+                  market1Range,
+                  market2Range,
+                  difference,
+                  savingsPct,
+                  cheaperSide,
+                } = product;
+                // Range beats the single figure. The unit lives on the category
+                // line so the price itself stays short enough to never truncate.
+                const fmtPrice = (
+                  v: number | null,
+                  range: { min: number; max: number } | null
+                ) => {
+                  if (range) {
+                    return `৳${nf.format(range.min)}–${nf.format(range.max)}`;
+                  }
+                  return v !== null ? `৳${nf.format(v)}` : tCommon('na');
+                };
 
                 return (
-                  <div key={product.id} className="px-3 py-2.5 sm:px-4">
-                    {/* Header: thumb + name + savings badge */}
-                    <div className="flex items-center gap-2.5">
+                  <div key={product.id} className="px-3 py-3 sm:px-4">
+                    {/* Header: thumb + name + savings badge. flex-wrap lets the
+                        badge drop below the name on narrow screens instead of
+                        squeezing the name into a sliver. */}
+                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
                       {product.image ? (
                         <Image
                           src={product.image}
                           alt={product.name}
-                          width={36}
-                          height={36}
-                          className="h-9 w-9 rounded-md object-cover shrink-0"
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-md object-cover shrink-0"
                         />
                       ) : (
-                        <div className="h-9 w-9 rounded-md bg-muted shrink-0" />
+                        <div className="h-10 w-10 rounded-md bg-muted shrink-0" />
                       )}
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate leading-tight">{product.name}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">
-                          {product.category}
+                        <p className="text-xs text-muted-foreground truncate">
+                          {product.category} · {product.unit}
                         </p>
                       </div>
                       {savingsPct !== null && difference !== null && difference > 0 ? (
-                        <span className="flex-none inline-flex items-center gap-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-semibold px-2 py-0.5">
+                        <span className="flex-none inline-flex items-center gap-1 rounded-full bg-success/10 text-success text-[11px] font-semibold px-2.5 py-1">
                           {cheaperSide === 1 ? (
                             <ArrowDown className="h-3 w-3" />
                           ) : cheaperSide === 2 ? (
                             <ArrowUp className="h-3 w-3" />
                           ) : null}
-                          Save {savingsPct.toFixed(savingsPct >= 10 ? 0 : 1)}%
+                          {t('saveBadge', {
+                            percent: nf.format(
+                              Number(savingsPct.toFixed(savingsPct >= 10 ? 0 : 1))
+                            ),
+                          })}
+                          {/* The taka amount reads clearly next to its percent */}
+                          <span className="tabular-nums">
+                            · ৳{nf.format(Number(difference.toFixed(difference >= 10 ? 0 : 1)))}
+                          </span>
                         </span>
                       ) : null}
                     </div>
 
-                    {/* Prices: both on one line */}
-                    <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                      <div
-                        className={`rounded-md px-2.5 py-1.5 ${
-                          cheaperSide === 1
-                            ? 'bg-green-50 dark:bg-green-900/15'
-                            : 'bg-muted/40'
-                        }`}
-                      >
-                        <p className="text-[10px] text-muted-foreground truncate leading-none mb-0.5">
-                          {selectedMarket1?.name}
-                        </p>
-                        <p
-                          className={`font-semibold tabular-nums truncate ${
-                            cheaperSide === 1 ? 'text-green-700 dark:text-green-400' : ''
-                          }`}
-                        >
-                          {fmtPrice(market1Price)}
-                        </p>
-                      </div>
-                      <div
-                        className={`rounded-md px-2.5 py-1.5 ${
-                          cheaperSide === 2
-                            ? 'bg-green-50 dark:bg-green-900/15'
-                            : 'bg-muted/40'
-                        }`}
-                      >
-                        <p className="text-[10px] text-muted-foreground truncate leading-none mb-0.5">
-                          {selectedMarket2?.name}
-                        </p>
-                        <p
-                          className={`font-semibold tabular-nums truncate ${
-                            cheaperSide === 2 ? 'text-green-700 dark:text-green-400' : ''
-                          }`}
-                        >
-                          {fmtPrice(market2Price)}
-                        </p>
-                      </div>
+                    {/* Prices: two columns matching the sticky bar order. The
+                        ১/২ chips carry the mapping, so the market name isn't
+                        repeated on every row. */}
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      <PriceColumn
+                        chip={nf.format(1)}
+                        price={fmtPrice(market1Price, market1Range)}
+                        winner={cheaperSide === 1}
+                      />
+                      <PriceColumn
+                        chip={nf.format(2)}
+                        price={fmtPrice(market2Price, market2Range)}
+                        winner={cheaperSide === 2}
+                      />
                     </div>
 
-                    {difference !== null && difference > 0 ? (
-                      <p className="mt-1 text-[10px] text-muted-foreground">
-                        {t('differenceLabel')} ৳{difference.toFixed(2)}
-                      </p>
-                    ) : difference === 0 ? (
-                      <p className="mt-1 text-[10px] text-muted-foreground">{t('samePrice')}</p>
+                    {difference === 0 ? (
+                      <p className="mt-1.5 text-xs text-muted-foreground">{t('samePrice')}</p>
                     ) : null}
                   </div>
                 );
@@ -476,12 +629,9 @@ export default function CompareMarketsPage() {
           )}
         </div>
 
-          {/* Comparison Results */}
+          {/* Comparison Results — no section header; the sticky bar already
+              names both markets, the table goes straight to the metrics */}
           <div className="rounded-xl border bg-card h-full flex flex-col">
-            <div className="border-b px-4 py-3 sm:px-4">
-              <h2 className="text-base font-semibold">{t('marketSection')}</h2>
-              <p className="text-xs text-muted-foreground">{t('marketSectionHint')}</p>
-            </div>
             {compareQuery.isLoading ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />

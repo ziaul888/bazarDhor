@@ -32,10 +32,10 @@ const toBoolean = (value: unknown, fallback = false) => {
   return fallback;
 };
 
-const formatDistance = (value: unknown) => {
-  if (typeof value === 'number' && Number.isFinite(value)) return `${value} km`;
+const formatDistance = (value: unknown, kmUnit = 'km') => {
+  if (typeof value === 'number' && Number.isFinite(value)) return `${value} ${kmUnit}`;
   if (typeof value === 'string' && value.trim().length > 0) {
-    return value.includes('km') || value.includes('mi') ? value : `${value} km`;
+    return value.includes('km') || value.includes('mi') ? value : `${value} ${kmUnit}`;
   }
   return 'N/A';
 };
@@ -75,7 +75,14 @@ export const extractMarketArray = (response: unknown): Record<string, unknown>[]
   return [];
 };
 
-export const mapMarketFromApi = (item: Record<string, unknown>, index: number): Market => {
+// Why: distance is a preformatted display string; the unit label must follow
+// the active locale ("কিমি" for bn, "km" for en).
+// How: callers pass the localized unit from `common.kmUnit`; defaults to "km".
+export const mapMarketFromApi = (
+  item: Record<string, unknown>,
+  index: number,
+  kmUnit = 'km',
+): Market => {
   const categories = toStringArray(item.categories ?? item.category ?? item.category_name);
   const specialties = toStringArray(item.specialties ?? item.speciality ?? categories);
 
@@ -85,7 +92,7 @@ export const mapMarketFromApi = (item: Record<string, unknown>, index: number): 
     description: String(item.description ?? item.details ?? 'Fresh local market'),
     location: String(item.location ?? item.area ?? item.city ?? 'Local'),
     address: String(item.address ?? item.location ?? 'Address unavailable'),
-    distance: formatDistance(item.distance ?? item.distance_km ?? item.distanceKm),
+    distance: formatDistance(item.distance ?? item.distance_km ?? item.distanceKm, kmUnit),
     openTime: String(item.openTime ?? item.open_time ?? item.opening_time ?? 'Hours vary'),
     image: toImageUrl(item.image ?? item.image_path ?? item.thumbnail),
     rating: toNumber(item.rating ?? item.avg_rating, 0),
@@ -106,8 +113,8 @@ export const mapMarketFromApi = (item: Record<string, unknown>, index: number): 
   };
 };
 
-export const mapMarketsFromApi = (response: unknown): Market[] =>
-  extractMarketArray(response).map(mapMarketFromApi);
+export const mapMarketsFromApi = (response: unknown, kmUnit = 'km'): Market[] =>
+  extractMarketArray(response).map((item, index) => mapMarketFromApi(item, index, kmUnit));
 
 export const MARKET_LIST_PARAMS = {
   user_lat: 23.832619866576376,

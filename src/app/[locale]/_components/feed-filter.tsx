@@ -123,19 +123,10 @@ export function applyFeedFilter<T>(
     });
   }
 
-  // trending: only rows where discount < price; sorted by savings % desc.
-  const withSavings = rows
-    .map((row) => {
-      const v = accessor(row);
-      const price = v.price ?? 0;
-      const discount = v.discountPrice ?? 0;
-      if (!discount || !price || discount >= price) return null;
-      return { row, savings: ((price - discount) / price) * 100 };
-    })
-    .filter((entry): entry is { row: T; savings: number } => entry !== null)
-    .sort((a, b) => b.savings - a.savings);
-
-  return withSavings.map((entry) => entry.row);
+  // trending (changed: return all rows without discount-only filtering)
+  // Preserve original order (by savings/price logic omitted).
+  // The client pages should call dedicated trending API for server-side trending sorting.
+  return rows;
 }
 
 export function parseTs(value?: string | null): number {

@@ -18,6 +18,7 @@
     "yes": "Yes",
     "no": "No",
     "na": "N/A",
+    "kmUnit": "km",
     "clear": "Clear"
   },
   "nav": {
@@ -39,12 +40,12 @@
   },
   "home": {
     "pulseTitle": "Today's pulse",
-    "pulsePrices": "prices · {window}",
+    "pulsePrices": "prices updated · {window}",
     "pulseSummary": "{markets} markets · {items} items",
     "pulseContributors": "{count} contributors",
     "zoneTitle": "Your zone",
     "zoneDetecting": "Detecting…",
-    "zoneNearby": "{count} nearby markets →",
+    "zoneNearby": "{count} nearby markets",
     "zoneUseCurrent": "Use my location",
     "zoneLocating": "Locating…",
     "bannersEmpty": "No banners yet",
@@ -100,10 +101,17 @@
     "distance": "Distance",
     "sortBy": "Sort by",
     "sortDistance": "Distance",
-    "sortRating": "Rating",
-    "sortName": "Name",
-    "sortRetails": "Retails",
-    "sortDealer": "Dealer",
+    "filterAll": "All",
+    "filterWholesale": "Wholesale",
+    "filterRetail": "Retail",
+    "marketTypes": {
+      "retail": "Retail Market",
+      "wholesale": "Wholesale Market",
+      "farmers": "Farmers Market",
+      "supermarket": "Supermarket",
+      "localShop": "Local Shop",
+      "other": "Other"
+    },
     "verified": "Verified",
     "featured": "Featured",
     "parking": "Parking",
@@ -165,6 +173,10 @@
     "viewMarket": "View {name}",
     "samePrice": "Same price",
     "differenceLabel": "Difference",
+    "verdictCheaper": "{market} is cheaper — wins on {count} of {total} products",
+    "verdictTie": "Neck and neck — both markets are priced similarly",
+    "verdictDetail": "Compared {total} products · {count} with a price difference",
+    "totalSavingLabel": "Potential total saving",
     "saveBadge": "Save {percent}%",
     "diffShort": "diff ৳{amount}",
     "headers": {
@@ -187,12 +199,14 @@
       "basedOnLocation": "Based on your current location"
     },
     "selectCategory": "Select a category",
+    "searchCategory": "Search category…",
     "searchProductPlaceholder": "Search a product to compare",
     "noProductMatches": "No product matches “{query}”."
   },
   "priceRow": {
     "updatePrice": "Update price",
-    "perUnit": "/ {unit}"
+    "perUnit": "/ {unit}",
+    "priceRange": "৳{min}–{max}"
   },
   "priceDialog": {
     "title": "Update Price",

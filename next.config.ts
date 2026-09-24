@@ -29,6 +29,10 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      // Local Laravel API serves absolute http image URLs in dev only.
+      ...(process.env.NODE_ENV === 'development'
+        ? [{ protocol: 'http' as const, hostname: '127.0.0.1', port: '8000', pathname: '/**' }]
+        : []),
     ],
   },
   logging: {

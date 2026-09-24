@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { MapPin, Clock, Store, Check, ArrowRight, Tag, Activity } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { marketTypeLabelKey } from '@/lib/market-type';
 
 interface Market {
   id: number | string;
@@ -45,13 +46,17 @@ export function MarketCard({
   className = '',
 }: MarketCardProps) {
   const t = useTranslations('markets');
+  const tTypes = useTranslations('markets.marketTypes');
   const isCompact = variant === 'compact';
   const [imgError, setImgError] = useState(false);
 
   const locationLine = market.location || market.address;
   const distanceSuffix =
     market.distance && market.distance !== 'N/A' ? ` • ${market.distance}` : '';
-  const marketType = market.type && market.type.trim().length > 0 ? market.type : t('cardMarket');
+  // Backend type is an English enum value; translate when known, else fall back.
+  const typeLabelKey = marketTypeLabelKey(market.type);
+  const marketType =
+    (typeLabelKey ? tTypes(typeLabelKey) : market.type?.trim()) || t('cardMarket');
   const statusLabel = market.isOpen ? t('openLabel') : t('closedLabel');
   void showCategoryItems;
 
@@ -182,12 +187,15 @@ export function MarketListItem({
   className = '',
 }: MarketCardProps) {
   const t = useTranslations('markets');
+  const tTypes = useTranslations('markets.marketTypes');
   const [imgError, setImgError] = useState(false);
   void showCategoryItems;
 
   const locationLine = market.location || market.address;
   const distanceSuffix =
     market.distance && market.distance !== 'N/A' ? ` • ${market.distance}` : '';
+  // Backend type is an English enum value; translate when known, else fall back.
+  const typeLabelKey = marketTypeLabelKey(market.type);
 
   return (
     <Card className={`hover:shadow-md transition-all duration-300 overflow-hidden py-0 gap-0 ${className}`}>
@@ -240,7 +248,9 @@ export function MarketListItem({
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-1">
               <Tag className="h-3.5 w-3.5 text-primary" />
-              <span className="text-xs font-semibold line-clamp-1">{market.type || t('cardMarket')}</span>
+              <span className="text-xs font-semibold line-clamp-1">
+                {(typeLabelKey ? tTypes(typeLabelKey) : market.type?.trim()) || t('cardMarket')}
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <Activity className={`h-3.5 w-3.5 ${market.isOpen ? 'text-green-500' : 'text-gray-400'}`} />

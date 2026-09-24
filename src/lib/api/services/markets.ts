@@ -84,9 +84,17 @@ export const marketsApi = {
   },
 
   // Search markets (uses /markets with `search` as the query param)
-  searchMarkets: async (query: string, categoryId?: string): Promise<ApiResponse<Market[]>> => {
+  searchMarkets: async (
+    query: string,
+    categoryId?: string,
+    type?: string,
+  ): Promise<ApiResponse<Market[]>> => {
     const { data } = await apiClient.get('/markets', {
-      params: { search: query, ...(categoryId ? { category_id: categoryId } : {}) },
+      params: {
+        search: query,
+        ...(categoryId ? { category_id: categoryId } : {}),
+        ...(type ? { type } : {}),
+      },
     });
     return data;
   },
@@ -148,5 +156,13 @@ export const marketsApi = {
   compareProducts: async (params: MarketProductComparisonParams): Promise<ApiResponse<MarketProductComparisonResponse>> => {
     const { data } = await apiClient.get('/markets/compare-products', { params });
     return data;
+  },
+
+  // Get trending products for a specific market
+  getMarketTrending: async (marketId: string, limit?: number): Promise<Product[]> => {
+    const { data } = await apiClient.get<{ data: Product[] }>('/products', {
+      params: { sort: 'trending', market_id: marketId, limit },
+    });
+    return data.data || [];
   },
 };

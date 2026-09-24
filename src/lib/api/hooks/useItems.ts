@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { itemsApi } from '../services/items';
-import { MarketItem, ItemFilters, PaginatedResponse, PriceComparison, NewItem } from '../types';
+import { MarketItem, ItemFilters, PaginatedResponse, PriceComparison, NewItem, Product } from '../types';
 import { useZone } from '@/providers/zone-provider';
 
 // Query keys
@@ -99,13 +99,13 @@ export const usePriceComparison = (itemName: string): UseQueryResult<PriceCompar
 };
 
 // Get trending items
-export const useTrendingItems = (limit = 10): UseQueryResult<MarketItem[], Error> => {
+export const useTrendingItems = (limit = 10, enabled = true): UseQueryResult<Product[], Error> => {
   const { zone } = useZone();
 
   return useQuery({
     queryKey: [...itemKeys.trending(), limit],
     queryFn: () => itemsApi.getTrending(limit),
-    enabled: !!zone?.id,
+    enabled: !!zone?.id && enabled,
     staleTime: 10 * 60 * 1000,
   });
 };

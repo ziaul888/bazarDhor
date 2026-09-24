@@ -87,6 +87,8 @@ export function ProductCarousel() {
     marketName: string;
     marketId?: number | string;
     currentPrice: number;
+    priceRange?: { min: number; max: number };
+    isVerified?: boolean;
     image: string;
     category: string;
     priceChange: 'up' | 'down' | 'stable' | string;
@@ -112,6 +114,8 @@ export function ProductCarousel() {
           category: p.category?.name || 'Featured',
           priceChange: (originalPrice && currentPrice !== null && currentPrice < originalPrice) ? 'down' : 'up',
           lastUpdated: lowestPrice?.last_update || 'Recently',
+          priceRange: lowestPrice?.price_range ?? undefined,
+          isVerified: lowestPrice?.is_verified,
           unit: p.unit?.symbol || p.unit?.name || 'unit'
         };
       });

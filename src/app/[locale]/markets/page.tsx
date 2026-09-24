@@ -60,6 +60,7 @@ export default async function MarketsPage({ params }: MarketsPageProps) {
 
   const cookieStore = await cookies();
   const zoneId = cookieStore.get('zoneId')?.value;
+  const tCommon = await getTranslations({ locale, namespace: 'common' });
   const headers: Record<string, string> = {
     [LOCALIZATION_HEADER]: LOCALE_TO_HEADER[locale as AppLocale],
     ...(zoneId ? { zoneId } : {}),
@@ -78,7 +79,7 @@ export default async function MarketsPage({ params }: MarketsPageProps) {
         headers,
       )
     : null;
-  const initialMarkets = mapMarketsFromApi(apiResponse);
+  const initialMarkets = mapMarketsFromApi(apiResponse, tCommon('kmUnit'));
 
   return <MarketsPageClient initialMarkets={initialMarkets} />;
 }

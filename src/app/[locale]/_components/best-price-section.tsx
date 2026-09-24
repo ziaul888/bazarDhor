@@ -136,6 +136,8 @@ type BestPriceItem = {
     marketName: string;
     marketId?: number | string;
     currentPrice: number;
+    priceRange?: { min: number; max: number };
+    isVerified?: boolean;
     image: string;
     category: string;
     priceChange: 'up' | 'down' | 'stable' | string;
@@ -159,11 +161,13 @@ export function BestPriceSection() {
                     name: p.name,
                     marketId: lowestPrice?.market?.id,
                     marketName: lowestPrice?.market?.name || 'Local Market',
-                    currentPrice: hasDiscount ? lowestPrice.discount_price : (lowestPrice?.price || 0),
+                    currentPrice: hasDiscount ? lowestPrice.discount_price! : (lowestPrice?.price || 0),
                     image: p.image_path ? (p.image_path.startsWith('http') ? p.image_path : `${IMAGE_BASE_URL}${p.image_path}`) : '',
                     category: p.category?.name || 'Fresh Items',
                     priceChange: Math.random() > 0.5 ? 'up' : 'down', // Local simulation for UI
                     lastUpdated: lowestPrice?.last_update || 'Recently',
+                    priceRange: lowestPrice?.price_range ?? undefined,
+                    isVerified: lowestPrice?.is_verified,
                     unit: p.unit?.symbol || p.unit?.name || 'unit'
                 };
             });

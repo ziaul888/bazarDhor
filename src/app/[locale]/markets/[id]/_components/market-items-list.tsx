@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Search, Loader2 } from 'lucide-react';
-import { useMarketItems } from '@/lib/api/hooks/useMarkets';
+import { useMarketItems, useMarketTrendingItems } from '@/lib/api/hooks/useMarkets';
 import { Pagination } from '@/components/ui/pagination';
 import { PriceRow, type PriceRowItem } from '@/app/[locale]/_components/price-row';
 import {
@@ -101,8 +101,15 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
     setPage(1);
   };
 
+  const trendingRows = useMarketTrendingItems(
+    marketId,
+    15
+  );
+
+  const isTrending = feedFilter === 'trending';
+
   const allRows = useMemo<ItemRow[]>(() => {
-    const rawItems = itemsData?.data ?? [];
+    const rawItems = isTrending ? trendingRows.data ?? [] : itemsData?.data ?? [];
     return rawItems.map((item) => {
       const rawItem = item as unknown as Record<string, unknown>;
       const market = (rawItem.market ?? null) as Record<string, unknown> | null;
@@ -123,6 +130,14 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
       const priceTrend: PriceRowItem['priceTrend'] =
         trendRaw === 'up' || trendRaw === 'down' || trendRaw === 'stable' ? trendRaw : undefined;
 
+      const rawRange = latestPrice?.price_range as { min?: unknown; max?: unknown } | null | undefined;
+      const rangeMin = toNumber(rawRange?.min, Number.NaN);
+      const rangeMax = toNumber(rawRange?.max, Number.NaN);
+      const priceRange =
+        Number.isFinite(rangeMin) && Number.isFinite(rangeMax) && rangeMin > 0 && rangeMax > 0
+          ? { min: rangeMin, max: rangeMax }
+          : undefined;
+
       return {
         id: toStringValue(rawItem.id ?? rawItem.item_id ?? rawItem.product_id, '0'),
         name: toStringValue(rawItem.name ?? rawItem.title, 'Item'),
@@ -142,12 +157,14 @@ export function MarketItemsList({ marketId }: MarketItemsListProps) {
         unit: toStringValue(unit?.symbol ?? unit?.name ?? rawItem.unit, undefined as unknown as string) || undefined,
         lastUpdate: lastUpdateRaw || undefined,
         priceTrend,
+        priceRange,
+        isVerified: latestPrice?.is_verified === true,
         rawPrice,
         rawDiscount,
         lastUpdateTs,
       };
     });
-  }, [itemsData?.data, marketId]);
+  }, [itemsData?.data, marketId, isTrending, trendingRows.data]);
 
   const rows = useMemo<ItemRow[]>(
     () =>

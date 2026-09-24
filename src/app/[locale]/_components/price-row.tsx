@@ -17,6 +17,9 @@ export type PriceRowItem = {
   marketName: string;
   marketId?: string | number;
   price: number;
+  // Range is secondary text under the main figure; absent (null/undefined) → not shown.
+  priceRange?: { min: number; max: number };
+  isVerified?: boolean;
   unit?: string;
   image?: string;
   lastUpdate?: string;
@@ -136,7 +139,15 @@ export function PriceRow({ item }: PriceRowProps) {
               ) : item.priceTrend === 'down' ? (
                 <TrendingDown aria-label="Trending down" className="h-3.5 w-3.5 text-emerald-500" />
               ) : null}
-              <span>৳ {taka.format(item.price)}</span>
+              <span className={item.priceRange ? 'text-sm sm:text-base' : undefined}>
+                {/* Why: range replaces the figure when present — shown in the price slot, but smaller than a single price. */}
+                {item.priceRange
+                  ? tPriceRow('priceRange', {
+                      min: taka.format(item.priceRange.min),
+                      max: taka.format(item.priceRange.max),
+                    })
+                  : `৳ ${taka.format(item.price)}`}
+              </span>
             </span>
             {item.unit ? (
               <span className="block text-[10px] text-muted-foreground">/ {item.unit}</span>

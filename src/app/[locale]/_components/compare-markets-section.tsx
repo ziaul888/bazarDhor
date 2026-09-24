@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ChevronDown, MapPin, Scale, Star, Users } from 'lucide-react';
+import { ArrowRight, ChevronDown, MapPin, Scale } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useRandomMarkets } from '@/lib/api/hooks/useMarkets';
 import type { Market } from '@/lib/api/types';
@@ -16,6 +17,10 @@ export function CompareMarketsSection() {
     const [selectedMarket2, setSelectedMarket2] = useState<Market | null>(null);
     const [dropdown1Open, setDropdown1Open] = useState(false);
     const [dropdown2Open, setDropdown2Open] = useState(false);
+    const [marketQuery1, setMarketQuery1] = useState('');
+    const [marketQuery2, setMarketQuery2] = useState('');
+    const selector1Ref = useRef<HTMLDivElement>(null);
+    const selector2Ref = useRef<HTMLDivElement>(null);
 
     // Initialize selections when data arrives
     useEffect(() => {
@@ -25,7 +30,30 @@ export function CompareMarketsSection() {
         }
     }, [apiMarkets]);
 
+    // Close both dropdowns on any click outside the two selectors.
+    useEffect(() => {
+        const onPointerDown = (event: PointerEvent) => {
+            const target = event.target as Node;
+            if (!selector1Ref.current?.contains(target) && !selector2Ref.current?.contains(target)) {
+                setDropdown1Open(false);
+                setDropdown2Open(false);
+            }
+        };
+        document.addEventListener('pointerdown', onPointerDown);
+        return () => document.removeEventListener('pointerdown', onPointerDown);
+    }, []);
+
     const markets = apiMarkets || [];
+
+    // Search narrows each dropdown's list by market name before picking.
+    const trimmedQuery1 = marketQuery1.trim().toLowerCase();
+    const dropdown1Markets = markets.filter(
+        (m) => m.id !== selectedMarket2?.id && (!trimmedQuery1 || m.name.toLowerCase().includes(trimmedQuery1))
+    );
+    const trimmedQuery2 = marketQuery2.trim().toLowerCase();
+    const dropdown2Markets = markets.filter(
+        (m) => m.id !== selectedMarket1?.id && (!trimmedQuery2 || m.name.toLowerCase().includes(trimmedQuery2))
+    );
 
     return (
         <section className="py-8 sm:py-12 lg:py-16 bg-linear-to-r from-primary/5 via-background to-secondary/5">
@@ -51,7 +79,7 @@ export function CompareMarketsSection() {
                     <Card className="bg-white/90 backdrop-blur-lg rounded-2xl sm:rounded-3xl border-gray-200/50 shadow-xl sm:shadow-2xl mb-8 sm:mb-10 lg:mb-12">
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-16 items-start md:items-center p-4 sm:p-6 md:p-8 lg:p-12">
                             {/* Market 1 Selection */}
-                            <div className="relative">
+                            <div className="relative" ref={selector1Ref}>
                                 <div className="text-center mb-4 sm:mb-6">
                                     <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-primary/10 rounded-full mb-3 sm:mb-4">
                                         <span className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">1</span>
@@ -61,6 +89,7 @@ export function CompareMarketsSection() {
 
                                 <button
                                     onClick={() => {
+                                        setMarketQuery1('');
                                         setDropdown1Open(!dropdown1Open);
                                         setDropdown2Open(false);
                                     }}
@@ -77,14 +106,6 @@ export function CompareMarketsSection() {
                                                             <MapPin className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                                                             <span className="truncate">{selectedMarket1.distance || 10} km</span>
                                                         </div>
-                                                        <div className="hidden sm:flex items-center space-x-1">
-                                                            <Users className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
-                                                            <span className="whitespace-nowrap">{selectedMarket1.vendors || 0} vendors</span>
-                                                        </div>
-                                                        <div className="flex items-center space-x-1">
-                                                            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 shrink-0" />
-                                                            <span>{selectedMarket1.rating || 3.5}</span>
-                                                        </div>
                                                     </div>
                                                 </>
                                             ) : (
@@ -96,8 +117,20 @@ export function CompareMarketsSection() {
                                 </button>
 
                                 {dropdown1Open && (
-                                    <div className="absolute top-full left-0 right-0 mt-2 sm:mt-4 bg-white border-2 border-primary/20 rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl z-40 max-h-60 sm:max-h-80 overflow-y-auto">
-                                        {markets.filter(m => m.id !== selectedMarket2?.id).map((market) => (
+                                    <div className="absolute top-full left-0 right-0 mt-2 sm:mt-4 bg-white border-2 border-primary/20 rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl z-40">
+                                        <div className="p-2 sm:p-3 border-b border-gray-100">
+                                            <Input
+                                                type="search"
+                                                value={marketQuery1}
+                                                onChange={(event) => setMarketQuery1(event.target.value)}
+                                                placeholder="Search markets…"
+                                                className="h-9 text-sm"
+                                            />
+                                        </div>
+                                        <div className="max-h-60 sm:max-h-72 overflow-y-auto">
+                                        {dropdown1Markets.length === 0 ? (
+                                            <div className="p-4 text-center text-sm text-gray-500">No markets found</div>
+                                        ) : dropdown1Markets.map((market) => (
                                         <button
                                             key={market.id}
                                             onClick={() => {
@@ -109,22 +142,16 @@ export function CompareMarketsSection() {
                                                 <div className="font-semibold text-sm sm:text-base text-gray-900 mb-1 truncate">{market.name}</div>
                                                 <div className="text-xs sm:text-sm text-gray-600 flex flex-wrap items-center gap-1 sm:gap-2">
                                                     <span>{market.distance}</span>
-                                                    <span className="hidden sm:inline">•</span>
-                                                    <span className="hidden sm:inline">{market.vendors} vendors</span>
-                                                    <span className="hidden sm:inline">•</span>
-                                                    <div className="flex items-center space-x-1">
-                                                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                                        <span>{market.rating}</span>
-                                                    </div>
                                                 </div>
                                             </button>
                                         ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>
 
                             {/* Market 2 Selection */}
-                            <div className="relative">
+                            <div className="relative" ref={selector2Ref}>
                                 <div className="text-center mb-4 sm:mb-6">
                                     <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-secondary/10 rounded-full mb-3 sm:mb-4">
                                         <span className="text-lg sm:text-xl lg:text-2xl font-bold text-secondary">2</span>
@@ -134,6 +161,7 @@ export function CompareMarketsSection() {
 
                                 <button
                                     onClick={() => {
+                                        setMarketQuery2('');
                                         setDropdown2Open(!dropdown2Open);
                                         setDropdown1Open(false);
                                     }}
@@ -150,14 +178,6 @@ export function CompareMarketsSection() {
                                                             <MapPin className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                                                             <span className="truncate">{selectedMarket2.distance || '7'} km</span>
                                                         </div>
-                                                        <div className="hidden sm:flex items-center space-x-1">
-                                                            <Users className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
-                                                            <span className="whitespace-nowrap">{selectedMarket2.vendors || 0} vendors</span>
-                                                        </div>
-                                                        <div className="flex items-center space-x-1">
-                                                            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 shrink-0" />
-                                                            <span>{selectedMarket2.rating || '3.7'}</span>
-                                                        </div>
                                                     </div>
                                                 </>
                                             ) : (
@@ -169,8 +189,20 @@ export function CompareMarketsSection() {
                                 </button>
 
                                 {dropdown2Open && (
-                                    <div className="absolute top-full left-0 right-0 mt-2 sm:mt-4 bg-white border-2 border-secondary/20 rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl z-40 max-h-60 sm:max-h-80 overflow-y-auto">
-                                        {markets.filter(m => m.id !== selectedMarket1?.id).map((market) => (
+                                    <div className="absolute top-full left-0 right-0 mt-2 sm:mt-4 bg-white border-2 border-secondary/20 rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl z-40">
+                                        <div className="p-2 sm:p-3 border-b border-gray-100">
+                                            <Input
+                                                type="search"
+                                                value={marketQuery2}
+                                                onChange={(event) => setMarketQuery2(event.target.value)}
+                                                placeholder="Search markets…"
+                                                className="h-9 text-sm"
+                                            />
+                                        </div>
+                                        <div className="max-h-60 sm:max-h-72 overflow-y-auto">
+                                        {dropdown2Markets.length === 0 ? (
+                                            <div className="p-4 text-center text-sm text-gray-500">No markets found</div>
+                                        ) : dropdown2Markets.map((market) => (
                                             <button
                                                 key={market.id}
                                                 onClick={() => {
@@ -182,16 +214,10 @@ export function CompareMarketsSection() {
                                                 <div className="font-semibold text-sm sm:text-base text-gray-900 mb-1 truncate">{market.name}</div>
                                                 <div className="text-xs sm:text-sm text-gray-600 flex flex-wrap items-center gap-1 sm:gap-2">
                                                     <span>{market.distance}</span>
-                                                    <span className="hidden sm:inline">•</span>
-                                                    <span className="hidden sm:inline">{market.vendors} vendors</span>
-                                                    <span className="hidden sm:inline">•</span>
-                                                    <div className="flex items-center space-x-1">
-                                                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                                        <span>{market.rating}</span>
-                                                    </div>
                                                 </div>
                                             </button>
                                         ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>

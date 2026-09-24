@@ -13,7 +13,8 @@ export const marketKeys = {
   detail: (id: string) => [...marketKeys.details(), id] as const,
   items: (id: string) => [...marketKeys.detail(id), 'items'] as const,
   itemsList: (id: string, filters: ItemFilters) => [...marketKeys.items(id), filters] as const,
-  search: (query: string, categoryId?: string) => [...marketKeys.all, 'search', query, categoryId] as const,
+  search: (query: string, categoryId?: string, type?: string) =>
+    [...marketKeys.all, 'search', query, categoryId, type] as const,
   nearby: (lat: number, lng: number) => [...marketKeys.all, 'nearby', lat, lng] as const,
   categories: () => [...marketKeys.all, 'categories'] as const,
   random: () => [...marketKeys.all, 'random'] as const,
@@ -21,6 +22,8 @@ export const marketKeys = {
     [...marketKeys.all, 'random-products', params || {}] as const,
   compare: (params: MarketComparisonParams) => [...marketKeys.all, 'compare', params] as const,
   compareProducts: (params: MarketProductComparisonParams) => [...marketKeys.all, 'compare-products', params] as const,
+  trending: (marketId: string, limit?: number) =>
+    [...marketKeys.all, 'trending', marketId, limit ?? null] as const,
 };
 
 // Get markets with filters
@@ -71,13 +74,25 @@ export const useMarketItems = (marketId: string, filters?: ItemFilters) => {
   });
 };
 
-// Search markets
-export const useSearchMarkets = (query: string, categoryId?: string) => {
+// Get trending products for a specific market
+export const useMarketTrendingItems = (marketId: string, limit?: number) => {
   const { zone } = useZone();
 
   return useQuery({
-    queryKey: marketKeys.search(query, categoryId),
-    queryFn: () => marketsApi.searchMarkets(query, categoryId),
+    queryKey: marketKeys.trending(marketId, limit),
+    queryFn: () => marketsApi.getMarketTrending(marketId, limit),
+    enabled: !!zone?.id && !!marketId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};
+
+// Search markets
+export const useSearchMarkets = (query: string, categoryId?: string, type?: string) => {
+  const { zone } = useZone();
+
+  return useQuery({
+    queryKey: marketKeys.search(query, categoryId, type),
+    queryFn: () => marketsApi.searchMarkets(query, categoryId, type),
     enabled: !!zone?.id && query.length > 2,
     staleTime: 30 * 1000, // 30 seconds
   });

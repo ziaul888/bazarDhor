@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentType, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   CalendarDays,
@@ -14,6 +14,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { ComparedMarket } from '@/lib/api/types';
+import { marketTypeLabelKey } from '@/lib/market-type';
 
 interface ComparisonTableProps {
   market1: ComparedMarket;
@@ -52,13 +53,22 @@ const BooleanValue = ({ value, yes, no }: { value: boolean; yes: string; no: str
 export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
   const t = useTranslations('compare.table');
   const tCommon = useTranslations('common');
+  const tTypes = useTranslations('markets.marketTypes');
   const locale = useLocale();
+
+  // Why: the backend sends market types as English enum values ("Retail Market").
+  // How: translate via markets.marketTypes when the value is a known enum, else
+  // show the raw string.
+  const formatMarketType = (type: string | null | undefined): string => {
+    const key = marketTypeLabelKey(type);
+    return (key ? tTypes(key) : type?.trim()) || tCommon('na');
+  };
 
   const nf = new Intl.NumberFormat(locale === 'bn' ? 'bn-BD' : 'en-IN');
   const formatNumber = (value: number) => nf.format(value);
   const formatDistanceKm = (value: number) => {
     if (!Number.isFinite(value)) return tCommon('na');
-    return `${nf.format(Number(value.toFixed(2)))} km`;
+    return `${nf.format(Number(value.toFixed(2)))} ${tCommon('kmUnit')}`;
   };
 
   const distance1 = market1.distance_km;
@@ -68,9 +78,8 @@ export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
   const openDays1 = market1.open_days_count;
   const openDays2 = market2.open_days_count;
 
-  // Why: compute the winner per metric so the row-level tint can carry the
-  // "Closer / More / Available" signal — replaces the easy-to-miss inline
-  // badge with a strong visual cue.
+  // Why: compute the winner per metric so the winning cell carries the
+  // "Closer / More / Available" signal as a green tint in the compact table.
   const lowerWins = (a: number, b: number): Side => {
     if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return null;
     return a < b ? 'm1' : 'm2';
@@ -94,8 +103,8 @@ export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
         {
           label: t('marketType'),
           icon: Store,
-          render1: () => market1.type,
-          render2: () => market2.type,
+          render1: () => formatMarketType(market1.type),
+          render2: () => formatMarketType(market2.type),
           winner: null,
         },
         {
@@ -151,114 +160,68 @@ export function ComparisonTable({ market1, market2 }: ComparisonTableProps) {
 
   return (
     <div className="overflow-hidden">
-      {/* Legend — the two market names + truncated addresses, side by side */}
-      <div className="grid grid-cols-2 divide-x border-b bg-muted/20">
-        <MarketLegend name={market1.name} address={market1.address} />
-        <MarketLegend name={market2.name} address={market2.address} />
+      {/* Both markets already sit in the sticky selector bar above the page —
+          no name header here, just the same ১/২ chips so the columns map back
+          to the two selectors. */}
+      <div className="grid grid-cols-[1.2fr_1fr_1fr] items-stretch border-b bg-muted/20">
+        <div />
+        <HeaderChip label={nf.format(1)} />
+        <HeaderChip label={nf.format(2)} />
       </div>
 
       {sections.map((section) => (
         <div key={section.category}>
-          <div className="px-4 py-2 bg-muted/30 border-b">
-            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="px-3 py-1.5 bg-muted/30 border-b">
+            <h4 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               {section.category}
             </h4>
           </div>
 
-          <div className="p-3 space-y-2.5">
-            {section.items.map((item) => (
-              <MetricCard
-                key={item.label}
-                icon={item.icon}
-                label={item.label}
-                market1Name={market1.name}
-                market2Name={market2.name}
-                value1={item.render1()}
-                value2={item.render2()}
-                winner={item.winner}
-              />
-            ))}
-          </div>
+          {section.items.map((item) => (
+            <div
+              key={item.label}
+              className="grid grid-cols-[1.2fr_1fr_1fr] items-stretch border-b last:border-b-0"
+            >
+              <div className="flex items-center gap-1.5 px-3 py-2 min-w-0">
+                <item.icon className="h-3.5 w-3.5 text-muted-foreground flex-none" />
+                <span className="text-xs text-muted-foreground truncate">{item.label}</span>
+              </div>
+              <ValueCell isWinner={item.winner === 'm1'}>{item.render1()}</ValueCell>
+              <ValueCell isWinner={item.winner === 'm2'}>{item.render2()}</ValueCell>
+            </div>
+          ))}
         </div>
       ))}
     </div>
   );
 }
 
-function MarketLegend({ name, address }: { name: string; address: string }) {
+// Minimal column marker — mirrors the numbered chips on the sticky selectors.
+function HeaderChip({ label }: { label: string }) {
   return (
-    <div className="p-3 min-w-0">
-      <h3 className="font-semibold text-sm sm:text-base truncate">{name}</h3>
-      {address ? (
-        <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
-          <MapPin className="h-3 w-3 flex-none" />
-          <span className="truncate">{address}</span>
-        </p>
-      ) : null}
+    <div className="flex items-center justify-center py-2 border-l border-border/60">
+      {/* Same style as the selector badges so ১/২ means the same thing everywhere */}
+      <span className="w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
+        {label}
+      </span>
     </div>
   );
 }
 
-function MetricCard({
-  icon: Icon,
-  label,
-  market1Name,
-  market2Name,
-  value1,
-  value2,
-  winner,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  market1Name: string;
-  market2Name: string;
-  value1: ReactNode;
-  value2: ReactNode;
-  winner: Side;
-}) {
-  return (
-    <div className="rounded-lg border bg-card overflow-hidden">
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/20 border-b">
-        <Icon className="h-3.5 w-3.5 text-muted-foreground flex-none" />
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          {label}
-        </span>
-      </div>
-      <div className="divide-y">
-        <ValueRow name={market1Name} value={value1} isWinner={winner === 'm1'} />
-        <ValueRow name={market2Name} value={value2} isWinner={winner === 'm2'} />
-      </div>
-    </div>
-  );
-}
-
-function ValueRow({
-  name,
-  value,
+function ValueCell({
   isWinner,
+  children,
 }: {
-  name: string;
-  value: ReactNode;
   isWinner: boolean;
+  children: ReactNode;
 }) {
   return (
     <div
-      className={`flex items-center justify-between gap-3 px-3 py-2 text-sm transition-colors ${
-        isWinner ? 'bg-green-50 dark:bg-green-900/15' : ''
+      className={`flex items-center justify-center px-1.5 sm:px-2 py-2 text-xs sm:text-sm text-center min-w-0 border-l border-border/60 ${
+        isWinner ? 'bg-success/10 text-success font-semibold' : ''
       }`}
     >
-      <span
-        className={`truncate text-xs ${
-          isWinner
-            ? 'font-medium text-green-700 dark:text-green-400'
-            : 'text-muted-foreground'
-        }`}
-      >
-        {name}
-      </span>
-      <span className={`font-medium tabular-nums flex-none ${isWinner ? 'text-green-700 dark:text-green-400' : ''}`}>
-        {value}
-      </span>
+      <span className="truncate">{children}</span>
     </div>
   );
 }

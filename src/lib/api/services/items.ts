@@ -1,5 +1,5 @@
 import { apiClient } from '../client';
-import { ApiResponse, PaginatedResponse, MarketItem, ItemFilters, PriceComparison, NewItem } from '../types';
+import { ApiResponse, PaginatedResponse, MarketItem, ItemFilters, PriceComparison, NewItem, Product } from '../types';
 
 export const itemsApi = {
   // Get all items with filters
@@ -64,9 +64,9 @@ export const itemsApi = {
   },
 
   // Get trending items
-  getTrending: async (limit = 10): Promise<MarketItem[]> => {
-    const response = await apiClient.get<ApiResponse<MarketItem[]>>('/items/trending', {
-      params: { limit },
+  getTrending: async (limit = 10): Promise<Product[]> => {
+    const response = await apiClient.get<ApiResponse<Product[]>>('/products', {
+      params: { sort: 'trending', limit },
     });
     return response.data.data;
   },
