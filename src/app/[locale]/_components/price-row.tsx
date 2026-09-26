@@ -118,13 +118,13 @@ export function PriceRow({ item }: PriceRowProps) {
         </span>
 
         <span className="flex-1 min-w-0">
-          <span className="block text-sm font-medium truncate">{item.name}</span>
+          <span className="block text-base font-medium truncate">{item.name}</span>
           <span className="flex items-center gap-1 text-xs text-muted-foreground truncate">
             <Store className="h-3 w-3 flex-none" />
             <span className="truncate">{item.marketName}</span>
           </span>
           {item.lastUpdate ? (
-            <span className="flex items-center gap-1 text-[10px] text-muted-foreground/80 truncate">
+            <span className="flex items-center gap-1 text-xs text-muted-foreground/80 truncate">
               <Clock className="h-2.5 w-2.5 flex-none" />
               <span className="truncate">{item.lastUpdate}</span>
             </span>
@@ -133,13 +133,13 @@ export function PriceRow({ item }: PriceRowProps) {
 
         <span className="flex-none flex items-center gap-2">
           <span className="text-right leading-tight">
-            <span className="flex items-center justify-end gap-1 text-xl sm:text-2xl font-bold text-primary tabular-nums">
+            <span className="flex items-center justify-end gap-1 text-xl font-bold text-primary tabular-nums">
               {item.priceTrend === 'up' ? (
                 <TrendingUp aria-label="Trending up" className="h-3.5 w-3.5 text-rose-500" />
               ) : item.priceTrend === 'down' ? (
                 <TrendingDown aria-label="Trending down" className="h-3.5 w-3.5 text-emerald-500" />
               ) : null}
-              <span className={item.priceRange ? 'text-sm sm:text-base' : undefined}>
+              <span className={item.priceRange ? 'text-base' : undefined}>
                 {/* Why: range replaces the figure when present — shown in the price slot, but smaller than a single price. */}
                 {item.priceRange
                   ? tPriceRow('priceRange', {
@@ -150,7 +150,7 @@ export function PriceRow({ item }: PriceRowProps) {
               </span>
             </span>
             {item.unit ? (
-              <span className="block text-[10px] text-muted-foreground">/ {item.unit}</span>
+              <span className="block text-xs text-muted-foreground">/ {item.unit}</span>
             ) : null}
           </span>
           <span className="group relative flex-none">
@@ -163,7 +163,7 @@ export function PriceRow({ item }: PriceRowProps) {
             </span>
             <span
               role="tooltip"
-              className="pointer-events-none absolute right-0 -top-8 whitespace-nowrap rounded-md bg-foreground text-background text-[11px] font-medium px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="pointer-events-none absolute right-0 -top-8 whitespace-nowrap rounded-md bg-foreground text-background text-xs font-medium px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity"
             >
               {tPriceRow('updatePrice')}
             </span>

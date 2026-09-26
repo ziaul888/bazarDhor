@@ -72,7 +72,7 @@ export function FeedFilterPopover({
                   onChange(id);
                   setOpen(false);
                 }}
-                className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors ${
+                className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-base transition-colors ${
                   isActive ? 'text-primary font-medium' : 'hover:bg-muted/60'
                 }`}
               >

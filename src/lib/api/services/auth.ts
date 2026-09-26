@@ -1,5 +1,6 @@
 import { apiClient } from '../client';
-import { ApiResponse, AuthResponse, LoginCredentials, RegisterData, User } from '../types';
+import { API_ENDPOINTS } from '../endpoints';
+import { ApiResponse, AuthResponse, BackendApiResponse, LoginCredentials, RegisterData, UserProfile } from '../types';
 
 const getAuthToken = (data: AuthResponse): string | undefined => {
   return data.access_token ?? data.token;
@@ -34,7 +35,7 @@ export const authApi = {
 
   // Logout
   logout: async (): Promise<void> => {
-    await apiClient.post('/auth/logout');
+    await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
     
     // Remove token
     if (typeof window !== 'undefined') {
@@ -43,8 +44,13 @@ export const authApi = {
   },
 
   // Get current user
-  getCurrentUser: async (): Promise<User> => {
-    const response = await apiClient.get<ApiResponse<User>>('/auth/me');
+  // Why: the backend has no /auth/me route — the authenticated user is served by
+  // api/users/profile (Api\ProfileController@show), which returns the same
+  // UserResource shape that POST /auth/login embeds under `user`.
+  getCurrentUser: async (): Promise<UserProfile> => {
+    const response = await apiClient.get<BackendApiResponse<UserProfile>>(
+      API_ENDPOINTS.USER.PROFILE
+    );
     return response.data.data;
   },
 

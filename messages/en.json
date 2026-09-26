@@ -274,7 +274,7 @@
   },
   "auth": {
     "signInTitle": "Welcome Back!",
-    "signUpTitle": "Join MyMarket",
+    "signUpTitle": "Join {brand}",
     "signInSubtitle": "Sign in to access your account and discover local markets",
     "signUpSubtitle": "Create an account to start exploring fresh local produce",
     "firstName": "First Name",
@@ -393,5 +393,112 @@
     "submit": "Submit price",
     "submitting": "Submitting…",
     "proofImage": "Proof image"
+  },
+  "profile": {
+    "loadingProfile": "Loading profile…",
+    "signInRequired": {
+      "title": "Sign in required",
+      "description": "Please sign in to view your profile.",
+      "action": "Sign in"
+    },
+    "joined": "Joined {date}",
+    "edit": "Edit",
+    "tabs": {
+      "overview": "Overview",
+      "settings": "Settings",
+      "activity": "Activity"
+    },
+    "stats": {
+      "markets": "Markets",
+      "updates": "Updates",
+      "reviews": "Reviews"
+    },
+    "overview": {
+      "personalInfo": "Personal info",
+      "quickActions": "Quick actions",
+      "email": "Email",
+      "phone": "Phone",
+      "location": "Location",
+      "notificationSettings": "Notification settings",
+      "privacySettings": "Privacy settings",
+      "orderHistory": "Order history",
+      "logout": "Log out",
+      "logoutConfirmTitle": "Log out?",
+      "logoutConfirmDescription": "Are you sure you want to sign out of your account?",
+      "confirmLogout": "Yes, log out"
+    },
+    "settings": {
+      "personalInfo": "Personal Information",
+      "fullName": "Full Name",
+      "emailAddress": "Email Address",
+      "phoneNumber": "Phone Number",
+      "location": "Location",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "currentPasswordPlaceholder": "Enter current password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmNewPassword": "Confirm New Password",
+      "confirmNewPasswordPlaceholder": "Confirm new password",
+      "notificationPreferences": "Notification Preferences",
+      "priceAlerts": "Price Alerts",
+      "priceAlertsDescription": "Get notified when prices change for your favorite items",
+      "newMarkets": "New Markets",
+      "newMarketsDescription": "Be the first to know about new markets in your area",
+      "weeklyDigest": "Weekly Digest",
+      "weeklyDigestDescription": "Receive a weekly summary of market activity",
+      "promotions": "Promotions",
+      "promotionsDescription": "Receive special offers and promotional content",
+      "privacySettings": "Privacy Settings",
+      "publicProfile": "Public Profile",
+      "publicProfileDescription": "Allow others to see your profile information",
+      "shareLocation": "Share Location",
+      "shareLocationDescription": "Allow location sharing for better market recommendations",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "city": "City",
+      "division": "Division",
+      "address": "Address",
+      "cityPlaceholder": "e.g. Dhaka",
+      "divisionPlaceholder": "e.g. Dhaka",
+      "addressPlaceholder": "House, road, area",
+      "saving": "Saving…",
+      "saveSuccess": "Profile updated.",
+      "requiredFieldsError": "First name, last name and email are required.",
+      "passwordMismatch": "Passwords do not match.",
+      "saveChanges": "Save Changes"
+    },
+    "activity": {
+      "title": "Activity History",
+      "subtitle": "Your recent interactions and contributions to the community",
+      "filters": {
+        "all": "All Activity",
+        "price_update": "Price Updates",
+        "review": "Reviews",
+        "favorite": "Favorites",
+        "comment": "Comments"
+      },
+      "stats": {
+        "priceUpdates": "Price Updates",
+        "reviewsWritten": "Reviews Written",
+        "favoriteMarkets": "Favorite Markets",
+        "marketsVisited": "Markets Visited"
+      },
+      "noActivityTitle": "No activity found",
+      "noActivityDescription": "No activities match the selected filter. Try selecting a different filter.",
+      "loadMore": "Load More Activity",
+      "loadError": "Couldn't load your activity right now.",
+      "item": {
+        "priceUpdateTitle": "Updated {item} prices at {market}",
+        "priceUpdateDescription": "{oldPrice} → {newPrice} per {unit}",
+        "priceUpdateFirstSubmission": "First price recorded — {newPrice} per {unit}",
+        "reviewTitle": "Reviewed {market}",
+        "reviewStars": "{count, plural, =1 {Gave # star} other {Gave # stars}}",
+        "favoriteAdded": "Added {market} to favorites",
+        "favoriteRemoved": "Removed {market} from favorites",
+        "commentTitle": "Commented on {market}",
+        "unknownTitle": "Activity recorded"
+      }
+    }
   }
 }

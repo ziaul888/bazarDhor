@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { LOCALE_TO_HEADER, LOCALIZATION_HEADER, routing, type AppLocale } from '@/i18n/routing';
+import { ZONE_OPTIONAL_ENDPOINTS } from './endpoints';
 
 export interface FetchOptions extends RequestInit {
     params?: Record<string, string | number | undefined>;
@@ -7,7 +8,6 @@ export interface FetchOptions extends RequestInit {
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bazardor.mainul.tech/api';
-const ZONE_OPTIONAL_ENDPOINTS = new Set(['/config/get-zone']);
 
 // Why: when the caller doesn't pre-set X-localization, fall back to the
 // NEXT_LOCALE cookie that next-intl writes during routing. The lookup is

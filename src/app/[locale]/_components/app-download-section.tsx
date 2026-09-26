@@ -2,6 +2,8 @@
 
 import { Smartphone, Star, Download, Bell, MapPin, ShoppingCart } from 'lucide-react';
 import { usePWA } from '@/hooks/use-pwa';
+import { useTranslations } from 'next-intl';
+import { useConfig } from '@/hooks/use-config';
 
 // Types for better maintainability
 interface Feature {
@@ -169,10 +171,17 @@ function PhoneStatusBar() {
 }
 
 function AppHeader() {
+    // Why: same admin-configured brand resolution as the footer/navbar so the
+    // phone mockup header never drifts from the rest of the site.
+    const tSeo = useTranslations('seo');
+    const { getConfigValue } = useConfig();
+    const localizedBrand = tSeo('brand');
+    const brandName = getConfigValue<string>('business_name', localizedBrand) || localizedBrand;
+
     return (
         <div className="flex items-center justify-between mb-6">
             <div>
-                <h3 className="font-bold text-xl text-gray-900">MyMarket</h3>
+                <h3 className="font-bold text-xl text-gray-900">{brandName}</h3>
                 <p className="text-sm text-muted-foreground">Find local markets</p>
             </div>
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">

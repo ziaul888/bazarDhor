@@ -15,6 +15,60 @@ export interface BackendApiResponse<T> {
   errors: unknown[];
 }
 
+/**
+ * Shape returned by `GET /api/users/profile` (App\Http\Resources\UserResource).
+ * Note: this is the authoritative profile shape until the legacy `User` interface
+ * above is migrated — the UI reads it through the Zustand `User` type.
+ */
+export interface UserProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  name: string;
+  username: string | null;
+  email: string;
+  phone: string | null;
+  avatar: string | null;
+  user_type: string | null;
+  role_id: string | null;
+  is_active: boolean;
+  referral_code: string | null;
+  email_verified_at: string | null;
+  phone_verified_at: string | null;
+  subscribed_to_newsletter: boolean;
+  status: string | null;
+  referred_by: string | null;
+  dob: string | null;
+  gender: string | null;
+  city: string | null;
+  division: string | null;
+  address: string | null;
+  social_connected: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+/**
+ * Payload for `POST /api/users/update-profile`.
+ * Mirrors App\Http\Requests\Api\UpdateProfileRequest: first_name, last_name and
+ * email are required; everything else is optional. `image` is sent as multipart.
+ */
+export interface UpdateProfilePayload {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string | null;
+  dob?: string | null;
+  gender?: string | null;
+  city?: string | null;
+  division?: string | null;
+  address?: string | null;
+  subscribed_to_newsletter?: boolean;
+  password?: string;
+  password_confirmation?: string;
+  image?: File | null;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
@@ -362,6 +416,76 @@ export interface UserProduct {
   description?: string;
   [key: string]: unknown;
 }
+
+// Favorite types — mirrors the `type` values accepted by App\Http\Requests\Api\AddFavoriteRequest
+export type FavoriteType = 'product' | 'market';
+
+export interface FavoriteItem {
+  id: string | number;
+  type: FavoriteType;
+  favoritable_id: string;
+  [key: string]: unknown;
+}
+
+// User Activity types (profile → Activity tab)
+// Per-type payloads for `GET /users/activities` — the payload key matches the
+// item's `type` and only the relevant key is present. Prices are decimal strings;
+// `old_price` is null on the first submission for an item+market pair.
+export interface PriceUpdateActivity {
+  item_name: string;
+  market_name: string;
+  unit: string;
+  old_price: string | null;
+  new_price: string;
+}
+
+export interface ReviewActivity {
+  market_name: string;
+  rating: number;
+  comment: string | null;
+}
+
+export interface FavoriteActivity {
+  market_name: string;
+  action: 'added' | 'removed';
+}
+
+export interface CommentActivity {
+  market_name: string;
+  body: string;
+}
+
+// `type` is open-ended so reserved/future types still render (fallback icon +
+// generic sentence) instead of breaking the whole timeline.
+export interface UserActivity {
+  id: string;
+  type: string;
+  created_at: string;
+  price_update?: PriceUpdateActivity;
+  review?: ReviewActivity;
+  favorite?: FavoriteActivity;
+  comment?: CommentActivity;
+}
+
+// Counts from `GET /users/activity-statistics` — shared by the profile header
+// stats and the Activity tab tiles.
+export interface UserActivityStatistics {
+  price_updates: number;
+  reviews_written: number;
+  favorite_markets: number;
+  markets_visited: number;
+}
+
+// One fetched page of the timeline; `total` carries the backend's `total_size`
+// so the UI can decide whether another page can be loaded.
+export interface UserActivityPage {
+  items: UserActivity[];
+  total: number;
+}
+
+// Filter values the activities endpoint accepts. `visit`/`purchase` are reserved
+// backend-side and rejected with 422, so the UI never sends them.
+export type ActivityTypeFilter = 'all' | 'price_update' | 'review' | 'favorite' | 'comment';
 
 // Product Price Submission types
 export interface SubmitProductPricePayload {

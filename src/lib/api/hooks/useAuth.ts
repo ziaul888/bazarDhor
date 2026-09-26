@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { authApi } from '../services/auth';
-import { User, AuthResponse, LoginCredentials, RegisterData } from '../types';
+import { AuthResponse, LoginCredentials, RegisterData, UserProfile } from '../types';
 import { useAppStore } from '@/store/app-store';
-import { useZone } from '@/providers/zone-provider';
 
 // Query keys
 export const authKeys = {
@@ -10,14 +9,11 @@ export const authKeys = {
   user: () => [...authKeys.all, 'user'] as const,
 };
 
-// Get current user
-export const useCurrentUser = (): UseQueryResult<User, Error> => {
-  const { zone } = useZone();
-
+// Get current user — served by api/users/profile (there is no /auth/me route)
+export const useCurrentUser = (): UseQueryResult<UserProfile, Error> => {
   return useQuery({
     queryKey: authKeys.user(),
     queryFn: authApi.getCurrentUser,
-    enabled: !!zone?.id,
     retry: false,
     staleTime: 5 * 60 * 1000,
   });

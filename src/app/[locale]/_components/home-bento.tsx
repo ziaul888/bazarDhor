@@ -93,14 +93,14 @@ export function HomeBento() {
             {t('pulseTitle')}
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-xl sm:text-2xl font-bold tabular-nums">
+            <span className="text-xl font-bold tabular-nums">
               {fmt(stats.recentPrices)}
             </span>
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {t('pulsePrices', { window: stats.window })}
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {t('pulseSummary', { markets: fmt(stats.markets), items: fmt(stats.items) })}
             {stats.contributors > 0
               ? ` · ${t('pulseContributors', { count: fmt(stats.contributors) })}`
@@ -117,12 +117,12 @@ export function HomeBento() {
               <MapPin className="h-3.5 w-3.5 text-primary" />
               {t('zoneTitle')}
             </span>
-            {today ? <span className="text-[11px]">{today}</span> : null}
+            {today ? <span className="text-xs">{today}</span> : null}
           </div>
-          <p className="text-sm font-semibold truncate">{zone?.name || t('zoneDetecting')}</p>
+          <p className="text-base font-semibold truncate">{zone?.name || t('zoneDetecting')}</p>
           <Link
             href="/markets"
-            className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1 hover:text-foreground transition-colors"
+            className="text-xs text-muted-foreground mt-1 flex items-center gap-1 hover:text-foreground transition-colors"
           >
             <Store className="h-3 w-3 flex-none" />
             {t('zoneNearby', { count: fmt(markets?.length ?? 0) })}
@@ -133,7 +133,7 @@ export function HomeBento() {
               type="button"
               onClick={usePreciseLocation}
               disabled={isLocating}
-              className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/30 bg-primary/5 px-2 py-1.5 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-60"
+              className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/30 bg-primary/5 px-2 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-60"
             >
               {isLocating ? (
                 <Loader2 className="h-3 w-3 animate-spin flex-none" />
@@ -262,11 +262,11 @@ function BannerSlide({ banner }: { banner: Banner }) {
       ) : null}
 
       <div className="absolute bottom-3 left-3 right-3 text-white">
-        <p className="text-lg sm:text-2xl font-semibold leading-tight truncate">
+        <p className="text-xl font-bold leading-tight truncate">
           {banner.title}
         </p>
         {banner.description ? (
-          <p className="text-xs sm:text-sm text-white/80 mt-1 line-clamp-2">
+          <p className="text-xs sm:text-base text-white/80 mt-1 line-clamp-2">
             {banner.description}
           </p>
         ) : null}
@@ -343,7 +343,7 @@ function EmptyTile({
       <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
         {icon}
       </span>
-      <p className="text-sm font-medium">{label}</p>
+      <p className="text-base font-medium">{label}</p>
       {hint ? <p className="text-xs text-muted-foreground mt-0.5">{hint}</p> : null}
     </div>
   );

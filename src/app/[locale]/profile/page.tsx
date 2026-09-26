@@ -15,11 +15,26 @@ import {
   Star,
   Clock,
   LogIn,
+  LogOut,
+  Loader2,
 } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { ProfileSettings } from './_components/profile-settings';
 import { ActivityHistory } from './_components/activity-history';
 import { useAuth } from '@/components/auth/auth-context';
+import { useLogout } from '@/lib/api/hooks/useAuth';
+import { useUserProfile, useActivityStatistics } from '@/lib/api/hooks/useUser';
+import { useAppStore } from '@/store/app-store';
 
 const getUserInitial = (name?: string | null, email?: string | null): string => {
   const safeName = (name || '').trim();
@@ -31,18 +46,18 @@ const getUserInitial = (name?: string | null, email?: string | null): string => 
   return 'U';
 };
 
-const formatJoinDate = (createdAt?: string | null): string => {
+const formatJoinDate = (locale: string, createdAt?: string | null): string => {
   if (!createdAt) return '—';
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) return '—';
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long' });
+  return date.toLocaleDateString(locale, { year: 'numeric', month: 'long' });
 };
 
 const tabs = [
-  { id: 'overview', label: 'Overview', icon: User },
-  { id: 'settings', label: 'Settings', icon: Settings },
-  { id: 'activity', label: 'Activity', icon: Clock },
-];
+  { id: 'overview', icon: User },
+  { id: 'settings', icon: Settings },
+  { id: 'activity', icon: Clock },
+] as const;
 
 interface UserData {
   id: string;
@@ -50,6 +65,9 @@ interface UserData {
   email: string;
   phone: string;
   location: string;
+  city: string;
+  division: string;
+  address: string;
   joinDate: string;
   stats: {
     marketsVisited: number;
@@ -71,16 +89,27 @@ interface UserData {
 }
 
 export default function ProfilePage() {
+  const t = useTranslations('profile');
+  const locale = useLocale();
   const { hasHydrated, isAuthenticated, user, openAuthModal } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState<string>('overview');
 
   const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('auth_token');
   const isLoadingUser = hasHydrated && hasToken && !user;
 
+  // Refresh the profile from GET /users/profile on every visit. The hook writes the
+  // server copy back into the Zustand store, so a stale localStorage snapshot (from
+  // an older login) or an edit made elsewhere can't linger in the UI.
+  useUserProfile(hasToken);
+
+  // Header stats come from the same statistics endpoint that powers the Activity
+  // tab tiles — shared React Query cache, fetched once for both surfaces.
+  const { data: activityStats } = useActivityStatistics(hasToken);
+
   if (!hasHydrated || isLoadingUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-sm text-muted-foreground">Loading profile…</p>
+        <p className="text-sm text-muted-foreground">{t('loadingProfile')}</p>
       </div>
     );
   }
@@ -90,13 +119,13 @@ export default function ProfilePage() {
       <div className="pb-24">
         <div className="container mx-auto max-w-3xl px-4 mt-8">
           <div className="rounded-xl border bg-card p-6 text-center">
-            <h1 className="text-base font-semibold mb-1">Sign in required</h1>
+            <h1 className="text-base font-semibold mb-1">{t('signInRequired.title')}</h1>
             <p className="text-xs text-muted-foreground mb-4">
-              Please sign in to view your profile.
+              {t('signInRequired.description')}
             </p>
             <Button size="sm" onClick={() => openAuthModal('signin')} className="w-full sm:w-auto">
               <LogIn className="h-4 w-4 mr-2" />
-              Sign in
+              {t('signInRequired.action')}
             </Button>
           </div>
         </div>
@@ -115,7 +144,7 @@ export default function ProfilePage() {
     [user.city, user.division].filter(Boolean).join(', ') ||
     '—';
 
-  const joinDate = formatJoinDate(user.created_at);
+  const joinDate = formatJoinDate(locale, user.created_at);
 
   const avatarUrl = typeof user.avatar === 'string' && user.avatar.trim() ? user.avatar : undefined;
   const userInitial = getUserInitial(name, user.email);
@@ -126,11 +155,14 @@ export default function ProfilePage() {
     email: user.email || '',
     phone: user.phone || '—',
     location,
+    city: user.city?.trim() || '',
+    division: user.division?.trim() || '',
+    address: user.address?.trim() || '',
     joinDate,
     stats: {
-      marketsVisited: 0,
-      priceUpdates: 0,
-      reviewsWritten: 0,
+      marketsVisited: activityStats?.markets_visited ?? 0,
+      priceUpdates: activityStats?.price_updates ?? 0,
+      reviewsWritten: activityStats?.reviews_written ?? 0,
     },
     preferences: {
       notifications: {
@@ -183,12 +215,17 @@ export default function ProfilePage() {
             <p className="text-xs text-muted-foreground mt-0.5 truncate">
               {userData.location}
               <span className="mx-1.5">·</span>
-              Joined {userData.joinDate}
+              {t('joined', { date: userData.joinDate })}
             </p>
           </div>
-          <Button size="sm" variant="outline" className="hidden sm:inline-flex">
+          <Button
+            size="sm"
+            variant="outline"
+            className="hidden sm:inline-flex"
+            onClick={() => setActiveTab('settings')}
+          >
             <Edit3 className="h-3.5 w-3.5 mr-1.5" />
-            Edit
+            {t('edit')}
           </Button>
         </div>
       </section>
@@ -198,17 +235,17 @@ export default function ProfilePage() {
           <Stat
             icon={<MapPin className="h-4 w-4 text-primary" />}
             value={userData.stats.marketsVisited}
-            label="Markets"
+            label={t('stats.markets')}
           />
           <Stat
             icon={<TrendingUp className="h-4 w-4 text-primary" />}
             value={userData.stats.priceUpdates}
-            label="Updates"
+            label={t('stats.updates')}
           />
           <Stat
             icon={<Star className="h-4 w-4 text-primary" />}
             value={userData.stats.reviewsWritten}
-            label="Reviews"
+            label={t('stats.reviews')}
           />
         </div>
       </section>
@@ -227,7 +264,7 @@ export default function ProfilePage() {
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
-                {tab.label}
+                {t(`tabs.${tab.id}`)}
               </button>
             ))}
           </nav>
@@ -252,25 +289,74 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: number; la
 }
 
 function OverviewTab({ userData }: { userData: UserData }) {
+  const t = useTranslations('profile.overview');
+  const tCommon = useTranslations('common');
+  const tToasts = useTranslations('toasts');
+  const logoutMutation = useLogout();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+    } catch {
+      // Even if the API call fails, make sure the local session is cleared.
+      useAppStore.getState().logout();
+      if (typeof window !== 'undefined') localStorage.removeItem('auth_token');
+    }
+    setConfirmOpen(false);
+    toast.success(tToasts('logoutSuccess'));
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-4">
       <div>
-        <h2 className="text-sm font-semibold px-1 mb-2">Personal info</h2>
+        <h2 className="text-sm font-semibold px-1 mb-2">{t('personalInfo')}</h2>
         <div className="rounded-xl border bg-card divide-y">
-          <InfoRow icon={<Mail className="h-4 w-4" />} label="Email" value={userData.email || '—'} />
-          <InfoRow icon={<Phone className="h-4 w-4" />} label="Phone" value={userData.phone} />
-          <InfoRow icon={<MapPin className="h-4 w-4" />} label="Location" value={userData.location} />
+          <InfoRow icon={<Mail className="h-4 w-4" />} label={t('email')} value={userData.email || '—'} />
+          <InfoRow icon={<Phone className="h-4 w-4" />} label={t('phone')} value={userData.phone} />
+          <InfoRow icon={<MapPin className="h-4 w-4" />} label={t('location')} value={userData.location} />
         </div>
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold px-1 mb-2">Quick actions</h2>
+        <h2 className="text-sm font-semibold px-1 mb-2">{t('quickActions')}</h2>
         <div className="rounded-xl border bg-card divide-y">
-          <ActionRow icon={<Bell className="h-4 w-4" />} label="Notification settings" />
-          <ActionRow icon={<Shield className="h-4 w-4" />} label="Privacy settings" />
-          <ActionRow icon={<ShoppingCart className="h-4 w-4" />} label="Order history" />
+          {/* Other quick actions — hidden for now
+          <ActionRow icon={<Bell className="h-4 w-4" />} label={t('notificationSettings')} />
+          <ActionRow icon={<Shield className="h-4 w-4" />} label={t('privacySettings')} />
+          <ActionRow icon={<ShoppingCart className="h-4 w-4" />} label={t('orderHistory')} />
+          */}
+          <ActionRow
+            icon={<LogOut className="h-4 w-4" />}
+            label={t('logout')}
+            destructive
+            onClick={() => setConfirmOpen(true)}
+          />
         </div>
       </div>
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className="max-w-xs rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>{t('logoutConfirmTitle')}</DialogTitle>
+            <DialogDescription>{t('logoutConfirmDescription')}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-row gap-2">
+            <Button variant="outline" className="flex-1" onClick={() => setConfirmOpen(false)}>
+              {tCommon('cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={handleLogout}
+              disabled={logoutMutation.isPending}
+            >
+              {logoutMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              {t('confirmLogout')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -289,13 +375,32 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
   );
 }
 
-function ActionRow({ icon, label }: { icon: React.ReactNode; label: string }) {
+function ActionRow({
+  icon,
+  label,
+  destructive,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  destructive?: boolean;
+  onClick?: () => void;
+}) {
   return (
     <button
       type="button"
-      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
+        destructive
+          ? 'text-red-600 hover:bg-red-500/10'
+          : 'hover:bg-muted/40'
+      }`}
     >
-      <span className="flex-none w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+      <span
+        className={`flex-none w-9 h-9 rounded-full flex items-center justify-center ${
+          destructive ? 'bg-red-500/10 text-red-600' : 'bg-primary/10 text-primary'
+        }`}
+      >
         {icon}
       </span>
       <span className="flex-1 text-sm font-medium">{label}</span>

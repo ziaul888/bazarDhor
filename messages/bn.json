@@ -274,7 +274,7 @@
   },
   "auth": {
     "signInTitle": "আবার স্বাগতম!",
-    "signUpTitle": "MyMarket এ যোগ দিন",
+    "signUpTitle": "{brand} এ যোগ দিন",
     "signInSubtitle": "আপনার অ্যাকাউন্টে প্রবেশ করুন এবং কাছের বাজার আবিষ্কার করুন",
     "signUpSubtitle": "স্থানীয় তাজা পণ্য অন্বেষণ শুরু করতে একটি অ্যাকাউন্ট তৈরি করুন",
     "firstName": "প্রথম নাম",
@@ -393,5 +393,112 @@
     "submit": "দাম জমা দিন",
     "submitting": "জমা দেওয়া হচ্ছে…",
     "proofImage": "প্রমাণপত্র ছবি"
+  },
+  "profile": {
+    "loadingProfile": "প্রোফাইল লোড হচ্ছে…",
+    "signInRequired": {
+      "title": "সাইন ইন প্রয়োজন",
+      "description": "আপনার প্রোফাইল দেখতে সাইন ইন করুন।",
+      "action": "সাইন ইন"
+    },
+    "joined": "{date} থেকে সদস্য",
+    "edit": "সম্পাদনা",
+    "tabs": {
+      "overview": "ওভারভিউ",
+      "settings": "সেটিংস",
+      "activity": "কার্যক্রম"
+    },
+    "stats": {
+      "markets": "বাজার",
+      "updates": "আপডেট",
+      "reviews": "রিভিউ"
+    },
+    "overview": {
+      "personalInfo": "ব্যক্তিগত তথ্য",
+      "quickActions": "দ্রুত কার্যক্রম",
+      "email": "ইমেইল",
+      "phone": "ফোন",
+      "location": "লোকেশন",
+      "notificationSettings": "নোটিফিকেশন সেটিংস",
+      "privacySettings": "প্রাইভেসি সেটিংস",
+      "orderHistory": "অর্ডার ইতিহাস",
+      "logout": "সাইন আউট",
+      "logoutConfirmTitle": "সাইন আউট করবেন?",
+      "logoutConfirmDescription": "আপনি কি সত্যিই আপনার অ্যাকাউন্ট থেকে সাইন আউট করতে চান?",
+      "confirmLogout": "হ্যাঁ, সাইন আউট করুন"
+    },
+    "settings": {
+      "personalInfo": "ব্যক্তিগত তথ্য",
+      "fullName": "পূর্ণ নাম",
+      "emailAddress": "ইমেইল ঠিকানা",
+      "phoneNumber": "ফোন নম্বর",
+      "location": "লোকেশন",
+      "changePassword": "পাসওয়ার্ড পরিবর্তন",
+      "currentPassword": "বর্তমান পাসওয়ার্ড",
+      "currentPasswordPlaceholder": "বর্তমান পাসওয়ার্ড লিখুন",
+      "newPassword": "নতুন পাসওয়ার্ড",
+      "newPasswordPlaceholder": "নতুন পাসওয়ার্ড লিখুন",
+      "confirmNewPassword": "নতুন পাসওয়ার্ড নিশ্চিত করুন",
+      "confirmNewPasswordPlaceholder": "নতুন পাসওয়ার্ড আবার লিখুন",
+      "notificationPreferences": "নোটিফিকেশন পছন্দসমূহ",
+      "priceAlerts": "মূল্য সতর্কতা",
+      "priceAlertsDescription": "আপনার প্রিয় পণ্যের দাম পরিবর্তন হলে জানানো হবে",
+      "newMarkets": "নতুন বাজার",
+      "newMarketsDescription": "আপনার এলাকার নতুন বাজারের খবর সবার আগে পান",
+      "weeklyDigest": "সাপ্তাহিক সারসংক্ষেপ",
+      "weeklyDigestDescription": "বাজারের কার্যক্রমের সাপ্তাহিক সারসংক্ষেপ পান",
+      "promotions": "প্রোমোশন",
+      "promotionsDescription": "বিশেষ অফার এবং প্রোমোশনাল তথ্য পান",
+      "privacySettings": "প্রাইভেসি সেটিংস",
+      "publicProfile": "পাবলিক প্রোফাইল",
+      "publicProfileDescription": "অন্যরা আপনার প্রোফাইলের তথ্য দেখতে পারবে",
+      "shareLocation": "লোকেশন শেয়ার",
+      "shareLocationDescription": "উন্নত বাজারের সুপারিশের জন্য লোকেশন শেয়ার করুন",
+      "firstName": "নামের প্রথম অংশ",
+      "lastName": "নামের শেষ অংশ",
+      "city": "শহর",
+      "division": "বিভাগ",
+      "address": "ঠিকানা",
+      "cityPlaceholder": "যেমন: ঢাকা",
+      "divisionPlaceholder": "যেমন: ঢাকা",
+      "addressPlaceholder": "বাসা, রোড, এলাকা",
+      "saving": "সংরক্ষণ হচ্ছে…",
+      "saveSuccess": "প্রোফাইল আপডেট হয়েছে।",
+      "requiredFieldsError": "নামের প্রথম অংশ, নামের শেষ অংশ এবং ইমেইল আবশ্যক।",
+      "passwordMismatch": "পাসওয়ার্ড মিলছে না।",
+      "saveChanges": "পরিবর্তনগুলো সংরক্ষণ করুন"
+    },
+    "activity": {
+      "title": "কার্যক্রমের ইতিহাস",
+      "subtitle": "কমিউনিটিতে আপনার সাম্প্রতিক কার্যক্রম ও অবদান",
+      "filters": {
+        "all": "সব কার্যক্রম",
+        "price_update": "মূল্য আপডেট",
+        "review": "রিভিউ",
+        "favorite": "প্রিয়",
+        "comment": "মন্তব্য"
+      },
+      "stats": {
+        "priceUpdates": "মূল্য আপডেট",
+        "reviewsWritten": "লেখা রিভিউ",
+        "favoriteMarkets": "প্রিয় বাজার",
+        "marketsVisited": "ভিজিত বাজার"
+      },
+      "noActivityTitle": "কোনো কার্যক্রম পাওয়া যায়নি",
+      "noActivityDescription": "নির্বাচিত ফিল্টারে কোনো কার্যক্রম মেলেনি। অন্য ফিল্টার বেছে নিন।",
+      "loadMore": "আরও কার্যক্রম দেখুন",
+      "loadError": "এই মুহূর্তে আপনার কার্যক্রম লোড করা যাচ্ছে না।",
+      "item": {
+        "priceUpdateTitle": "{market}-এ {item} এর দাম আপডেট করেছেন",
+        "priceUpdateDescription": "{unit} প্রতি {oldPrice} → {newPrice}",
+        "priceUpdateFirstSubmission": "প্রথম দাম জমা হয়েছে — {unit} প্রতি {newPrice}",
+        "reviewTitle": "{market} এর রিভিউ দিয়েছেন",
+        "reviewStars": "{count, plural, =1 {# স্টার দিয়েছেন} other {# স্টার দিয়েছেন}}",
+        "favoriteAdded": "{market} প্রিয়তে যোগ করেছেন",
+        "favoriteRemoved": "{market} প্রিয় থেকে সরিয়েছেন",
+        "commentTitle": "{market}-এ মন্তব্য করেছেন",
+        "unknownTitle": "কার্যক্রম রেকর্ড হয়েছে"
+      }
+    }
   }
 }

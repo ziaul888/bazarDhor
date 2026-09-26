@@ -21,17 +21,31 @@ export interface User {
   avatar?: string | null;
 
   // Common profile fields (API may include more)
-  first_name?: string;
-  last_name?: string;
-  username?: string;
+  // Why: these come from Api\UserResource, which returns null for unset columns —
+  // the backend never omits the key, so null has to stay assignable here.
+  first_name?: string | null;
+  last_name?: string | null;
+  username?: string | null;
   phone?: string | null;
   dob?: string | null;
   gender?: string | null;
   city?: string | null;
   division?: string | null;
   address?: string | null;
-  created_at?: string;
-  updated_at?: string;
+  created_at?: string | null;
+  updated_at?: string | null;
+
+  // Remaining Api\UserResource fields (kept so a fetched profile can be stored as-is)
+  user_type?: string | null;
+  role_id?: number | string | null;
+  is_active?: boolean;
+  referral_code?: string | null;
+  email_verified_at?: string | null;
+  phone_verified_at?: string | null;
+  subscribed_to_newsletter?: boolean;
+  status?: string | null;
+  referred_by?: string | null;
+  social_connected?: string | null;
 
   favoriteMarkets?: string[];
   preferences?: UserPreferences;

@@ -48,10 +48,10 @@ export function CompareStrip() {
 
   return (
     <section className="px-4 mt-8 lg:mt-0">
-      <h2 className="text-sm font-semibold mb-2">{t('stripTitle')}</h2>
+      <h2 className="text-xl font-bold mb-2">{t('stripTitle')}</h2>
       <div className="rounded-lg border bg-card p-3 space-y-2">
         <Select value={a} onValueChange={setA} disabled={isLoading}>
-          <SelectTrigger className="w-full h-9 text-sm">
+          <SelectTrigger className="w-full h-9 text-base">
             <SelectValue placeholder={t('firstMarket')} />
           </SelectTrigger>
           <SelectContent>
@@ -62,7 +62,7 @@ export function CompareStrip() {
         </Select>
 
         <Select value={b} onValueChange={setB} disabled={isLoading}>
-          <SelectTrigger className="w-full h-9 text-sm">
+          <SelectTrigger className="w-full h-9 text-base">
             <SelectValue placeholder={t('secondMarket')} />
           </SelectTrigger>
           <SelectContent>
@@ -76,7 +76,7 @@ export function CompareStrip() {
           type="button"
           onClick={handleCompare}
           disabled={!canCompare}
-          className="w-full h-9 mt-1 inline-flex items-center justify-center gap-1.5 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full h-9 mt-1 inline-flex items-center justify-center gap-1.5 text-base font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {t('stripCta')} <ArrowRight className="h-3.5 w-3.5" />
         </button>

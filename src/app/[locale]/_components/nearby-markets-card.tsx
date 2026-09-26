@@ -36,7 +36,7 @@ export function NearbyMarketsCard() {
   return (
     <section className="px-4">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-sm font-semibold">{t('nearbyMarketsTitle')}</h2>
+        <h2 className="text-xl font-bold">{t('nearbyMarketsTitle')}</h2>
         <Link
           href="/markets"
           className="inline-flex items-center gap-0.5 text-xs text-primary font-medium hover:underline"
@@ -49,7 +49,7 @@ export function NearbyMarketsCard() {
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => <RowSkeleton key={i} />)
         ) : rows.length === 0 ? (
-          <div className="rounded-xl border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
+          <div className="rounded-xl border bg-card px-4 py-8 text-center text-base text-muted-foreground">
             {t('nearbyMarketsEmpty')}
           </div>
         ) : (
@@ -131,18 +131,18 @@ function MarketRow({ market }: { market: RawMarket }) {
       <span className="flex-1 min-w-0 px-4 py-3">
         <span className="flex items-start gap-2">
           <span className="flex-1 min-w-0">
-            <span className="block text-sm font-semibold truncate group-hover:text-primary transition-colors">
+            <span className="block text-base font-semibold truncate group-hover:text-primary transition-colors">
               {market.name}
             </span>
             {address ? (
-              <span className="flex items-center gap-1 text-[11px] text-muted-foreground truncate mt-0.5">
+              <span className="flex items-center gap-1 text-xs text-muted-foreground truncate mt-0.5">
                 <MapPin className="h-3 w-3 flex-none" />
                 <span className="truncate">{address}</span>
               </span>
             ) : null}
           </span>
           <span
-            className={`flex-none text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+            className={`flex-none text-xs font-semibold px-1.5 py-0.5 rounded-full ${
               isOpen
                 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                 : 'bg-muted text-muted-foreground'
@@ -152,7 +152,7 @@ function MarketRow({ market }: { market: RawMarket }) {
           </span>
         </span>
 
-        <span className="flex items-center gap-2 flex-wrap text-[11px] text-muted-foreground mt-2">
+        <span className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground mt-2">
           {hours ? (
             <span className="inline-flex items-center gap-1">
               <Clock className="h-3 w-3" />

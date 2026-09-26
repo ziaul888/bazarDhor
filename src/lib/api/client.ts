@@ -1,8 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
 import { LOCALE_TO_HEADER, routing, type AppLocale } from '@/i18n/routing';
-
-const ZONE_OPTIONAL_ENDPOINTS = new Set(['/config/get-zone']);
+import { ZONE_OPTIONAL_ENDPOINTS } from './endpoints';
 
 // Why: next-intl writes the chosen locale to a NEXT_LOCALE cookie. The axios
 // interceptor reads it on every request and forwards the short locale code as

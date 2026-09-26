@@ -114,7 +114,7 @@ export function PriceList() {
   return (
     <section>
       <div className="flex items-center justify-between px-4 pt-6 pb-3 lg:pb-0">
-        <h2 className="text-base font-semibold">{t('todaysPrices')}</h2>
+        <h2 className="text-[32px] font-bold">{t('todaysPrices')}</h2>
         <FeedFilterPopover active={feedFilter} onChange={handleSortChange} />
       </div>
 
@@ -204,7 +204,7 @@ function RowSkeleton() {
 function EmptyState({ title, hint }: { title: string; hint: string }) {
   return (
     <div className="px-4 py-16 text-center">
-      <p className="text-sm font-medium">{title}</p>
+      <p className="text-base font-medium">{title}</p>
       <p className="text-xs text-muted-foreground mt-1">{hint}</p>
     </div>
   );

@@ -12,10 +12,19 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registrationSchema, type RegistrationFormData } from '@/lib/validations/registration';
 import { useAppStore } from '@/store/app-store';
+import { handleApiError } from '@/lib/api/client';
+import { useConfig } from '@/hooks/use-config';
 
 export function AuthModal() {
   const t = useTranslations('auth');
+  const tSeo = useTranslations('seo');
+  const { getConfigValue } = useConfig();
   const { isAuthModalOpen, authModalMode, closeAuthModal } = useAuth();
+
+  // Why: match the footer/navbar brand resolution so the sign-up headline
+  // tracks whatever the admin set in /config instead of a hardcoded name.
+  const localizedBrand = tSeo('brand');
+  const brandName = getConfigValue<string>('business_name', localizedBrand) || localizedBrand;
   const [mode, setMode] = useState<'signin' | 'signup'>(authModalMode);
 
   // Sync mode with context when modal opens
@@ -102,7 +111,7 @@ export function AuthModal() {
         password: ''
       });
     } catch (error: unknown) {
-      const errorMessage = (error as Error)?.message || t('genericError');
+      const errorMessage = handleApiError(error) || t('genericError');
 
       toast.error(t('signInFailed'), {
         description: errorMessage,
@@ -144,7 +153,7 @@ export function AuthModal() {
       setLoginErrors({});
       resetRegistrationForm();
     } catch (error: unknown) {
-      const errorMessage = (error as Error)?.message || t('genericError');
+      const errorMessage = handleApiError(error) || t('genericError');
 
       toast.error(t('registrationFailed'), {
         description: errorMessage,
@@ -171,12 +180,12 @@ export function AuthModal() {
 
   return (
     <Dialog open={isAuthModalOpen} onOpenChange={closeAuthModal}>
-      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg p-0 overflow-hidden max-h-[90vh] overflow-y-auto data-[state=open]:duration-300 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:duration-200">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl font-bold text-center">
-              {mode === 'signin' ? t('signInTitle') : t('signUpTitle')}
+              {mode === 'signin' ? t('signInTitle') : t('signUpTitle', { brand: brandName })}
             </DialogTitle>
             <p className="text-center text-primary-foreground/80 mt-2 text-sm sm:text-base px-2">
               {mode === 'signin' ? t('signInSubtitle') : t('signUpSubtitle')}
